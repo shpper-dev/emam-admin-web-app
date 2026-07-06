@@ -1,5 +1,6 @@
 import 'package:emam_admin_web_app/constants/app_constants.dart';
 import 'package:emam_admin_web_app/constants/widget_constants.dart';
+import 'package:emam_admin_web_app/extension/widget_extension.dart';
 import 'package:flutter/material.dart';
 
 class DesktopScaffold extends StatefulWidget {
@@ -17,7 +18,14 @@ class _DesktopScaffoldState extends State<DesktopScaffold> {
       body: Row(
         children: [
           // Open Drawer
-          Padding(padding: const EdgeInsets.only(left: 32), child: myDrawer),
+          myDrawer.paddingOnly(left: 28),
+
+          // Vertical Divider
+          Container(
+            width: 1,
+            height: double.infinity,
+            color: Colors.grey.shade900,
+          ),
 
           // Rest of the body
         ],

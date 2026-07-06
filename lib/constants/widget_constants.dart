@@ -27,6 +27,23 @@ var myDrawer = Drawer(
           'D A S H B O A R D',
           style: GoogleFonts.aBeeZee(color: AppConstants.primary),
         ),
+        onTap: () {},
+      ),
+      ListTile(
+        leading: Icon(CupertinoIcons.globe, color: AppConstants.primary),
+        title: Text(
+          'C O N T A N T S',
+          style: GoogleFonts.aBeeZee(color: AppConstants.primary),
+        ),
+        onTap: () {},
+      ),
+      ListTile(
+        leading: Icon(Icons.feedback, color: AppConstants.primary),
+        title: Text(
+          'F E E D B A C K',
+          style: GoogleFonts.aBeeZee(color: AppConstants.primary),
+        ),
+        onTap: () {},
       ),
       ListTile(
         leading: Icon(
@@ -37,6 +54,7 @@ var myDrawer = Drawer(
           'L O G O U T',
           style: GoogleFonts.aBeeZee(color: AppConstants.primary),
         ),
+        onTap: () {},
       ),
     ],
   ),
