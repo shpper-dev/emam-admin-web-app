@@ -1,8 +1,6 @@
 import 'package:emam_admin_web_app/constants/app_constants.dart';
 import 'package:emam_admin_web_app/constants/widget_constants.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class MobileScaffold extends StatefulWidget {
   const MobileScaffold({super.key});
