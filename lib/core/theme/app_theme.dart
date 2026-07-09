@@ -5,21 +5,40 @@ import 'package:google_fonts/google_fonts.dart';
 class AppTheme {
   AppTheme._();
 
+  static TextTheme get _textTheme => GoogleFonts.aBeeZeeTextTheme(
+        ThemeData.dark().textTheme,
+      ).apply(
+        bodyColor: Colors.white,
+        displayColor: Colors.white,
+      );
+
   static ThemeData get light => ThemeData(
         useMaterial3: true,
         scaffoldBackgroundColor: AppConstants.bgColor,
         brightness: Brightness.dark,
+        fontFamily: GoogleFonts.aBeeZee().fontFamily,
         colorScheme: const ColorScheme.dark(
           primary: AppConstants.primary,
           onPrimary: Colors.black,
           surface: AppConstants.bgColor,
           onSurface: Colors.white,
         ),
-        textTheme: GoogleFonts.interTextTheme(
-          ThemeData.dark().textTheme.apply(
-                bodyColor: Colors.white,
-                displayColor: Colors.white,
-              ),
+        textTheme: _textTheme,
+        primaryTextTheme: _textTheme,
+        appBarTheme: AppBarTheme(
+          backgroundColor: AppConstants.bgColor,
+          foregroundColor: AppConstants.primary,
+          iconTheme: const IconThemeData(color: AppConstants.primary),
+          titleTextStyle: GoogleFonts.aBeeZee(
+            color: AppConstants.primary,
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          labelStyle: GoogleFonts.aBeeZee(color: Colors.white),
+          hintStyle: GoogleFonts.aBeeZee(color: Colors.white),
+          errorStyle: GoogleFonts.aBeeZee(color: Colors.white),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
@@ -30,12 +49,24 @@ class AppTheme {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
-            textStyle: const TextStyle(
+            textStyle: GoogleFonts.aBeeZee(
               fontSize: 16,
               fontWeight: FontWeight.w600,
               color: Colors.black,
             ),
           ),
+        ),
+        textButtonTheme: TextButtonThemeData(
+          style: TextButton.styleFrom(
+            textStyle: GoogleFonts.aBeeZee(),
+          ),
+        ),
+        listTileTheme: ListTileThemeData(
+          titleTextStyle: GoogleFonts.aBeeZee(color: AppConstants.primary),
+          iconColor: AppConstants.primary,
+        ),
+        snackBarTheme: SnackBarThemeData(
+          contentTextStyle: GoogleFonts.aBeeZee(color: Colors.black),
         ),
       );
 }

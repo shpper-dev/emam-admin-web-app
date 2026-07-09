@@ -64,10 +64,12 @@ class SignInCard extends StatelessWidget {
     required this.obscurePassword,
     required this.rememberMe,
     required this.isSubmitting,
+    this.errorMessage,
     required this.logoPath,
     required this.onTogglePassword,
     required this.onRememberMeChanged,
     required this.onSignIn,
+    this.onFieldChanged,
   });
 
   final GlobalKey<FormState> formKey;
@@ -76,10 +78,12 @@ class SignInCard extends StatelessWidget {
   final bool obscurePassword;
   final bool rememberMe;
   final bool isSubmitting;
+  final String? errorMessage;
   final String logoPath;
   final VoidCallback onTogglePassword;
   final ValueChanged<bool> onRememberMeChanged;
   final VoidCallback onSignIn;
+  final VoidCallback? onFieldChanged;
 
   InputDecoration _inputDecoration(double borderRadius) {
     return InputDecoration(
@@ -167,6 +171,7 @@ class SignInCard extends StatelessWidget {
                       controller: emailController,
                       keyboardType: TextInputType.emailAddress,
                       textInputAction: TextInputAction.next,
+                      onChanged: (_) => onFieldChanged?.call(),
                       style: const TextStyle(color: Colors.white),
                       cursorColor: AppConstants.primary,
                       decoration: inputDecoration.copyWith(
@@ -188,6 +193,7 @@ class SignInCard extends StatelessWidget {
                       controller: passwordController,
                       obscureText: obscurePassword,
                       textInputAction: TextInputAction.done,
+                      onChanged: (_) => onFieldChanged?.call(),
                       onFieldSubmitted: (_) => onSignIn(),
                       style: const TextStyle(color: Colors.white),
                       cursorColor: AppConstants.primary,
@@ -236,6 +242,44 @@ class SignInCard extends StatelessWidget {
                       ],
                     ),
                     SizedBox(height: layout.fieldSpacing + 8),
+                    if (errorMessage != null) ...[
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 10,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.red.withValues(alpha: 0.12),
+                          borderRadius:
+                              BorderRadius.circular(layout.borderRadius - 4),
+                          border: Border.all(
+                            color: Colors.red.withValues(alpha: 0.45),
+                          ),
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(
+                              Icons.error_outline_rounded,
+                              size: 18,
+                              color: Colors.red.shade300,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                errorMessage!,
+                                style: TextStyle(
+                                  color: Colors.red.shade200,
+                                  fontSize: layout.subtitleSize,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: layout.fieldSpacing),
+                    ],
                     SizedBox(
                       height: layout.buttonHeight,
                       width: double.infinity,

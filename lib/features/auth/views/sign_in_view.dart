@@ -1,7 +1,7 @@
 import 'package:emam_admin_web_app/core/constants/app_constants.dart';
 import 'package:emam_admin_web_app/core/providers/core_providers.dart';
 import 'package:emam_admin_web_app/features/auth/provider/auth_provider.dart';
-import 'package:emam_admin_web_app/features/auth/view/widgets/sign_in_card.dart';
+import 'package:emam_admin_web_app/features/auth/views/widgets/sign_in_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -19,6 +19,10 @@ class _SignInViewState extends ConsumerState<SignInView> {
   bool _obscurePassword = true;
   bool _rememberMe = true;
   bool _isSubmitting = false;
+
+  void _clearError() {
+    ref.read(signInErrorProvider.notifier).clear();
+  }
 
   @override
   void initState() {
@@ -46,9 +50,7 @@ class _SignInViewState extends ConsumerState<SignInView> {
 
     setState(() => _isSubmitting = true);
 
-    final error = await ref
-        .read(authProvider.notifier)
-        .signIn(
+    await ref.read(authProvider.notifier).signIn(
           email: _emailController.text,
           password: _passwordController.text,
           rememberMe: _rememberMe,
@@ -56,16 +58,12 @@ class _SignInViewState extends ConsumerState<SignInView> {
 
     if (!mounted) return;
     setState(() => _isSubmitting = false);
-
-    if (error != null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(error)));
-    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final errorMessage = ref.watch(signInErrorProvider);
+
     return Scaffold(
       backgroundColor: AppConstants.bgColor,
       body: Center(
@@ -81,6 +79,7 @@ class _SignInViewState extends ConsumerState<SignInView> {
             obscurePassword: _obscurePassword,
             rememberMe: _rememberMe,
             isSubmitting: _isSubmitting,
+            errorMessage: errorMessage,
             logoPath: AppConstants.emamLogo,
             onTogglePassword: () {
               setState(() => _obscurePassword = !_obscurePassword);
@@ -89,6 +88,7 @@ class _SignInViewState extends ConsumerState<SignInView> {
               setState(() => _rememberMe = value);
             },
             onSignIn: _onSignIn,
+            onFieldChanged: _clearError,
           ),
         ),
       ),

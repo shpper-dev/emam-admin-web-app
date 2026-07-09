@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:emam_admin_web_app/core/constants/api_constants.dart';
 import 'package:emam_admin_web_app/core/network/dio_client.dart';
 import 'package:emam_admin_web_app/core/storage/token_storage.dart';
-import 'package:emam_admin_web_app/features/auth/model/auth_session.dart';
+import 'package:emam_admin_web_app/features/auth/models/auth_session.dart';
 
 class AuthRepository implements TokenRefresher {
   AuthRepository({required this._tokenStorage});
@@ -22,11 +22,7 @@ class AuthRepository implements TokenRefresher {
   }) async {
     final response = await _authDio.post<Map<String, dynamic>>(
       ApiConstants.signInUrl,
-      data: {
-        'email': email,
-        'password': password,
-        'returnSecureToken': true,
-      },
+      data: {'email': email, 'password': password, 'returnSecureToken': true},
     );
 
     final data = response.data!;
@@ -50,10 +46,7 @@ class AuthRepository implements TokenRefresher {
 
     final response = await _authDio.post<Map<String, dynamic>>(
       ApiConstants.refreshTokenUrl,
-      data: {
-        'grant_type': 'refresh_token',
-        'refresh_token': refreshToken,
-      },
+      data: {'grant_type': 'refresh_token', 'refresh_token': refreshToken},
       options: Options(
         contentType: Headers.formUrlEncodedContentType,
         extra: const {'skipAuth': true},

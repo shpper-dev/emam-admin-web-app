@@ -15,7 +15,7 @@ class _TabletScaffoldState extends State<TabletScaffold> {
     return Scaffold(
       backgroundColor: AppConstants.bgColor,
       appBar: myAppBar,
-      drawer: myDrawer,
+      drawer: const AppDrawer(),
     );
   }
 }

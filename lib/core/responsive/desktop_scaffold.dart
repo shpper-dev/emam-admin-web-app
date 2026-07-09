@@ -17,7 +17,7 @@ class _DesktopScaffoldState extends State<DesktopScaffold> {
       backgroundColor: AppConstants.bgColor,
       body: Row(
         children: [
-          myDrawer.paddingOnly(left: 28),
+          const AppDrawer().paddingOnly(left: 28),
           Container(
             width: 1,
             height: double.infinity,
