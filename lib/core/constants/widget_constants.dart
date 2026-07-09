@@ -1,4 +1,4 @@
-import 'package:emam_admin_web_app/constants/app_constants.dart';
+import 'package:emam_admin_web_app/core/constants/app_constants.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';

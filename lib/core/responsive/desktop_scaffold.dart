@@ -17,17 +17,12 @@ class _DesktopScaffoldState extends State<DesktopScaffold> {
       backgroundColor: AppConstants.bgColor,
       body: Row(
         children: [
-          // Open Drawer
           myDrawer.paddingOnly(left: 28),
-
-          // Vertical Divider
           Container(
             width: 1,
             height: double.infinity,
             color: Colors.grey.shade900,
           ),
-
-          // Rest of the body
         ],
       ),
     );

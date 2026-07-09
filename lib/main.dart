@@ -1,25 +1,18 @@
-import 'package:emam_admin_web_app/responsive/desktop_scaffold.dart';
-import 'package:emam_admin_web_app/responsive/mobile_scaffold.dart';
-import 'package:emam_admin_web_app/responsive/responsive_layout.dart';
-import 'package:emam_admin_web_app/responsive/tablet_scaffold.dart';
+import 'package:emam_admin_web_app/app.dart';
+import 'package:emam_admin_web_app/core/providers/core_providers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
-  runApp(const MyApp());
-}
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final prefs = await SharedPreferences.getInstance();
 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: ResponsiveLayout(
-        mobile: (context) => const MobileScaffold(),
-        tablet: (context) => const TabletScaffold(),
-        desktop: (context) => const DesktopScaffold(),
-      ),
-    );
-  }
+  runApp(
+    ProviderScope(
+      overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
+      child: const App(),
+    ),
+  );
 }
