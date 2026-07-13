@@ -1,19 +1,42 @@
-import 'package:emam_admin_web_app/core/responsive/desktop_scaffold.dart';
-import 'package:emam_admin_web_app/core/responsive/mobile_scaffold.dart';
-import 'package:emam_admin_web_app/core/responsive/responsive_layout.dart';
-import 'package:emam_admin_web_app/core/responsive/tablet_scaffold.dart';
+import 'package:emam_admin_web_app/core/constants/app_constants.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class DashboardView extends ConsumerWidget {
+class DashboardView extends StatelessWidget {
   const DashboardView({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return ResponsiveLayout(
-      mobile: (_) => const MobileScaffold(),
-      tablet: (_) => const TabletScaffold(),
-      desktop: (_) => const DesktopScaffold(),
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.dashboard_rounded,
+              size: 64,
+              color: AppConstants.primary,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Welcome to Emam Admin',
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    color: AppConstants.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Select Contents from the sidebar to preview app content.',
+              textAlign: TextAlign.center,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyLarge
+                  ?.copyWith(color: Colors.white70),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

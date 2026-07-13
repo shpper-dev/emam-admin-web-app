@@ -1,6 +1,8 @@
+import 'package:emam_admin_web_app/core/responsive/admin_shell.dart';
 import 'package:emam_admin_web_app/core/router/route_paths.dart';
 import 'package:emam_admin_web_app/features/auth/provider/auth_provider.dart';
 import 'package:emam_admin_web_app/features/auth/views/sign_in_view.dart';
+import 'package:emam_admin_web_app/features/content/views/content_view.dart';
 import 'package:emam_admin_web_app/features/dashboard/views/dashboard_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -42,7 +44,17 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: RoutePaths.dashboard,
-        builder: (context, state) => const DashboardView(),
+        builder: (context, state) => const AdminShell(
+          title: 'Dashboard',
+          body: DashboardView(),
+        ),
+      ),
+      GoRoute(
+        path: RoutePaths.content,
+        builder: (context, state) => const AdminShell(
+          title: 'Contents',
+          body: ContentView(),
+        ),
       ),
     ],
   );

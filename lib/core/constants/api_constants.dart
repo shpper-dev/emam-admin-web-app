@@ -1,6 +1,14 @@
 class ApiConstants {
   ApiConstants._();
 
+  static const String apiBaseUrl = 'https://pathway.emam.ai';
+
+  static const String islamicNews = '/admin/content/islamic-news';
+  static const String islamicEvents = '/admin/content/islamic-events';
+  static const String practiceCard = '/admin/content/practice-card';
+  static const String scholarlyInsights = '/admin/content/scholarly-insights';
+  static const String dailyInspiration = '/admin/content/daily-inspiration';
+
   static const String firebaseWebApiKey =
       'AIzaSyDSxatz31b4auOeKlHD9svES3zxsVqOHAU';
 

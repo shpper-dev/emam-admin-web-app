@@ -3,26 +3,24 @@ import 'package:emam_admin_web_app/core/constants/widget_constants.dart';
 import 'package:emam_admin_web_app/core/extension/widget_extension.dart';
 import 'package:flutter/material.dart';
 
-class DesktopScaffold extends StatefulWidget {
-  const DesktopScaffold({super.key});
+class DesktopScaffold extends StatelessWidget {
+  const DesktopScaffold({super.key, required this.body});
 
-  @override
-  State<DesktopScaffold> createState() => _DesktopScaffoldState();
-}
+  final Widget body;
 
-class _DesktopScaffoldState extends State<DesktopScaffold> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppConstants.bgColor,
       body: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const AppDrawer().paddingOnly(left: 28),
           Container(
             width: 1,
-            height: double.infinity,
             color: Colors.grey.shade900,
           ),
+          Expanded(child: body),
         ],
       ),
     );
