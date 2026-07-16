@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:emam_admin_web_app/core/constants/app_constants.dart';
 import 'package:emam_admin_web_app/features/content/models/scholarly_insight.dart';
 import 'package:emam_admin_web_app/features/content/views/widgets/content_section_card.dart';
@@ -81,10 +82,22 @@ class _InsightCard extends StatelessWidget {
           if (insight.thumbnailUrl.isNotEmpty)
             AspectRatio(
               aspectRatio: 16 / 9,
-              child: Image.network(
-                insight.thumbnailUrl,
+              child: CachedNetworkImage(
+                imageUrl: insight.thumbnailUrl,
                 fit: BoxFit.cover,
-                errorBuilder: (_, _, _) => Container(
+                placeholder: (_, _) => Container(
+                  color: AppConstants.inputFillColor,
+                  alignment: Alignment.center,
+                  child: const SizedBox(
+                    height: 22,
+                    width: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: AppConstants.primary,
+                    ),
+                  ),
+                ),
+                errorWidget: (_, _, _) => Container(
                   color: AppConstants.inputFillColor,
                   alignment: Alignment.center,
                   child: const Icon(Icons.person_outline, color: Colors.white38),

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:emam_admin_web_app/core/constants/app_constants.dart';
 import 'package:emam_admin_web_app/features/content/models/islamic_news_item.dart';
 import 'package:emam_admin_web_app/features/content/views/widgets/content_section_card.dart';
@@ -80,10 +81,22 @@ class _NewsCard extends StatelessWidget {
           if (item.imageUrl.isNotEmpty)
             AspectRatio(
               aspectRatio: 16 / 9,
-              child: Image.network(
-                item.imageUrl,
+              child: CachedNetworkImage(
+                imageUrl: item.imageUrl,
                 fit: BoxFit.cover,
-                errorBuilder: (_, _, _) => Container(
+                placeholder: (_, _) => Container(
+                  color: AppConstants.inputFillColor,
+                  alignment: Alignment.center,
+                  child: const SizedBox(
+                    height: 22,
+                    width: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: AppConstants.primary,
+                    ),
+                  ),
+                ),
+                errorWidget: (_, _, _) => Container(
                   color: AppConstants.inputFillColor,
                   alignment: Alignment.center,
                   child: const Icon(Icons.image_not_supported_outlined,
