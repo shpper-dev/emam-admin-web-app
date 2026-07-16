@@ -42,19 +42,28 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: RoutePaths.signIn,
         builder: (context, state) => const SignInView(),
       ),
-      GoRoute(
-        path: RoutePaths.dashboard,
-        builder: (context, state) => const AdminShell(
-          title: 'Dashboard',
-          body: DashboardView(),
-        ),
-      ),
-      GoRoute(
-        path: RoutePaths.content,
-        builder: (context, state) => const AdminShell(
-          title: 'Contents',
-          body: ContentView(),
-        ),
+      ShellRoute(
+        builder: (context, state, child) {
+          final title = switch (state.matchedLocation) {
+            RoutePaths.content => 'Contents',
+            _ => 'Dashboard',
+          };
+          return AdminShell(title: title, body: child);
+        },
+        routes: [
+          GoRoute(
+            path: RoutePaths.dashboard,
+            pageBuilder: (context, state) => const NoTransitionPage(
+              child: DashboardView(),
+            ),
+          ),
+          GoRoute(
+            path: RoutePaths.content,
+            pageBuilder: (context, state) => const NoTransitionPage(
+              child: ContentView(),
+            ),
+          ),
+        ],
       ),
     ],
   );
