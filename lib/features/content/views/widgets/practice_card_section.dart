@@ -1,6 +1,7 @@
 import 'package:emam_admin_web_app/core/constants/app_constants.dart';
 import 'package:emam_admin_web_app/features/content/models/practice_card.dart';
 import 'package:emam_admin_web_app/features/content/views/widgets/content_section_card.dart';
+import 'package:emam_admin_web_app/features/content/views/widgets/inline_audio_player.dart';
 import 'package:flutter/material.dart';
 
 class PracticeCardSection extends StatelessWidget {
@@ -44,15 +45,13 @@ class PracticeCardSection extends StatelessWidget {
                       height: 1.5,
                     ),
               ),
-              const SizedBox(height: 16),
-              if (card.audioSampleUrl.isNotEmpty)
-                SelectableText(
-                  card.audioSampleUrl,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppConstants.primary,
-                        decoration: TextDecoration.underline,
-                      ),
+              if (card.audioSampleUrl.isNotEmpty) ...[
+                const SizedBox(height: 16),
+                InlineAudioPlayer(
+                  url: card.audioSampleUrl,
+                  title: 'Audio Sample',
                 ),
+              ],
             ],
           );
 

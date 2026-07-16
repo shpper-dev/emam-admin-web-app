@@ -3,6 +3,7 @@ import 'package:emam_admin_web_app/core/constants/app_constants.dart';
 import 'package:emam_admin_web_app/core/network/api_error.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ContentSectionCard extends StatelessWidget {
   const ContentSectionCard({
@@ -77,6 +78,87 @@ class ContentSectionCard extends StatelessWidget {
             child: child,
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Compact pill-shaped button that opens [url] in an external browser tab.
+/// Renders nothing (returns a zero-sized widget) when [url] is empty.
+class ContentLinkButton extends StatelessWidget {
+  const ContentLinkButton({
+    super.key,
+    required this.label,
+    required this.url,
+    this.icon = Icons.open_in_new_rounded,
+  });
+
+  final String label;
+  final String url;
+  final IconData icon;
+
+  Future<void> _open(BuildContext context) async {
+    final messenger = ScaffoldMessenger.maybeOf(context);
+
+    var normalized = url.trim();
+    if (normalized.isEmpty) return;
+    if (!normalized.contains('://')) {
+      normalized = 'https://$normalized';
+    }
+
+    final uri = Uri.tryParse(normalized);
+    if (uri == null || uri.host.isEmpty) {
+      messenger?.showSnackBar(
+        SnackBar(content: Text('Invalid link: $url')),
+      );
+      return;
+    }
+
+    try {
+      final launched = await launchUrl(uri);
+      if (!launched) {
+        messenger?.showSnackBar(
+          SnackBar(content: Text('Could not open $normalized')),
+        );
+      }
+    } catch (e) {
+      messenger?.showSnackBar(
+        SnackBar(content: Text('Failed to open link: $e')),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (url.isEmpty) return const SizedBox.shrink();
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(20),
+        onTap: () => _open(context),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: AppConstants.primary.withValues(alpha: 0.14),
+            borderRadius: BorderRadius.circular(20),
+            border:
+                Border.all(color: AppConstants.primary.withValues(alpha: 0.35)),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 14, color: AppConstants.primary),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      color: AppConstants.primary,
+                      fontWeight: FontWeight.w700,
+                    ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

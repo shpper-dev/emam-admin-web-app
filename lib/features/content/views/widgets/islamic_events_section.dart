@@ -2,6 +2,7 @@ import 'package:emam_admin_web_app/core/constants/app_constants.dart';
 import 'package:emam_admin_web_app/features/content/models/islamic_event.dart';
 import 'package:emam_admin_web_app/features/content/views/widgets/content_section_card.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 class IslamicEventsSection extends StatelessWidget {
   const IslamicEventsSection({super.key, required this.events});
@@ -25,27 +26,12 @@ class IslamicEventsSection extends StatelessWidget {
           : LayoutBuilder(
               builder: (context, constraints) {
                 final columns = contentGridColumns(constraints.maxWidth);
-                if (columns == 1) {
-                  return Column(
-                    children: [
-                      for (var i = 0; i < events.events.length; i++) ...[
-                        _EventCard(event: events.events[i]),
-                        if (i < events.events.length - 1)
-                          const SizedBox(height: 12),
-                      ],
-                    ],
-                  );
-                }
-
-                return GridView.builder(
+                return MasonryGridView.count(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: columns,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                    childAspectRatio: columns >= 3 ? 1.15 : 1.05,
-                  ),
+                  crossAxisCount: columns,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
                   itemCount: events.events.length,
                   itemBuilder: (context, index) {
                     return _EventCard(event: events.events[index]);
@@ -102,15 +88,12 @@ class _EventCard extends StatelessWidget {
           const SizedBox(height: 10),
           Text(
             event.description,
-            maxLines: 4,
-            overflow: TextOverflow.ellipsis,
             style: Theme.of(context)
                 .textTheme
                 .bodyMedium
                 ?.copyWith(color: Colors.white70, height: 1.5),
           ),
-          const Spacer(),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           Wrap(
             spacing: 8,
             runSpacing: 8,
