@@ -3,6 +3,9 @@ class ApiConstants {
 
   static const String apiBaseUrl = 'https://pathway.emam.ai';
 
+  static const String users = '/admin/users';
+  static const String restrictedUsers = '/admin/users/restricted';
+
   static const String islamicNews = '/admin/content/islamic-news';
   static const String islamicEvents = '/admin/content/islamic-events';
   static const String practiceCard = '/admin/content/practice-card';

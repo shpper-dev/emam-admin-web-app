@@ -13,6 +13,7 @@ class ContentSectionCard extends StatelessWidget {
     required this.icon,
     required this.child,
     this.trailing,
+    this.headerExtra,
   });
 
   final String title;
@@ -20,6 +21,7 @@ class ContentSectionCard extends StatelessWidget {
   final IconData icon;
   final Widget child;
   final Widget? trailing;
+  final Widget? headerExtra;
 
   @override
   Widget build(BuildContext context) {
@@ -65,6 +67,10 @@ class ContentSectionCard extends StatelessWidget {
                               color: Colors.white70,
                             ),
                       ),
+                      if (headerExtra != null) ...[
+                        const SizedBox(height: 12),
+                        headerExtra!,
+                      ],
                     ],
                   ),
                 ),
