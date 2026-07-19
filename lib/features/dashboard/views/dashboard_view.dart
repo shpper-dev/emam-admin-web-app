@@ -1,5 +1,6 @@
 import 'package:emam_admin_web_app/core/constants/app_constants.dart';
 import 'package:emam_admin_web_app/features/content/views/widgets/content_section_card.dart';
+import 'package:emam_admin_web_app/features/moderation/provider/reported_duas_provider.dart';
 import 'package:emam_admin_web_app/features/users/provider/restricted_users_provider.dart';
 import 'package:emam_admin_web_app/features/users/provider/users_provider.dart';
 import 'package:emam_admin_web_app/features/users/views/widgets/users_management_section.dart';
@@ -23,6 +24,8 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
     final restrictedState = ref.watch(restrictedUsersPaginationProvider);
     final restrictedNotifier =
         ref.read(restrictedUsersPaginationProvider.notifier);
+    final reportedDuasState = ref.watch(reportedDuasProvider);
+    final reportedDuasNotifier = ref.read(reportedDuasProvider.notifier);
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -33,10 +36,13 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
           color: AppConstants.primary,
           backgroundColor: AppConstants.surfaceColor,
           onRefresh: () async {
-            if (_selectedTab == UsersTab.all) {
-              await usersNotifier.refresh();
-            } else {
-              await restrictedNotifier.refresh();
+            switch (_selectedTab) {
+              case UsersTab.all:
+                await usersNotifier.refresh();
+              case UsersTab.blocked:
+                await restrictedNotifier.refresh();
+              case UsersTab.reportedDuas:
+                await reportedDuasNotifier.refresh();
             }
           },
           child: SingleChildScrollView(
@@ -71,16 +77,19 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
                   onTabSelected: (tab) => setState(() => _selectedTab = tab),
                   usersState: usersState,
                   restrictedState: restrictedState,
+                  reportedDuasState: reportedDuasState,
                 ),
                 const SizedBox(height: 24),
                 UsersManagementSection(
                   selectedTab: _selectedTab,
                   usersState: usersState,
                   restrictedState: restrictedState,
+                  reportedDuasState: reportedDuasState,
                   onUsersRetry: usersNotifier.refresh,
                   onUsersPageTap: usersNotifier.goToPage,
                   onRestrictedRetry: restrictedNotifier.refresh,
                   onRestrictedPageTap: restrictedNotifier.goToPage,
+                  onReportedDuasRetry: reportedDuasNotifier.refresh,
                 ),
               ],
             ),
@@ -97,17 +106,21 @@ class _DashboardStatsRow extends StatelessWidget {
     required this.onTabSelected,
     required this.usersState,
     required this.restrictedState,
+    required this.reportedDuasState,
   });
 
   final UsersTab selectedTab;
   final ValueChanged<UsersTab> onTabSelected;
   final UsersPageState usersState;
   final RestrictedUsersPageState restrictedState;
+  final ReportedDuasState reportedDuasState;
 
   @override
   Widget build(BuildContext context) {
     final hasUsers = usersState.currentResponse != null;
     final hasRestricted = restrictedState.currentResponse != null;
+    final hasReports =
+        !reportedDuasState.isLoading || reportedDuasState.reports.isNotEmpty;
 
     String value(int count, {required bool ready}) => ready ? '$count' : '—';
 
@@ -119,10 +132,18 @@ class _DashboardStatsRow extends StatelessWidget {
       restrictedState.totalRestricted ?? 0,
       ready: hasRestricted,
     );
+    final reportedDuas = value(
+      reportedDuasState.reports.length,
+      ready: hasReports,
+    );
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final columns = constraints.maxWidth >= 700 ? 2 : 1;
+        final columns = constraints.maxWidth >= 1000
+            ? 3
+            : constraints.maxWidth >= 700
+                ? 2
+                : 1;
         const spacing = 16.0;
         final totalSpacing = spacing * (columns - 1);
         final tileWidth = (constraints.maxWidth - totalSpacing) / columns;
@@ -149,6 +170,16 @@ class _DashboardStatsRow extends StatelessWidget {
                 icon: Icons.block_rounded,
                 selected: selectedTab == UsersTab.blocked,
                 onTap: () => onTabSelected(UsersTab.blocked),
+              ),
+            ),
+            SizedBox(
+              width: tileWidth,
+              child: _StatCard(
+                label: "Reported Dua's",
+                value: reportedDuas,
+                icon: Icons.flag_rounded,
+                selected: selectedTab == UsersTab.reportedDuas,
+                onTap: () => onTabSelected(UsersTab.reportedDuas),
               ),
             ),
           ],

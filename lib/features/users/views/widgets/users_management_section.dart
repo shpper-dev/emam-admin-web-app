@@ -1,5 +1,8 @@
 import 'package:emam_admin_web_app/core/constants/app_constants.dart';
 import 'package:emam_admin_web_app/features/content/views/widgets/content_section_card.dart';
+import 'package:emam_admin_web_app/features/moderation/models/moderation_report.dart';
+import 'package:emam_admin_web_app/features/moderation/provider/reported_duas_provider.dart';
+import 'package:emam_admin_web_app/features/moderation/views/widgets/reported_dua_card.dart';
 import 'package:emam_admin_web_app/features/users/models/app_user.dart';
 import 'package:emam_admin_web_app/features/users/models/restricted_user.dart';
 import 'package:emam_admin_web_app/features/users/provider/restricted_users_provider.dart';
@@ -9,7 +12,7 @@ import 'package:emam_admin_web_app/features/users/views/widgets/user_card.dart';
 import 'package:emam_admin_web_app/features/users/views/widgets/users_pagination_bar.dart';
 import 'package:flutter/material.dart';
 
-enum UsersTab { all, blocked }
+enum UsersTab { all, blocked, reportedDuas }
 
 class UsersManagementSection extends StatelessWidget {
   const UsersManagementSection({
@@ -17,63 +20,97 @@ class UsersManagementSection extends StatelessWidget {
     required this.selectedTab,
     required this.usersState,
     required this.restrictedState,
+    required this.reportedDuasState,
     required this.onUsersRetry,
     required this.onUsersPageTap,
     required this.onRestrictedRetry,
     required this.onRestrictedPageTap,
+    required this.onReportedDuasRetry,
   });
 
   final UsersTab selectedTab;
   final UsersPageState usersState;
   final RestrictedUsersPageState restrictedState;
+  final ReportedDuasState reportedDuasState;
   final Future<void> Function() onUsersRetry;
   final void Function(int page) onUsersPageTap;
   final Future<void> Function() onRestrictedRetry;
   final void Function(int page) onRestrictedPageTap;
+  final Future<void> Function() onReportedDuasRetry;
 
   bool get _showAll => selectedTab == UsersTab.all;
+  bool get _showReportedDuas => selectedTab == UsersTab.reportedDuas;
 
   @override
   Widget build(BuildContext context) {
     final isAll = _showAll;
+    final isReportedDuas = _showReportedDuas;
     final usersResponse = usersState.currentResponse;
     final restrictedResponse = restrictedState.currentResponse;
     final isLoading = isAll
         ? usersState.isLoading && usersResponse == null
-        : restrictedState.isLoading && restrictedResponse == null;
+        : isReportedDuas
+            ? reportedDuasState.isLoading && reportedDuasState.reports.isEmpty
+            : restrictedState.isLoading && restrictedResponse == null;
     final errorMessage = isAll
         ? usersState.errorMessage
-        : restrictedState.errorMessage;
+        : isReportedDuas
+            ? reportedDuasState.errorMessage
+            : restrictedState.errorMessage;
 
     return ContentSectionCard(
-      title: isAll ? 'All Users' : 'Blocked Users',
+      title: isAll
+          ? 'All Users'
+          : isReportedDuas
+              ? "Reported Dua's"
+              : 'Blocked Users',
       subtitle: _subtitle(
         isAll: isAll,
+        isReportedDuas: isReportedDuas,
         usersResponse: usersResponse,
         restrictedResponse: restrictedResponse,
+        reports: reportedDuasState.reports,
       ),
-      icon: isAll ? Icons.people_alt_rounded : Icons.block_rounded,
+      icon: isAll
+          ? Icons.people_alt_rounded
+          : isReportedDuas
+              ? Icons.flag_rounded
+              : Icons.block_rounded,
       trailing: _trailingChip(
         isAll: isAll,
+        isReportedDuas: isReportedDuas,
         usersResponse: usersResponse,
         restrictedResponse: restrictedResponse,
+        reportCount: reportedDuasState.reports.length,
       ),
       child: _buildBody(
         context,
         isAll: isAll,
+        isReportedDuas: isReportedDuas,
         isLoading: isLoading,
         errorMessage: errorMessage,
         usersResponse: usersResponse,
         restrictedResponse: restrictedResponse,
+        reports: reportedDuasState.reports,
       ),
     );
   }
 
   String _subtitle({
     required bool isAll,
+    required bool isReportedDuas,
     required UsersResponse? usersResponse,
     required RestrictedUsersResponse? restrictedResponse,
+    required List<ModerationReport> reports,
   }) {
+    if (isReportedDuas) {
+      if (reportedDuasState.isLoading && reports.isEmpty) {
+        return 'Community reports on dua posts';
+      }
+      final openCount = reports.where((report) => report.isOpen).length;
+      return '${reports.length} total · $openCount open';
+    }
+
     if (isAll) {
       if (usersResponse == null) return 'Everyone registered on Emam';
       final pageLabel = _pageLabel(
@@ -102,13 +139,18 @@ class UsersManagementSection extends StatelessWidget {
 
   Widget? _trailingChip({
     required bool isAll,
+    required bool isReportedDuas,
     required UsersResponse? usersResponse,
     required RestrictedUsersResponse? restrictedResponse,
+    required int reportCount,
   }) {
     if (isAll && usersResponse != null) {
       return ContentMetaChip(label: '${usersResponse.users.length}');
     }
-    if (!isAll && restrictedResponse != null) {
+    if (isReportedDuas && reportCount > 0) {
+      return ContentMetaChip(label: '$reportCount');
+    }
+    if (!isAll && !isReportedDuas && restrictedResponse != null) {
       return ContentMetaChip(label: '${restrictedResponse.totalRestricted}');
     }
     return null;
@@ -122,10 +164,12 @@ class UsersManagementSection extends StatelessWidget {
   Widget _buildBody(
     BuildContext context, {
     required bool isAll,
+    required bool isReportedDuas,
     required bool isLoading,
     required String? errorMessage,
     required UsersResponse? usersResponse,
     required RestrictedUsersResponse? restrictedResponse,
+    required List<ModerationReport> reports,
   }) {
     if (isLoading) {
       return const _PanelLoading();
@@ -133,7 +177,11 @@ class UsersManagementSection extends StatelessWidget {
     if (errorMessage != null) {
       return _PanelError(
         message: errorMessage,
-        onRetry: isAll ? onUsersRetry : onRestrictedRetry,
+        onRetry: isAll
+            ? onUsersRetry
+            : isReportedDuas
+                ? onReportedDuasRetry
+                : onRestrictedRetry,
       );
     }
 
@@ -146,6 +194,10 @@ class UsersManagementSection extends StatelessWidget {
         isLoading: usersState.isLoading,
         onPageTap: onUsersPageTap,
       );
+    }
+
+    if (isReportedDuas) {
+      return _ReportedDuasBody(reports: reports);
     }
 
     return _BlockedUsersBody(
@@ -198,6 +250,24 @@ class _AllUsersBody extends StatelessWidget {
           onPageTap: onPageTap,
         ),
       ],
+    );
+  }
+}
+
+class _ReportedDuasBody extends StatelessWidget {
+  const _ReportedDuasBody({required this.reports});
+
+  final List<ModerationReport> reports;
+
+  @override
+  Widget build(BuildContext context) {
+    if (reports.isEmpty) {
+      return const _EmptyMessage('No reported duas found.');
+    }
+
+    return _UserGrid(
+      itemCount: reports.length,
+      itemBuilder: (index) => ReportedDuaCard(report: reports[index]),
     );
   }
 }
