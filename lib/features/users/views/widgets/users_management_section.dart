@@ -1,7 +1,10 @@
 import 'package:emam_admin_web_app/core/constants/app_constants.dart';
 import 'package:emam_admin_web_app/features/content/views/widgets/content_section_card.dart';
+import 'package:emam_admin_web_app/features/moderation/models/hidden_post.dart';
 import 'package:emam_admin_web_app/features/moderation/models/moderation_report.dart';
+import 'package:emam_admin_web_app/features/moderation/provider/hidden_posts_provider.dart';
 import 'package:emam_admin_web_app/features/moderation/provider/reported_duas_provider.dart';
+import 'package:emam_admin_web_app/features/moderation/views/widgets/hidden_post_card.dart';
 import 'package:emam_admin_web_app/features/moderation/views/widgets/reported_dua_card.dart';
 import 'package:emam_admin_web_app/features/users/models/app_user.dart';
 import 'package:emam_admin_web_app/features/users/models/restricted_user.dart';
@@ -12,7 +15,7 @@ import 'package:emam_admin_web_app/features/users/views/widgets/user_card.dart';
 import 'package:emam_admin_web_app/features/users/views/widgets/users_pagination_bar.dart';
 import 'package:flutter/material.dart';
 
-enum UsersTab { all, blocked, reportedDuas }
+enum UsersTab { all, blocked, reportedDuas, hiddenPosts }
 
 class UsersManagementSection extends StatelessWidget {
   const UsersManagementSection({
@@ -21,76 +24,99 @@ class UsersManagementSection extends StatelessWidget {
     required this.usersState,
     required this.restrictedState,
     required this.reportedDuasState,
+    required this.hiddenPostsState,
     required this.onUsersRetry,
     required this.onUsersPageTap,
     required this.onRestrictedRetry,
     required this.onRestrictedPageTap,
     required this.onReportedDuasRetry,
+    required this.onHiddenPostsRetry,
+    required this.onHiddenPostsPageTap,
   });
 
   final UsersTab selectedTab;
   final UsersPageState usersState;
   final RestrictedUsersPageState restrictedState;
   final ReportedDuasState reportedDuasState;
+  final HiddenPostsPageState hiddenPostsState;
   final Future<void> Function() onUsersRetry;
   final void Function(int page) onUsersPageTap;
   final Future<void> Function() onRestrictedRetry;
   final void Function(int page) onRestrictedPageTap;
   final Future<void> Function() onReportedDuasRetry;
+  final Future<void> Function() onHiddenPostsRetry;
+  final void Function(int page) onHiddenPostsPageTap;
 
   bool get _showAll => selectedTab == UsersTab.all;
   bool get _showReportedDuas => selectedTab == UsersTab.reportedDuas;
+  bool get _showHiddenPosts => selectedTab == UsersTab.hiddenPosts;
 
   @override
   Widget build(BuildContext context) {
     final isAll = _showAll;
     final isReportedDuas = _showReportedDuas;
+    final isHiddenPosts = _showHiddenPosts;
     final usersResponse = usersState.currentResponse;
     final restrictedResponse = restrictedState.currentResponse;
+    final hiddenPostsResponse = hiddenPostsState.currentResponse;
     final isLoading = isAll
         ? usersState.isLoading && usersResponse == null
         : isReportedDuas
             ? reportedDuasState.isLoading && reportedDuasState.reports.isEmpty
-            : restrictedState.isLoading && restrictedResponse == null;
+            : isHiddenPosts
+                ? hiddenPostsState.isLoading && hiddenPostsResponse == null
+                : restrictedState.isLoading && restrictedResponse == null;
     final errorMessage = isAll
         ? usersState.errorMessage
         : isReportedDuas
             ? reportedDuasState.errorMessage
-            : restrictedState.errorMessage;
+            : isHiddenPosts
+                ? hiddenPostsState.errorMessage
+                : restrictedState.errorMessage;
 
     return ContentSectionCard(
       title: isAll
           ? 'All Users'
           : isReportedDuas
               ? "Reported Dua's"
-              : 'Blocked Users',
+              : isHiddenPosts
+                  ? 'Hidden Posts'
+                  : 'Blocked Users',
       subtitle: _subtitle(
         isAll: isAll,
         isReportedDuas: isReportedDuas,
+        isHiddenPosts: isHiddenPosts,
         usersResponse: usersResponse,
         restrictedResponse: restrictedResponse,
+        hiddenPostsResponse: hiddenPostsResponse,
         reports: reportedDuasState.reports,
       ),
       icon: isAll
           ? Icons.people_alt_rounded
           : isReportedDuas
               ? Icons.flag_rounded
-              : Icons.block_rounded,
+              : isHiddenPosts
+                  ? Icons.visibility_off_rounded
+                  : Icons.block_rounded,
       trailing: _trailingChip(
         isAll: isAll,
         isReportedDuas: isReportedDuas,
+        isHiddenPosts: isHiddenPosts,
         usersResponse: usersResponse,
         restrictedResponse: restrictedResponse,
+        hiddenPostsResponse: hiddenPostsResponse,
         reportCount: reportedDuasState.reports.length,
       ),
       child: _buildBody(
         context,
         isAll: isAll,
         isReportedDuas: isReportedDuas,
+        isHiddenPosts: isHiddenPosts,
         isLoading: isLoading,
         errorMessage: errorMessage,
         usersResponse: usersResponse,
         restrictedResponse: restrictedResponse,
+        hiddenPostsResponse: hiddenPostsResponse,
         reports: reportedDuasState.reports,
       ),
     );
@@ -99,8 +125,10 @@ class UsersManagementSection extends StatelessWidget {
   String _subtitle({
     required bool isAll,
     required bool isReportedDuas,
+    required bool isHiddenPosts,
     required UsersResponse? usersResponse,
     required RestrictedUsersResponse? restrictedResponse,
+    required HiddenPostsResponse? hiddenPostsResponse,
     required List<ModerationReport> reports,
   }) {
     if (isReportedDuas) {
@@ -109,6 +137,19 @@ class UsersManagementSection extends StatelessWidget {
       }
       final openCount = reports.where((report) => report.isOpen).length;
       return '${reports.length} total · $openCount open';
+    }
+
+    if (isHiddenPosts) {
+      if (hiddenPostsResponse == null) {
+        return 'Dua posts hidden by moderation';
+      }
+      final pageLabel = _pageLabel(
+        hiddenPostsState.currentPage,
+        hiddenPostsState.discoveredPages,
+        hiddenPostsState.hasNextToken,
+      );
+      return '$pageLabel${hiddenPostsResponse.posts.length} on this page · '
+          '${hiddenPostsState.totalLoadedPosts} loaded';
     }
 
     if (isAll) {
@@ -140,8 +181,10 @@ class UsersManagementSection extends StatelessWidget {
   Widget? _trailingChip({
     required bool isAll,
     required bool isReportedDuas,
+    required bool isHiddenPosts,
     required UsersResponse? usersResponse,
     required RestrictedUsersResponse? restrictedResponse,
+    required HiddenPostsResponse? hiddenPostsResponse,
     required int reportCount,
   }) {
     if (isAll && usersResponse != null) {
@@ -150,7 +193,10 @@ class UsersManagementSection extends StatelessWidget {
     if (isReportedDuas && reportCount > 0) {
       return ContentMetaChip(label: '$reportCount');
     }
-    if (!isAll && !isReportedDuas && restrictedResponse != null) {
+    if (isHiddenPosts && hiddenPostsResponse != null) {
+      return ContentMetaChip(label: '${hiddenPostsResponse.posts.length}');
+    }
+    if (!isAll && !isReportedDuas && !isHiddenPosts && restrictedResponse != null) {
       return ContentMetaChip(label: '${restrictedResponse.totalRestricted}');
     }
     return null;
@@ -165,10 +211,12 @@ class UsersManagementSection extends StatelessWidget {
     BuildContext context, {
     required bool isAll,
     required bool isReportedDuas,
+    required bool isHiddenPosts,
     required bool isLoading,
     required String? errorMessage,
     required UsersResponse? usersResponse,
     required RestrictedUsersResponse? restrictedResponse,
+    required HiddenPostsResponse? hiddenPostsResponse,
     required List<ModerationReport> reports,
   }) {
     if (isLoading) {
@@ -181,7 +229,9 @@ class UsersManagementSection extends StatelessWidget {
             ? onUsersRetry
             : isReportedDuas
                 ? onReportedDuasRetry
-                : onRestrictedRetry,
+                : isHiddenPosts
+                    ? onHiddenPostsRetry
+                    : onRestrictedRetry,
       );
     }
 
@@ -198,6 +248,17 @@ class UsersManagementSection extends StatelessWidget {
 
     if (isReportedDuas) {
       return _ReportedDuasBody(reports: reports);
+    }
+
+    if (isHiddenPosts) {
+      return _HiddenPostsBody(
+        response: hiddenPostsResponse!,
+        currentPage: hiddenPostsState.currentPage,
+        discoveredPages: hiddenPostsState.discoveredPages,
+        hasNextToken: hiddenPostsState.hasNextToken,
+        isLoading: hiddenPostsState.isLoading,
+        onPageTap: onHiddenPostsPageTap,
+      );
     }
 
     return _BlockedUsersBody(
@@ -268,6 +329,49 @@ class _ReportedDuasBody extends StatelessWidget {
     return _UserGrid(
       itemCount: reports.length,
       itemBuilder: (index) => ReportedDuaCard(report: reports[index]),
+    );
+  }
+}
+
+class _HiddenPostsBody extends StatelessWidget {
+  const _HiddenPostsBody({
+    required this.response,
+    required this.currentPage,
+    required this.discoveredPages,
+    required this.hasNextToken,
+    required this.isLoading,
+    required this.onPageTap,
+  });
+
+  final HiddenPostsResponse response;
+  final int currentPage;
+  final int discoveredPages;
+  final bool hasNextToken;
+  final bool isLoading;
+  final void Function(int page) onPageTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final posts = response.posts;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (posts.isEmpty)
+          const _EmptyMessage('No hidden posts found.')
+        else
+          _UserGrid(
+            itemCount: posts.length,
+            itemBuilder: (index) => HiddenPostCard(post: posts[index]),
+          ),
+        UsersPaginationBar(
+          currentPage: currentPage,
+          discoveredPages: discoveredPages,
+          hasNextToken: hasNextToken,
+          isLoading: isLoading,
+          onPageTap: onPageTap,
+        ),
+      ],
     );
   }
 }

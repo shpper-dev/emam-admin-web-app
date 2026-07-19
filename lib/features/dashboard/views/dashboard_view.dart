@@ -1,5 +1,6 @@
 import 'package:emam_admin_web_app/core/constants/app_constants.dart';
 import 'package:emam_admin_web_app/features/content/views/widgets/content_section_card.dart';
+import 'package:emam_admin_web_app/features/moderation/provider/hidden_posts_provider.dart';
 import 'package:emam_admin_web_app/features/moderation/provider/reported_duas_provider.dart';
 import 'package:emam_admin_web_app/features/users/provider/restricted_users_provider.dart';
 import 'package:emam_admin_web_app/features/users/provider/users_provider.dart';
@@ -26,6 +27,8 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
         ref.read(restrictedUsersPaginationProvider.notifier);
     final reportedDuasState = ref.watch(reportedDuasProvider);
     final reportedDuasNotifier = ref.read(reportedDuasProvider.notifier);
+    final hiddenPostsState = ref.watch(hiddenPostsPaginationProvider);
+    final hiddenPostsNotifier = ref.read(hiddenPostsPaginationProvider.notifier);
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -43,6 +46,8 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
                 await restrictedNotifier.refresh();
               case UsersTab.reportedDuas:
                 await reportedDuasNotifier.refresh();
+              case UsersTab.hiddenPosts:
+                await hiddenPostsNotifier.refresh();
             }
           },
           child: SingleChildScrollView(
@@ -78,6 +83,7 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
                   usersState: usersState,
                   restrictedState: restrictedState,
                   reportedDuasState: reportedDuasState,
+                  hiddenPostsState: hiddenPostsState,
                 ),
                 const SizedBox(height: 24),
                 UsersManagementSection(
@@ -85,11 +91,14 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
                   usersState: usersState,
                   restrictedState: restrictedState,
                   reportedDuasState: reportedDuasState,
+                  hiddenPostsState: hiddenPostsState,
                   onUsersRetry: usersNotifier.refresh,
                   onUsersPageTap: usersNotifier.goToPage,
                   onRestrictedRetry: restrictedNotifier.refresh,
                   onRestrictedPageTap: restrictedNotifier.goToPage,
                   onReportedDuasRetry: reportedDuasNotifier.refresh,
+                  onHiddenPostsRetry: hiddenPostsNotifier.refresh,
+                  onHiddenPostsPageTap: hiddenPostsNotifier.goToPage,
                 ),
               ],
             ),
@@ -107,6 +116,7 @@ class _DashboardStatsRow extends StatelessWidget {
     required this.usersState,
     required this.restrictedState,
     required this.reportedDuasState,
+    required this.hiddenPostsState,
   });
 
   final UsersTab selectedTab;
@@ -114,6 +124,7 @@ class _DashboardStatsRow extends StatelessWidget {
   final UsersPageState usersState;
   final RestrictedUsersPageState restrictedState;
   final ReportedDuasState reportedDuasState;
+  final HiddenPostsPageState hiddenPostsState;
 
   @override
   Widget build(BuildContext context) {
@@ -121,6 +132,7 @@ class _DashboardStatsRow extends StatelessWidget {
     final hasRestricted = restrictedState.currentResponse != null;
     final hasReports =
         !reportedDuasState.isLoading || reportedDuasState.reports.isNotEmpty;
+    final hasHiddenPosts = hiddenPostsState.currentResponse != null;
 
     String value(int count, {required bool ready}) => ready ? '$count' : '—';
 
@@ -136,11 +148,15 @@ class _DashboardStatsRow extends StatelessWidget {
       reportedDuasState.reports.length,
       ready: hasReports,
     );
+    final hiddenPosts = value(
+      hiddenPostsState.totalLoadedPosts,
+      ready: hasHiddenPosts,
+    );
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final columns = constraints.maxWidth >= 1000
-            ? 3
+        final columns = constraints.maxWidth >= 1200
+            ? 4
             : constraints.maxWidth >= 700
                 ? 2
                 : 1;
@@ -180,6 +196,16 @@ class _DashboardStatsRow extends StatelessWidget {
                 icon: Icons.flag_rounded,
                 selected: selectedTab == UsersTab.reportedDuas,
                 onTap: () => onTabSelected(UsersTab.reportedDuas),
+              ),
+            ),
+            SizedBox(
+              width: tileWidth,
+              child: _StatCard(
+                label: 'Hidden posts',
+                value: hiddenPosts,
+                icon: Icons.visibility_off_rounded,
+                selected: selectedTab == UsersTab.hiddenPosts,
+                onTap: () => onTabSelected(UsersTab.hiddenPosts),
               ),
             ),
           ],

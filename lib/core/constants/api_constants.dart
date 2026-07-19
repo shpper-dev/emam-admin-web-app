@@ -6,6 +6,7 @@ class ApiConstants {
   static const String users = '/admin/users';
   static const String restrictedUsers = '/admin/users/restricted';
   static const String moderationReports = '/admin/moderation/reports';
+  static const String hiddenPosts = '/admin/moderation/posts/hidden';
 
   static const String islamicNews = '/admin/content/islamic-news';
   static const String islamicEvents = '/admin/content/islamic-events';
