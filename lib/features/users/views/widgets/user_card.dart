@@ -6,9 +6,10 @@ import 'package:emam_admin_web_app/features/users/models/app_user.dart';
 import 'package:flutter/material.dart';
 
 class UserCard extends StatelessWidget {
-  const UserCard({super.key, required this.user});
+  const UserCard({super.key, required this.user, this.onTap});
 
   final AppUser user;
+  final VoidCallback? onTap;
 
   static const double _avatarSize = 56;
 
@@ -20,70 +21,78 @@ class UserCard extends StatelessWidget {
     final hasLocation =
         user.location.isNotEmpty && user.location.toUpperCase() != 'UNKNOWN';
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppConstants.bgColor,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppConstants.bgColor,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+          ),
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _Avatar(url: user.photoUrl, fallbackText: displayName),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      displayName,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _Avatar(url: user.photoUrl, fallbackText: displayName),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          displayName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          user.email.isNotEmpty ? user.email : 'No email',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: Colors.white70,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      user.email.isNotEmpty ? user.email : 'No email',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: Colors.white70,
-                      ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  if (hasLocation)
+                    _UserStatusChip(
+                      icon: Icons.place_outlined,
+                      label: user.location,
+                      active: true,
                     ),
-                  ],
-                ),
+                  if (user.age != null)
+                    ContentMetaChip(label: 'Age ${user.age}'),
+                  if ((user.gender ?? '').isNotEmpty)
+                    ContentMetaChip(label: user.gender!),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Text(
+                _updatedLabel(user.updatedAt),
+                style:
+                    theme.textTheme.bodySmall?.copyWith(color: Colors.white54),
               ),
             ],
           ),
-          const SizedBox(height: 14),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              if (hasLocation)
-                _UserStatusChip(
-                  icon: Icons.place_outlined,
-                  label: user.location,
-                  active: true,
-                ),
-              if (user.age != null)
-                ContentMetaChip(label: 'Age ${user.age}'),
-              if ((user.gender ?? '').isNotEmpty)
-                ContentMetaChip(label: user.gender!),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            _updatedLabel(user.updatedAt),
-            style: theme.textTheme.bodySmall?.copyWith(color: Colors.white54),
-          ),
-        ],
+        ),
       ),
     );
   }

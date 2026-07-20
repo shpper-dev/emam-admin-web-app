@@ -12,6 +12,7 @@ import 'package:emam_admin_web_app/features/users/provider/restricted_users_prov
 import 'package:emam_admin_web_app/features/users/provider/users_provider.dart';
 import 'package:emam_admin_web_app/features/users/views/widgets/restricted_user_card.dart';
 import 'package:emam_admin_web_app/features/users/views/widgets/user_card.dart';
+import 'package:emam_admin_web_app/features/users/views/widgets/user_detail_dialog.dart';
 import 'package:emam_admin_web_app/features/users/views/widgets/users_pagination_bar.dart';
 import 'package:flutter/material.dart';
 
@@ -301,7 +302,16 @@ class _AllUsersBody extends StatelessWidget {
         else
           _UserGrid(
             itemCount: users.length,
-            itemBuilder: (index) => UserCard(user: users[index]),
+            itemBuilder: (index) {
+              final user = users[index];
+              return UserCard(
+                user: user,
+                onTap: () => showUserDetailDialog(
+                  context,
+                  userId: user.id,
+                ),
+              );
+            },
           ),
         UsersPaginationBar(
           currentPage: currentPage,
@@ -405,7 +415,18 @@ class _BlockedUsersBody extends StatelessWidget {
         else
           _UserGrid(
             itemCount: users.length,
-            itemBuilder: (index) => RestrictedUserCard(user: users[index]),
+            itemBuilder: (index) {
+              final user = users[index];
+              final userId =
+                  user.userId.isNotEmpty ? user.userId : user.profile.id;
+              return RestrictedUserCard(
+                user: user,
+                onTap: () => showUserDetailDialog(
+                  context,
+                  userId: userId,
+                ),
+              );
+            },
           ),
         UsersPaginationBar(
           currentPage: currentPage,

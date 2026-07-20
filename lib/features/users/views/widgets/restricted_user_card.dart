@@ -6,9 +6,10 @@ import 'package:emam_admin_web_app/features/users/models/restricted_user.dart';
 import 'package:flutter/material.dart';
 
 class RestrictedUserCard extends StatelessWidget {
-  const RestrictedUserCard({super.key, required this.user});
+  const RestrictedUserCard({super.key, required this.user, this.onTap});
 
   final RestrictedUser user;
+  final VoidCallback? onTap;
 
   static const double _avatarSize = 56;
   static const Color _danger = Color(0xFFE57373);
@@ -27,111 +28,120 @@ class RestrictedUserCard extends StatelessWidget {
         ? _titleCase(moderation.postingRestriction)
         : 'Restricted';
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppConstants.bgColor,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppConstants.bgColor,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+          ),
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _Avatar(url: profile.photoUrl, fallbackText: displayName),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      displayName,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      profile.email.isNotEmpty ? profile.email : 'No email',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: Colors.white70,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 8),
-              _RestrictionBadge(
-                label: restrictionLabel,
-                color: restrictionColor,
-              ),
-            ],
-          ),
-          if (moderation.reason.isNotEmpty) ...[
-            const SizedBox(height: 14),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.03),
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
-              ),
-              child: Column(
+              Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Reason',
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: Colors.white54,
-                      fontWeight: FontWeight.w600,
+                  _Avatar(url: profile.photoUrl, fallbackText: displayName),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          displayName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          profile.email.isNotEmpty ? profile.email : 'No email',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: Colors.white70,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    moderation.reason,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: Colors.white.withValues(alpha: 0.88),
-                    ),
+                  const SizedBox(width: 8),
+                  _RestrictionBadge(
+                    label: restrictionLabel,
+                    color: restrictionColor,
                   ),
                 ],
               ),
-            ),
-          ],
-          const SizedBox(height: 14),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              _StatusChip(
-                icon: moderation.canPost
-                    ? Icons.check_circle_outline_rounded
-                    : Icons.block_rounded,
-                label: moderation.canPost ? 'Can post' : 'Cannot post',
-                color: moderation.canPost ? AppConstants.primary : _danger,
-              ),
-              if (moderation.restrictedUntil != null)
-                _StatusChip(
-                  icon: Icons.schedule_rounded,
-                  label: 'Until ${_formatDate(moderation.restrictedUntil!)}',
-                  color: restrictionColor,
+              if (moderation.reason.isNotEmpty) ...[
+                const SizedBox(height: 14),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.03),
+                    borderRadius: BorderRadius.circular(10),
+                    border:
+                        Border.all(color: Colors.white.withValues(alpha: 0.06)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Reason',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: Colors.white54,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        moderation.reason,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: Colors.white.withValues(alpha: 0.88),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              if ((profile.gender ?? '').isNotEmpty)
-                ContentMetaChip(label: profile.gender!),
+              ],
+              const SizedBox(height: 14),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  _StatusChip(
+                    icon: moderation.canPost
+                        ? Icons.check_circle_outline_rounded
+                        : Icons.block_rounded,
+                    label: moderation.canPost ? 'Can post' : 'Cannot post',
+                    color: moderation.canPost ? AppConstants.primary : _danger,
+                  ),
+                  if (moderation.restrictedUntil != null)
+                    _StatusChip(
+                      icon: Icons.schedule_rounded,
+                      label:
+                          'Until ${_formatDate(moderation.restrictedUntil!)}',
+                      color: restrictionColor,
+                    ),
+                  if ((profile.gender ?? '').isNotEmpty)
+                    ContentMetaChip(label: profile.gender!),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Updated ${_formatDate(user.updatedAt)}',
+                style: theme.textTheme.bodySmall?.copyWith(color: Colors.white54),
+              ),
             ],
           ),
-          const SizedBox(height: 12),
-          Text(
-            'Updated ${_formatDate(user.updatedAt)}',
-            style: theme.textTheme.bodySmall?.copyWith(color: Colors.white54),
-          ),
-        ],
+        ),
       ),
     );
   }

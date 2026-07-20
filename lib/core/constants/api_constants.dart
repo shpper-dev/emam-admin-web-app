@@ -5,6 +5,8 @@ class ApiConstants {
 
   static const String users = '/admin/users';
   static const String restrictedUsers = '/admin/users/restricted';
+
+  static String userDetail(String userId) => '$users/$userId/detail';
   static const String moderationReports = '/admin/moderation/reports';
   static const String hiddenPosts = '/admin/moderation/posts/hidden';
 
