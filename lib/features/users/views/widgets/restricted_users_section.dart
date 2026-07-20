@@ -62,7 +62,10 @@ class RestrictedUsersSection extends StatelessWidget {
                     for (final user in users)
                       SizedBox(
                         width: tileWidth,
-                        child: RestrictedUserCard(user: user),
+                        child: Align(
+                          alignment: Alignment.topCenter,
+                          child: RestrictedUserCard(user: user),
+                        ),
                       ),
                   ],
                 );
@@ -99,7 +102,6 @@ class _EmptyRestrictedUsers extends StatelessWidget {
 }
 
 int _gridColumns(double width) {
-  if (width >= 1400) return 3;
-  if (width >= 900) return 2;
+  if (width >= 720) return 2;
   return 1;
 }

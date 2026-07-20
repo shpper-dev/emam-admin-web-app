@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:emam_admin_web_app/core/network/api_error.dart';
 import 'package:emam_admin_web_app/features/users/models/app_user.dart';
+import 'package:emam_admin_web_app/features/users/provider/user_detail_cache_provider.dart';
 import 'package:emam_admin_web_app/features/users/provider/users_repository_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -71,6 +72,7 @@ class UsersPaginationNotifier extends Notifier<UsersPageState> {
   }
 
   Future<void> refresh() async {
+    ref.read(userDetailCacheProvider.notifier).clear();
     state = UsersPageState.initial;
     await _loadFirstPage();
   }
@@ -113,6 +115,9 @@ class UsersPaginationNotifier extends Notifier<UsersPageState> {
         currentPage: pages.length,
         isLoading: false,
       );
+      ref.read(userDetailCacheProvider.notifier).schedulePrefetch(
+            resp.users.map((user) => user.id),
+          );
     } on DioException catch (e) {
       state = state.copyWith(
         isLoading: false,

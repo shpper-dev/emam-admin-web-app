@@ -1,5 +1,8 @@
 import 'package:emam_admin_web_app/features/users/models/app_user.dart';
 
+/// Recent posts per page on the user detail endpoint.
+const int kUserDetailPostsPageSize = 10;
+
 DateTime? _parseDate(Object? value) {
   if (value is! String || value.isEmpty) return null;
   return DateTime.tryParse(value);

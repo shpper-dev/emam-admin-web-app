@@ -15,9 +15,9 @@ String proxiedImageUrl(String url, {int? width, int? height}) {
   if (trimmed.isEmpty) return trimmed;
   if (trimmed.startsWith('https://images.weserv.nl')) return trimmed;
 
-  final withoutScheme = trimmed.replaceFirst(RegExp(r'^https?://'), '');
+  // weserv expects the full source URL (including https://) in `url`.
   final params = <String, String>{
-    'url': withoutScheme,
+    'url': trimmed,
     if (width != null) 'w': '$width',
     if (height != null) 'h': '$height',
     if (width != null || height != null) 'fit': 'cover',

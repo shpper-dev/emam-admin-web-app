@@ -1,11 +1,12 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:emam_admin_web_app/core/constants/app_constants.dart';
-import 'package:emam_admin_web_app/core/utils/image_proxy.dart';
 import 'package:emam_admin_web_app/features/content/views/widgets/content_section_card.dart';
 import 'package:emam_admin_web_app/features/users/models/restricted_user.dart';
+import 'package:emam_admin_web_app/features/users/provider/user_detail_cache_provider.dart';
+import 'package:emam_admin_web_app/features/users/views/widgets/user_profile_avatar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class RestrictedUserCard extends StatelessWidget {
+class RestrictedUserCard extends ConsumerWidget {
   const RestrictedUserCard({super.key, required this.user, this.onTap});
 
   final RestrictedUser user;
@@ -16,9 +17,20 @@ class RestrictedUserCard extends StatelessWidget {
   static const Color _warning = Color(0xFFFFB74D);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final profile = user.profile;
+    final cacheUserId =
+        user.userId.isNotEmpty ? user.userId : profile.id;
+    final listPhotoUrl = profile.photoUrl.trim();
+    final cachedDetailPhoto = ref.watch(
+      userDetailCacheProvider.select(
+        (state) => state.entryFor(cacheUserId).detail?.user.photoUrl ?? '',
+      ),
+    );
+    final photoUrl = listPhotoUrl.isNotEmpty
+        ? listPhotoUrl
+        : cachedDetailPhoto.trim();
     final moderation = user.moderation;
     final displayName =
         profile.displayName.isNotEmpty ? profile.displayName : 'Unnamed user';
@@ -46,7 +58,11 @@ class RestrictedUserCard extends StatelessWidget {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _Avatar(url: profile.photoUrl, fallbackText: displayName),
+                  UserProfileAvatar(
+                    photoUrl: photoUrl,
+                    fallbackText: displayName,
+                    size: _avatarSize,
+                  ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -219,64 +235,6 @@ class _StatusChip extends StatelessWidget {
                 ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _Avatar extends StatelessWidget {
-  const _Avatar({required this.url, required this.fallbackText});
-
-  final String url;
-  final String fallbackText;
-
-  @override
-  Widget build(BuildContext context) {
-    final size = RestrictedUserCard._avatarSize;
-    final initial = fallbackText.trim().isNotEmpty
-        ? fallbackText.trim()[0].toUpperCase()
-        : '?';
-
-    final fallback = Container(
-      color: RestrictedUserCard._danger.withValues(alpha: 0.15),
-      alignment: Alignment.center,
-      child: Text(
-        initial,
-        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              color: RestrictedUserCard._danger,
-              fontWeight: FontWeight.w700,
-            ),
-      ),
-    );
-
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(size / 2),
-      child: SizedBox(
-        width: size,
-        height: size,
-        child: url.isEmpty
-            ? fallback
-            : CachedNetworkImage(
-                imageUrl: proxiedImageUrl(
-                  url,
-                  width: (size * 2).toInt(),
-                  height: (size * 2).toInt(),
-                ),
-                fit: BoxFit.cover,
-                placeholder: (_, _) => Container(
-                  color: AppConstants.inputFillColor,
-                  alignment: Alignment.center,
-                  child: const SizedBox(
-                    height: 18,
-                    width: 18,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: AppConstants.primary,
-                    ),
-                  ),
-                ),
-                errorWidget: (_, _, _) => fallback,
-              ),
       ),
     );
   }

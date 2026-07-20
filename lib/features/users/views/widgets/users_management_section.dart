@@ -465,7 +465,10 @@ class _UserGrid extends StatelessWidget {
             for (var index = 0; index < itemCount; index++)
               SizedBox(
                 width: tileWidth,
-                child: itemBuilder(index),
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: itemBuilder(index),
+                ),
               ),
           ],
         );
@@ -475,8 +478,7 @@ class _UserGrid extends StatelessWidget {
 }
 
 int _gridColumns(double width) {
-  if (width >= 1400) return 3;
-  if (width >= 900) return 2;
+  if (width >= 720) return 2;
   return 1;
 }
 

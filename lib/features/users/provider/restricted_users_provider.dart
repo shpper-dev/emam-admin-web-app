@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:emam_admin_web_app/core/network/api_error.dart';
 import 'package:emam_admin_web_app/features/users/models/restricted_user.dart';
+import 'package:emam_admin_web_app/features/users/provider/user_detail_cache_provider.dart';
 import 'package:emam_admin_web_app/features/users/provider/users_provider.dart';
 import 'package:emam_admin_web_app/features/users/provider/users_repository_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -68,6 +69,7 @@ class RestrictedUsersPaginationNotifier
   }
 
   Future<void> refresh() async {
+    ref.read(userDetailCacheProvider.notifier).clear();
     state = RestrictedUsersPageState.initial;
     await _loadFirstPage();
   }
@@ -111,6 +113,12 @@ class RestrictedUsersPaginationNotifier
         currentPage: pages.length,
         isLoading: false,
       );
+      ref.read(userDetailCacheProvider.notifier).schedulePrefetch(
+            resp.users.map(
+              (user) =>
+                  user.userId.isNotEmpty ? user.userId : user.profile.id,
+            ),
+          );
     } on DioException catch (e) {
       state = state.copyWith(
         isLoading: false,

@@ -55,7 +55,10 @@ class UsersSection extends StatelessWidget {
                     for (final user in users)
                       SizedBox(
                         width: tileWidth,
-                        child: UserCard(user: user),
+                        child: Align(
+                          alignment: Alignment.topCenter,
+                          child: UserCard(user: user),
+                        ),
                       ),
                   ],
                 );
@@ -92,7 +95,6 @@ class _EmptyUsers extends StatelessWidget {
 }
 
 int _userGridColumns(double width) {
-  if (width >= 1400) return 3;
-  if (width >= 900) return 2;
+  if (width >= 720) return 2;
   return 1;
 }

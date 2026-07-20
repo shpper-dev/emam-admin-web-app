@@ -40,7 +40,7 @@ class UsersRepository {
   Future<UserDetailResponse> fetchUserDetail(
     String userId, {
     String? pageToken,
-    int limit = 10,
+    int limit = kUserDetailPostsPageSize,
   }) async {
     final response = await _client.get<Map<String, dynamic>>(
       ApiConstants.userDetail(userId),
