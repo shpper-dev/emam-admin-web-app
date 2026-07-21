@@ -113,12 +113,6 @@ class RestrictedUsersPaginationNotifier
         currentPage: pages.length,
         isLoading: false,
       );
-      ref.read(userDetailCacheProvider.notifier).schedulePrefetch(
-            resp.users.map(
-              (user) =>
-                  user.userId.isNotEmpty ? user.userId : user.profile.id,
-            ),
-          );
     } on DioException catch (e) {
       state = state.copyWith(
         isLoading: false,

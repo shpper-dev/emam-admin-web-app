@@ -115,9 +115,6 @@ class UsersPaginationNotifier extends Notifier<UsersPageState> {
         currentPage: pages.length,
         isLoading: false,
       );
-      ref.read(userDetailCacheProvider.notifier).schedulePrefetch(
-            resp.users.map((user) => user.id),
-          );
     } on DioException catch (e) {
       state = state.copyWith(
         isLoading: false,

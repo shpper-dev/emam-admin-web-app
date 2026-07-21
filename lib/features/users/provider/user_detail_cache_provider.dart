@@ -4,9 +4,6 @@ import 'package:emam_admin_web_app/features/users/models/user_detail.dart';
 import 'package:emam_admin_web_app/features/users/provider/users_repository_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// Max parallel detail requests during background prefetch.
-const int _kPrefetchConcurrency = 4;
-
 class UserDetailCacheEntry {
   const UserDetailCacheEntry({
     this.detail,
@@ -74,17 +71,7 @@ class UserDetailCacheNotifier extends Notifier<UserDetailCacheState> {
     state = const UserDetailCacheState();
   }
 
-  /// Prefetches details for visible list users without blocking the UI.
-  void schedulePrefetch(Iterable<String> userIds) {
-    final ids = userIds
-        .map((id) => id.trim())
-        .where((id) => id.isNotEmpty)
-        .toSet()
-        .toList();
-    if (ids.isEmpty) return;
-    Future.microtask(() => _prefetchMany(ids));
-  }
-
+  /// Fetches detail for [userId] if not already cached. Reuses in-flight requests.
   Future<void> ensureLoaded(String userId) {
     final id = userId.trim();
     if (id.isEmpty) return Future.value();
@@ -140,19 +127,6 @@ class UserDetailCacheNotifier extends Notifier<UserDetailCacheState> {
           errorMessage: 'Failed to load more posts. Please try again.',
         ),
       );
-    }
-  }
-
-  Future<void> _prefetchMany(List<String> userIds) async {
-    final pending = userIds.where((id) {
-      final entry = state.entryFor(id);
-      return !entry.hasDetail && !entry.isLoading && !_inFlight.containsKey(id);
-    }).toList();
-
-    for (var start = 0; start < pending.length; start += _kPrefetchConcurrency) {
-      final end = (start + _kPrefetchConcurrency).clamp(0, pending.length);
-      final batch = pending.sublist(start, end);
-      await Future.wait(batch.map(_loadDetail));
     }
   }
 
