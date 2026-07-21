@@ -23,6 +23,20 @@ class UsersRepository {
     return UsersResponse.fromJson(response.data ?? const {});
   }
 
+  Future<UsersResponse> searchUsers({
+    required String query,
+    int limit = 20,
+  }) async {
+    final response = await _client.get<Map<String, dynamic>>(
+      ApiConstants.usersSearch,
+      queryParameters: {
+        'q': query.trim(),
+        'limit': limit.clamp(1, 50),
+      },
+    );
+    return UsersResponse.fromJson(response.data ?? const {});
+  }
+
   Future<RestrictedUsersResponse> fetchRestrictedUsers({
     String? pageToken,
     int limit = 50,

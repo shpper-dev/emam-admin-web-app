@@ -4,6 +4,7 @@ import 'package:emam_admin_web_app/features/moderation/provider/hidden_posts_pro
 import 'package:emam_admin_web_app/features/moderation/provider/reported_duas_provider.dart';
 import 'package:emam_admin_web_app/features/users/provider/restricted_users_provider.dart';
 import 'package:emam_admin_web_app/features/users/provider/users_provider.dart';
+import 'package:emam_admin_web_app/features/users/views/widgets/user_search_dialog.dart';
 import 'package:emam_admin_web_app/features/users/views/widgets/users_management_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -61,20 +62,54 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Dashboard',
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        color: AppConstants.primary,
-                        fontWeight: FontWeight.w600,
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Dashboard',
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineMedium
+                                ?.copyWith(
+                                  color: AppConstants.primary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Overview of everyone using Emam.',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyLarge
+                                ?.copyWith(color: Colors.white70),
+                          ),
+                        ],
                       ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Overview of everyone using Emam.',
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyLarge
-                      ?.copyWith(color: Colors.white70),
+                    ),
+                    const SizedBox(width: 16),
+                    TextButton.icon(
+                      onPressed: () => showUserSearchDialog(context),
+                      icon: const Icon(Icons.search_rounded, size: 20),
+                      label: const Text('Search'),
+                      style: TextButton.styleFrom(
+                        foregroundColor: AppConstants.primary,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                        side: BorderSide(
+                          color: AppConstants.primary.withValues(alpha: 0.55),
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 24),
                 _DashboardStatsRow(
