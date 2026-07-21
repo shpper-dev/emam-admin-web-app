@@ -51,4 +51,18 @@ class UsersRepository {
     );
     return UserDetailResponse.fromJson(response.data ?? const {});
   }
+
+  Future<void> applyUserRestriction(
+    String userId, {
+    required String reason,
+    String duration = '30d',
+  }) async {
+    await _client.post<void>(
+      ApiConstants.userRestriction(userId),
+      data: {
+        'duration': duration,
+        'reason': reason,
+      },
+    );
+  }
 }

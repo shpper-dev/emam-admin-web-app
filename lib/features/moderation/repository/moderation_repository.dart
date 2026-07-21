@@ -28,4 +28,14 @@ class ModerationRepository {
     );
     return HiddenPostsResponse.fromJson(response.data ?? const {});
   }
+
+  Future<void> hideDuaPost(
+    String postId, {
+    required String reason,
+  }) async {
+    await _client.post<void>(
+      ApiConstants.hideDuaPost(postId),
+      data: {'reason': reason},
+    );
+  }
 }

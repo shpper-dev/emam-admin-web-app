@@ -1,6 +1,8 @@
 import 'package:emam_admin_web_app/core/constants/app_constants.dart';
 import 'package:emam_admin_web_app/features/users/models/app_user.dart';
 import 'package:emam_admin_web_app/features/users/provider/user_detail_cache_provider.dart';
+import 'package:emam_admin_web_app/features/users/provider/users_provider.dart';
+import 'package:emam_admin_web_app/features/users/views/widgets/block_user_dialog.dart';
 import 'package:emam_admin_web_app/features/users/views/widgets/user_profile_avatar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,6 +14,7 @@ class UserCard extends ConsumerWidget {
   final VoidCallback? onTap;
 
   static const double _avatarSize = 56;
+  static const Color _danger = Color(0xFFE57373);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -25,8 +28,9 @@ class UserCard extends ConsumerWidget {
     final photoUrl = listPhotoUrl.isNotEmpty
         ? listPhotoUrl
         : cachedDetailPhoto.trim();
-    final displayName =
-        user.displayName.isNotEmpty ? user.displayName : 'Unnamed user';
+    final displayName = user.displayName.isNotEmpty
+        ? user.displayName
+        : 'Unnamed user';
 
     return Material(
       color: Colors.transparent,
@@ -80,10 +84,36 @@ class UserCard extends ConsumerWidget {
                 ],
               ),
               const SizedBox(height: 14),
-              Text(
-                _updatedLabel(user.updatedAt),
-                style:
-                    theme.textTheme.bodySmall?.copyWith(color: Colors.white54),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      _updatedLabel(user.updatedAt),
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: Colors.white54,
+                      ),
+                    ),
+                  ),
+                  TextButton.icon(
+                    onPressed: () =>
+                        _onBlockPressed(context, ref, displayName: displayName),
+                    icon: const Icon(Icons.block_rounded, size: 18),
+                    label: const Text('Block'),
+                    style: TextButton.styleFrom(
+                      foregroundColor: _danger,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 12,
+                      ),
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      side: BorderSide(color: _danger.withValues(alpha: 0.55)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -92,10 +122,29 @@ class UserCard extends ConsumerWidget {
     );
   }
 
+  Future<void> _onBlockPressed(
+    BuildContext context,
+    WidgetRef ref, {
+    required String displayName,
+  }) async {
+    final blocked = await showBlockUserDialog(
+      context,
+      userId: user.id,
+      displayName: displayName,
+    );
+    if (blocked != true || !context.mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('$displayName has been blocked for 30 days.')),
+    );
+    await ref.read(usersPaginationProvider.notifier).refresh();
+  }
+
   String _updatedLabel(DateTime? updatedAt) {
     if (updatedAt == null) return 'Last active: unknown';
     final local = updatedAt.toLocal();
-    final date = '${local.year.toString().padLeft(4, '0')}-'
+    final date =
+        '${local.year.toString().padLeft(4, '0')}-'
         '${local.month.toString().padLeft(2, '0')}-'
         '${local.day.toString().padLeft(2, '0')}';
     return 'Last active: $date';

@@ -1,18 +1,22 @@
 import 'package:emam_admin_web_app/core/constants/app_constants.dart';
 import 'package:emam_admin_web_app/features/content/views/widgets/content_section_card.dart';
 import 'package:emam_admin_web_app/features/moderation/models/moderation_report.dart';
+import 'package:emam_admin_web_app/features/moderation/provider/reported_duas_provider.dart';
+import 'package:emam_admin_web_app/features/moderation/views/widgets/hide_dua_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ReportedDuaCard extends StatelessWidget {
+class ReportedDuaCard extends ConsumerWidget {
   const ReportedDuaCard({super.key, required this.report});
 
   final ModerationReport report;
 
   static const Color _warning = Color(0xFFFFB74D);
   static const Color _success = Color(0xFF81C784);
+  static const Color _danger = Color(0xFFE57373);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final statusColor = report.isOpen ? _warning : _success;
 
@@ -91,9 +95,50 @@ class ReportedDuaCard extends StatelessWidget {
               ),
             ],
           ),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              const Spacer(),
+              TextButton.icon(
+                onPressed: report.postId.isEmpty
+                    ? null
+                    : () => _onHidePressed(context, ref),
+                icon: const Icon(Icons.visibility_off_rounded, size: 18),
+                label: const Text('Hide'),
+                style: TextButton.styleFrom(
+                  foregroundColor: _danger,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 12,
+                  ),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  side: BorderSide(color: _danger.withValues(alpha: 0.55)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
+  }
+
+  Future<void> _onHidePressed(BuildContext context, WidgetRef ref) async {
+    final hidden = await showHideDuaDialog(
+      context,
+      postId: report.postId,
+    );
+    if (hidden != true || !context.mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Post ${_shortId(report.postId)} has been hidden.'),
+      ),
+    );
+    await ref.read(reportedDuasProvider.notifier).refresh();
   }
 
   static String _shortId(String value) {
