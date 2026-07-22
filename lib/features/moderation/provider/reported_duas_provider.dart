@@ -7,27 +7,32 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class ReportedDuasState {
   const ReportedDuasState({
     required this.reports,
+    required this.hiddenPostIds,
     required this.isLoading,
     required this.errorMessage,
   });
 
   final List<ModerationReport> reports;
+  final Set<String> hiddenPostIds;
   final bool isLoading;
   final String? errorMessage;
 
   static const ReportedDuasState initial = ReportedDuasState(
     reports: [],
+    hiddenPostIds: {},
     isLoading: true,
     errorMessage: null,
   );
 
   ReportedDuasState copyWith({
     List<ModerationReport>? reports,
+    Set<String>? hiddenPostIds,
     bool? isLoading,
     Object? errorMessage = _sentinel,
   }) {
     return ReportedDuasState(
       reports: reports ?? this.reports,
+      hiddenPostIds: hiddenPostIds ?? this.hiddenPostIds,
       isLoading: isLoading ?? this.isLoading,
       errorMessage: identical(errorMessage, _sentinel)
           ? this.errorMessage
@@ -55,8 +60,15 @@ class ReportedDuasNotifier extends Notifier<ReportedDuasState> {
     try {
       final repo = ref.read(moderationRepositoryProvider);
       final response = await repo.fetchReports();
+      var hiddenPostIds = <String>{};
+      try {
+        hiddenPostIds = await repo.fetchAllHiddenPostIds();
+      } catch (_) {
+        // Reports still render; hide/restore uses report payload fields as fallback.
+      }
       state = state.copyWith(
         reports: response.reports,
+        hiddenPostIds: hiddenPostIds,
         isLoading: false,
       );
     } on DioException catch (e) {

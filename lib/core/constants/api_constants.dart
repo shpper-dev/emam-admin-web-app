@@ -14,6 +14,8 @@ class ApiConstants {
   static const String hiddenPosts = '/admin/moderation/posts/hidden';
   static String hideDuaPost(String postId) =>
       '/admin/moderation/posts/$postId/hide';
+  static String restoreDuaPost(String postId) =>
+      '/admin/moderation/posts/$postId/restore';
 
   static const String islamicNews = '/admin/content/islamic-news';
   static const String islamicEvents = '/admin/content/islamic-events';

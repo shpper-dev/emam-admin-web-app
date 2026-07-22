@@ -1,8 +1,11 @@
 import 'package:emam_admin_web_app/core/constants/app_constants.dart';
 import 'package:emam_admin_web_app/features/content/views/widgets/content_section_card.dart';
 import 'package:emam_admin_web_app/features/moderation/models/moderation_report.dart';
+import 'package:emam_admin_web_app/features/moderation/provider/hidden_posts_provider.dart';
 import 'package:emam_admin_web_app/features/moderation/provider/reported_duas_provider.dart';
+import 'package:emam_admin_web_app/features/moderation/utils/reported_post_hidden.dart';
 import 'package:emam_admin_web_app/features/moderation/views/widgets/hide_dua_dialog.dart';
+import 'package:emam_admin_web_app/features/moderation/views/widgets/restore_dua_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -14,11 +17,20 @@ class ReportedDuaCard extends ConsumerWidget {
   static const Color _warning = Color(0xFFFFB74D);
   static const Color _success = Color(0xFF81C784);
   static const Color _danger = Color(0xFFE57373);
+  static const Color _restoreGreen = Color(0xFF66BB6A);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final statusColor = report.isOpen ? _warning : _success;
+    final hiddenPostIds = ref.watch(
+      reportedDuasProvider.select((state) => state.hiddenPostIds),
+    );
+    final cachedHiddenIds = ref.watch(hiddenPostIdsProvider);
+    final isPostHidden = isReportedPostHidden(
+      report,
+      {...hiddenPostIds, ...cachedHiddenIds},
+    );
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -98,27 +110,56 @@ class ReportedDuaCard extends ConsumerWidget {
           const SizedBox(height: 14),
           Row(
             children: [
+              if (isPostHidden)
+                Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: ContentMetaChip(label: 'Post hidden'),
+                ),
               const Spacer(),
-              TextButton.icon(
-                onPressed: report.postId.isEmpty
-                    ? null
-                    : () => _onHidePressed(context, ref),
-                icon: const Icon(Icons.visibility_off_rounded, size: 18),
-                label: const Text('Hide'),
-                style: TextButton.styleFrom(
-                  foregroundColor: _danger,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 12,
+              if (isPostHidden)
+                TextButton.icon(
+                  onPressed: report.postId.isEmpty
+                      ? null
+                      : () => _onRestorePressed(context, ref),
+                  icon: const Icon(Icons.visibility_rounded, size: 18),
+                  label: const Text('Restore'),
+                  style: TextButton.styleFrom(
+                    foregroundColor: _restoreGreen,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 12,
+                    ),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    side: BorderSide(
+                      color: _restoreGreen.withValues(alpha: 0.55),
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
-                  minimumSize: Size.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  side: BorderSide(color: _danger.withValues(alpha: 0.55)),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                )
+              else
+                TextButton.icon(
+                  onPressed: report.postId.isEmpty
+                      ? null
+                      : () => _onHidePressed(context, ref),
+                  icon: const Icon(Icons.visibility_off_rounded, size: 18),
+                  label: const Text('Hide'),
+                  style: TextButton.styleFrom(
+                    foregroundColor: _danger,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 12,
+                    ),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    side: BorderSide(color: _danger.withValues(alpha: 0.55)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
                 ),
-              ),
             ],
           ),
         ],
@@ -139,6 +180,23 @@ class ReportedDuaCard extends ConsumerWidget {
       ),
     );
     await ref.read(reportedDuasProvider.notifier).refresh();
+    await ref.read(hiddenPostsPaginationProvider.notifier).refresh();
+  }
+
+  Future<void> _onRestorePressed(BuildContext context, WidgetRef ref) async {
+    final restored = await showRestoreDuaDialog(
+      context,
+      postId: report.postId,
+    );
+    if (restored != true || !context.mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Post ${_shortId(report.postId)} has been restored.'),
+      ),
+    );
+    await ref.read(reportedDuasProvider.notifier).refresh();
+    await ref.read(hiddenPostsPaginationProvider.notifier).refresh();
   }
 
   static String _shortId(String value) {

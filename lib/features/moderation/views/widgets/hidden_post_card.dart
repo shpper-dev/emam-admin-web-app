@@ -1,17 +1,21 @@
 import 'package:emam_admin_web_app/core/constants/app_constants.dart';
 import 'package:emam_admin_web_app/features/content/views/widgets/content_section_card.dart';
 import 'package:emam_admin_web_app/features/moderation/models/hidden_post.dart';
+import 'package:emam_admin_web_app/features/moderation/provider/hidden_posts_provider.dart';
+import 'package:emam_admin_web_app/features/moderation/views/widgets/restore_dua_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class HiddenPostCard extends StatelessWidget {
+class HiddenPostCard extends ConsumerWidget {
   const HiddenPostCard({super.key, required this.post});
 
   final HiddenPost post;
 
   static const Color _danger = Color(0xFFE57373);
+  static const Color _restoreGreen = Color(0xFF66BB6A);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final displayName = post.userDisplayName.isNotEmpty
         ? post.userDisplayName
@@ -98,13 +102,58 @@ class HiddenPostCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          Text(
-            'Hidden ${_formatDate(post.hiddenAt)}',
-            style: theme.textTheme.bodySmall?.copyWith(color: Colors.white54),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Hidden ${_formatDate(post.hiddenAt)}',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: Colors.white54,
+                  ),
+                ),
+              ),
+              TextButton.icon(
+                onPressed: post.id.isEmpty
+                    ? null
+                    : () => _onRestorePressed(context, ref),
+                icon: const Icon(Icons.visibility_rounded, size: 18),
+                label: const Text('Restore'),
+                style: TextButton.styleFrom(
+                  foregroundColor: _restoreGreen,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 12,
+                  ),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  side: BorderSide(color: _restoreGreen.withValues(alpha: 0.55)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _onRestorePressed(BuildContext context, WidgetRef ref) async {
+    final restored = await showRestoreDuaDialog(
+      context,
+      postId: post.id,
+    );
+    if (restored != true || !context.mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Post ${_shortId(post.id)} has been restored.',
+        ),
+      ),
+    );
+    await ref.read(hiddenPostsPaginationProvider.notifier).refresh();
   }
 
   static String _shortId(String value) {

@@ -29,6 +29,24 @@ class ModerationRepository {
     return HiddenPostsResponse.fromJson(response.data ?? const {});
   }
 
+  /// Loads every hidden post id (paginates until no next token).
+  Future<Set<String>> fetchAllHiddenPostIds({int limit = 50}) async {
+    final ids = <String>{};
+    String? pageToken;
+
+    do {
+      final page = await fetchHiddenPosts(pageToken: pageToken, limit: limit);
+      for (final post in page.posts) {
+        final id = post.id.trim();
+        if (id.isNotEmpty) ids.add(id);
+      }
+      pageToken = page.nextPageToken?.trim();
+      if (pageToken != null && pageToken.isEmpty) pageToken = null;
+    } while (pageToken != null);
+
+    return ids;
+  }
+
   Future<void> hideDuaPost(
     String postId, {
     required String reason,
@@ -37,5 +55,9 @@ class ModerationRepository {
       ApiConstants.hideDuaPost(postId),
       data: {'reason': reason},
     );
+  }
+
+  Future<void> restoreDuaPost(String postId) async {
+    await _client.post<void>(ApiConstants.restoreDuaPost(postId));
   }
 }

@@ -127,3 +127,15 @@ final hiddenPostsPaginationProvider = NotifierProvider<
     HiddenPostsPaginationNotifier, HiddenPostsPageState>(
   HiddenPostsPaginationNotifier.new,
 );
+
+/// Post IDs from every loaded hidden-posts page (for reported-dua cards).
+final hiddenPostIdsProvider = Provider<Set<String>>((ref) {
+  final pages = ref.watch(hiddenPostsPaginationProvider).pages;
+  final ids = <String>{};
+  for (final page in pages) {
+    for (final post in page.posts) {
+      if (post.id.isNotEmpty) ids.add(post.id);
+    }
+  }
+  return ids;
+});
