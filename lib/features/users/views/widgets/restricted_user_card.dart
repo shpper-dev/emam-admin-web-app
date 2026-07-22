@@ -2,7 +2,9 @@ import 'package:emam_admin_web_app/core/constants/app_constants.dart';
 import 'package:emam_admin_web_app/features/content/views/widgets/content_section_card.dart';
 import 'package:emam_admin_web_app/features/users/models/restricted_user.dart';
 import 'package:emam_admin_web_app/features/users/provider/user_detail_cache_provider.dart';
+import 'package:emam_admin_web_app/features/users/views/widgets/unblock_user_dialog.dart';
 import 'package:emam_admin_web_app/features/users/views/widgets/user_profile_avatar.dart';
+import 'package:emam_admin_web_app/features/users/views/widgets/user_restriction_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -15,6 +17,7 @@ class RestrictedUserCard extends ConsumerWidget {
   static const double _avatarSize = 56;
   static const Color _danger = Color(0xFFE57373);
   static const Color _warning = Color(0xFFFFB74D);
+  static const Color _unblockGreen = Color(0xFF66BB6A);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -150,16 +153,75 @@ class RestrictedUserCard extends ConsumerWidget {
                     ContentMetaChip(label: profile.gender!),
                 ],
               ),
-              const SizedBox(height: 12),
-              Text(
-                'Updated ${_formatDate(user.updatedAt)}',
-                style: theme.textTheme.bodySmall?.copyWith(color: Colors.white54),
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Updated ${_formatDate(user.updatedAt)}',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: Colors.white54,
+                      ),
+                    ),
+                  ),
+                  TextButton.icon(
+                    onPressed: () => _onUnblockPressed(
+                      context,
+                      ref,
+                      userId: cacheUserId,
+                      displayName: displayName,
+                      restrictedUntil: moderation.restrictedUntil,
+                    ),
+                    icon: const Icon(Icons.lock_open_rounded, size: 18),
+                    label: const Text('Unblock'),
+                    style: TextButton.styleFrom(
+                      foregroundColor: _unblockGreen,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 12,
+                      ),
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      side: BorderSide(
+                        color: _unblockGreen.withValues(alpha: 0.55),
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  Future<void> _onUnblockPressed(
+    BuildContext context,
+    WidgetRef ref, {
+    required String userId,
+    required String displayName,
+    required DateTime? restrictedUntil,
+  }) async {
+    if (userId.isEmpty) return;
+
+    final unblocked = await showUnblockUserDialog(
+      context,
+      userId: userId,
+      displayName: displayName,
+      restrictedUntil: restrictedUntil,
+    );
+    if (unblocked != true || !context.mounted) return;
+
+    showRestrictionSnackBar(
+      context,
+      displayName: displayName,
+      blocked: false,
+    );
+    await refreshAfterUserRestrictionChange(ref, userId: userId);
   }
 
   static String _titleCase(String value) {

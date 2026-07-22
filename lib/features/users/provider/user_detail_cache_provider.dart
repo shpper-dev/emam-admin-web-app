@@ -71,6 +71,15 @@ class UserDetailCacheNotifier extends Notifier<UserDetailCacheState> {
     state = const UserDetailCacheState();
   }
 
+  void invalidate(String userId) {
+    final id = userId.trim();
+    if (id.isEmpty) return;
+    _inFlight.remove(id);
+    final entries = Map<String, UserDetailCacheEntry>.from(state.entries);
+    entries.remove(id);
+    state = state.copyWith(entries: entries);
+  }
+
   /// Fetches detail for [userId] if not already cached. Reuses in-flight requests.
   Future<void> ensureLoaded(String userId) {
     final id = userId.trim();

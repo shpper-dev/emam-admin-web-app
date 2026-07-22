@@ -10,6 +10,9 @@ class AppUser {
     required this.hasVoice,
     required this.createdAt,
     required this.updatedAt,
+    this.canPost,
+    this.postingRestriction = '',
+    this.restrictedUntil,
   });
 
   final String id;
@@ -22,6 +25,9 @@ class AppUser {
   final bool hasVoice;
   final DateTime? createdAt;
   final DateTime? updatedAt;
+  final bool? canPost;
+  final String postingRestriction;
+  final DateTime? restrictedUntil;
 
   /// Best URL for this user's profile image from list/detail JSON.
   String resolvePhotoUrl({String? cachedDetailPhotoUrl}) {
@@ -62,6 +68,16 @@ class AppUser {
 
   factory AppUser.fromJson(Map<String, dynamic> json) {
     final normalized = _normalizeUserJson(json);
+    final moderation = normalized['moderation'];
+    bool? canPost;
+    String postingRestriction = '';
+    DateTime? restrictedUntil;
+    if (moderation is Map<String, dynamic>) {
+      canPost = moderation['can_post'] as bool?;
+      postingRestriction =
+          moderation['posting_restriction'] as String? ?? '';
+      restrictedUntil = _parseDate(moderation['restricted_until']);
+    }
     return AppUser(
       id: normalized['id'] as String? ?? '',
       displayName: normalized['display_name'] as String? ?? '',
@@ -73,6 +89,9 @@ class AppUser {
       hasVoice: normalized['has_voice'] as bool? ?? false,
       createdAt: _parseDate(normalized['created_at']),
       updatedAt: _parseDate(normalized['updated_at']),
+      canPost: canPost,
+      postingRestriction: postingRestriction,
+      restrictedUntil: restrictedUntil,
     );
   }
 

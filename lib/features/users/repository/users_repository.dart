@@ -3,6 +3,7 @@ import 'package:emam_admin_web_app/core/network/dio_client.dart';
 import 'package:emam_admin_web_app/features/users/models/app_user.dart';
 import 'package:emam_admin_web_app/features/users/models/restricted_user.dart';
 import 'package:emam_admin_web_app/features/users/models/user_detail.dart';
+import 'package:emam_admin_web_app/features/users/utils/admin_panel_user.dart';
 
 class UsersRepository {
   UsersRepository(this._client);
@@ -20,7 +21,9 @@ class UsersRepository {
         if (pageToken != null && pageToken.isNotEmpty) 'page_token': pageToken,
       },
     );
-    return UsersResponse.fromJson(response.data ?? const {});
+    return withoutAdminPanelUsers(
+      UsersResponse.fromJson(response.data ?? const {}),
+    );
   }
 
   Future<UsersResponse> searchUsers({
@@ -34,7 +37,9 @@ class UsersRepository {
         'limit': limit.clamp(1, 50),
       },
     );
-    return UsersResponse.fromJson(response.data ?? const {});
+    return withoutAdminPanelUsers(
+      UsersResponse.fromJson(response.data ?? const {}),
+    );
   }
 
   Future<RestrictedUsersResponse> fetchRestrictedUsers({
@@ -48,7 +53,9 @@ class UsersRepository {
         if (pageToken != null && pageToken.isNotEmpty) 'page_token': pageToken,
       },
     );
-    return RestrictedUsersResponse.fromJson(response.data ?? const {});
+    return withoutAdminPanelRestrictedUsers(
+      RestrictedUsersResponse.fromJson(response.data ?? const {}),
+    );
   }
 
   Future<UserDetailResponse> fetchUserDetail(
@@ -63,7 +70,9 @@ class UsersRepository {
         if (pageToken != null && pageToken.isNotEmpty) 'page_token': pageToken,
       },
     );
-    return UserDetailResponse.fromJson(response.data ?? const {});
+    return hideAdminPanelUserDetail(
+      UserDetailResponse.fromJson(response.data ?? const {}),
+    );
   }
 
   Future<void> applyUserRestriction(
@@ -78,5 +87,9 @@ class UsersRepository {
         'reason': reason,
       },
     );
+  }
+
+  Future<void> unblockUser(String userId) async {
+    await _client.post<void>(ApiConstants.userUnblock(userId));
   }
 }

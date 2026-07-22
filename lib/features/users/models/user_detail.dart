@@ -12,15 +12,20 @@ class UserDetailModeration {
   const UserDetailModeration({
     required this.postingRestriction,
     required this.canPost,
+    required this.restrictedUntil,
   });
 
   final String postingRestriction;
   final bool canPost;
+  final DateTime? restrictedUntil;
+
+  bool get isRestricted => !canPost;
 
   factory UserDetailModeration.fromJson(Map<String, dynamic> json) {
     return UserDetailModeration(
       postingRestriction: json['posting_restriction'] as String? ?? '',
       canPost: json['can_post'] as bool? ?? false,
+      restrictedUntil: _parseDate(json['restricted_until']),
     );
   }
 }
@@ -180,6 +185,7 @@ class UserDetailResponse {
           : const UserDetailModeration(
               postingRestriction: '',
               canPost: false,
+              restrictedUntil: null,
             ),
       postCount: json['post_count'] as int? ?? 0,
       hiddenPostCount: json['hidden_post_count'] as int? ?? 0,
