@@ -6,6 +6,47 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+Future<void> _confirmAndSignOut(BuildContext context, WidgetRef ref) async {
+  final theme = Theme.of(context);
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (dialogContext) {
+      return AlertDialog(
+        backgroundColor: AppConstants.surfaceColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
+        ),
+        title: Text(
+          'Log out',
+          style: theme.textTheme.titleLarge?.copyWith(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        content: Text(
+          'Are you sure you want to log out?',
+          style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white70),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Log out'),
+          ),
+        ],
+      );
+    },
+  );
+
+  if (confirmed == true && context.mounted) {
+    await ref.read(authProvider.notifier).signOut();
+  }
+}
+
 class AppDrawer extends ConsumerWidget {
   const AppDrawer({super.key});
 
@@ -24,10 +65,16 @@ class AppDrawer extends ConsumerWidget {
       backgroundColor: AppConstants.bgColor,
       child: ListView(
         children: [
-          Container(
-            height: 180,
-            padding: const EdgeInsets.only(top: 24),
-            child: Image.asset(AppConstants.emamLogo),
+          GestureDetector(
+            onTap: () => _navigate(context, RoutePaths.dashboard),
+            child: MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: Container(
+                height: 180,
+                padding: const EdgeInsets.only(top: 24),
+                child: Image.asset(AppConstants.emamLogo),
+              ),
+            ),
           ),
           _DrawerTile(
             icon: Icons.dashboard_rounded,
@@ -53,7 +100,7 @@ class AppDrawer extends ConsumerWidget {
               if (Scaffold.maybeOf(context)?.isDrawerOpen ?? false) {
                 Navigator.of(context).pop();
               }
-              await ref.read(authProvider.notifier).signOut();
+              await _confirmAndSignOut(context, ref);
             },
           ),
         ],

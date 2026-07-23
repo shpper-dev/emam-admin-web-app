@@ -14,6 +14,14 @@ class ModerationReport {
     required this.status,
     required this.postStatus,
     required this.postHidden,
+    required this.postContent,
+    required this.postUserDisplayName,
+    required this.postLocation,
+    required this.postAmeenCount,
+    required this.postReportCount,
+    required this.postHiddenReason,
+    required this.postHiddenAt,
+    required this.postCreatedAt,
     required this.resolutionAction,
     required this.resolutionNote,
     required this.resolvedBy,
@@ -30,6 +38,14 @@ class ModerationReport {
   final String status;
   final String postStatus;
   final bool postHidden;
+  final String postContent;
+  final String postUserDisplayName;
+  final String postLocation;
+  final int postAmeenCount;
+  final int postReportCount;
+  final String postHiddenReason;
+  final DateTime? postHiddenAt;
+  final DateTime? postCreatedAt;
   final String? resolutionAction;
   final String? resolutionNote;
   final String? resolvedBy;
@@ -110,6 +126,28 @@ class ModerationReport {
       status: json['status'] as String? ?? '',
       postStatus: postStatus,
       postHidden: postHidden,
+      postContent: _readString(postJson ?? const {}, const ['content']) ?? '',
+      postUserDisplayName: _readString(postJson ?? const {}, const [
+            'user_display_name',
+            'userDisplayName',
+          ]) ??
+          '',
+      postLocation:
+          _readString(postJson ?? const {}, const ['location']) ?? '',
+      postAmeenCount: _readInt(postJson, const ['ameen_count', 'ameenCount']),
+      postReportCount:
+          _readInt(postJson, const ['report_count', 'reportCount']),
+      postHiddenReason: _readString(postJson ?? const {}, const [
+            'hidden_reason',
+            'hiddenReason',
+          ]) ??
+          '',
+      postHiddenAt: postJson != null
+          ? _parseDate(postJson['hidden_at'] ?? postJson['hiddenAt'])
+          : null,
+      postCreatedAt: postJson != null
+          ? _parseDate(postJson['created_at'] ?? postJson['createdAt'])
+          : null,
       resolutionAction: resolutionAction,
       resolutionNote: json['resolution_note'] as String? ??
           json['resolutionNote'] as String?,
@@ -150,6 +188,16 @@ class ModerationReport {
       if (value == true) return true;
     }
     return false;
+  }
+
+  static int _readInt(Map<String, dynamic>? json, List<String> keys) {
+    if (json == null) return 0;
+    for (final key in keys) {
+      final value = json[key];
+      if (value is int) return value;
+      if (value is num) return value.toInt();
+    }
+    return 0;
   }
 
   static bool _hasHiddenTimestamp(Map<String, dynamic> json) {

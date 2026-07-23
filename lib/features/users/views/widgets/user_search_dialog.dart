@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:emam_admin_web_app/core/constants/app_constants.dart';
 import 'package:emam_admin_web_app/core/network/api_error.dart';
@@ -11,6 +13,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 Future<void> showUserSearchDialog(BuildContext context) {
   return showDialog<void>(
     context: context,
+    barrierDismissible: false,
     barrierColor: Colors.black.withValues(alpha: 0.65),
     builder: (context) => const UserSearchDialog(),
   );
@@ -24,8 +27,13 @@ class UserSearchDialog extends ConsumerStatefulWidget {
 }
 
 class _UserSearchDialogState extends ConsumerState<UserSearchDialog> {
+  static const _searchDebounce = Duration(milliseconds: 500);
+
   final _queryController = TextEditingController();
   final _focusNode = FocusNode();
+
+  Timer? _debounceTimer;
+  int _searchGeneration = 0;
 
   List<AppUser> _results = [];
   bool _isSearching = false;
@@ -43,9 +51,41 @@ class _UserSearchDialogState extends ConsumerState<UserSearchDialog> {
 
   @override
   void dispose() {
+    _debounceTimer?.cancel();
     _queryController.dispose();
     _focusNode.dispose();
     super.dispose();
+  }
+
+  void _scheduleDebouncedSearch() {
+    _debounceTimer?.cancel();
+    final query = _queryController.text.trim();
+    if (query.length < 2) {
+      setState(() {
+        _validationMessage = query.isEmpty
+            ? null
+            : 'Enter at least 2 characters to search.';
+        _errorMessage = null;
+        _results = [];
+        _hasSearched = false;
+        _isSearching = false;
+      });
+      return;
+    }
+
+    _debounceTimer = Timer(_searchDebounce, _search);
+  }
+
+  void _searchNow() {
+    _debounceTimer?.cancel();
+    _search();
+  }
+
+  void _onQueryChanged(String _) {
+    if (_validationMessage != null) {
+      setState(() => _validationMessage = null);
+    }
+    _scheduleDebouncedSearch();
   }
 
   Future<void> _search() async {
@@ -56,9 +96,12 @@ class _UserSearchDialogState extends ConsumerState<UserSearchDialog> {
         _errorMessage = null;
         _results = [];
         _hasSearched = false;
+        _isSearching = false;
       });
       return;
     }
+
+    final generation = ++_searchGeneration;
 
     setState(() {
       _isSearching = true;
@@ -71,20 +114,20 @@ class _UserSearchDialogState extends ConsumerState<UserSearchDialog> {
       final response = await ref
           .read(usersRepositoryProvider)
           .searchUsers(query: query);
-      if (!mounted) return;
+      if (!mounted || generation != _searchGeneration) return;
       setState(() {
         _results = response.users;
         _isSearching = false;
       });
     } on DioException catch (e) {
-      if (!mounted) return;
+      if (!mounted || generation != _searchGeneration) return;
       setState(() {
         _isSearching = false;
         _errorMessage = parseApiError(e);
         _results = [];
       });
     } catch (_) {
-      if (!mounted) return;
+      if (!mounted || generation != _searchGeneration) return;
       setState(() {
         _isSearching = false;
         _errorMessage = 'Search failed. Please try again.';
@@ -102,14 +145,16 @@ class _UserSearchDialogState extends ConsumerState<UserSearchDialog> {
       720.0,
     );
 
-    return Dialog(
-      backgroundColor: AppConstants.surfaceColor,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
-      ),
-      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-      child: ConstrainedBox(
+    return PopScope(
+      canPop: false,
+      child: Dialog(
+        backgroundColor: AppConstants.surfaceColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
+        ),
+        insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+        child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: maxWidth, maxHeight: maxHeight),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -161,14 +206,9 @@ class _UserSearchDialogState extends ConsumerState<UserSearchDialog> {
                       child: TextField(
                         controller: _queryController,
                         focusNode: _focusNode,
-                        enabled: !_isSearching,
                         textInputAction: TextInputAction.search,
-                        onSubmitted: (_) => _search(),
-                        onChanged: (_) {
-                          if (_validationMessage != null) {
-                            setState(() => _validationMessage = null);
-                          }
-                        },
+                        onSubmitted: (_) => _searchNow(),
+                        onChanged: _onQueryChanged,
                         style: const TextStyle(color: Colors.white),
                         cursorColor: AppConstants.primary,
                         decoration: InputDecoration(
@@ -201,7 +241,7 @@ class _UserSearchDialogState extends ConsumerState<UserSearchDialog> {
                     ),
                     const SizedBox(width: 12),
                     TextButton(
-                      onPressed: _isSearching ? null : _search,
+                      onPressed: _searchNow,
                       style: TextButton.styleFrom(
                         foregroundColor: AppConstants.primary,
                         padding: const EdgeInsets.symmetric(
@@ -217,13 +257,7 @@ class _UserSearchDialogState extends ConsumerState<UserSearchDialog> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: _isSearching
-                          ? const SizedBox(
-                              width: 18,
-                              height: 18,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Text('Search'),
+                      child: const Text('Search'),
                     ),
                   ],
                 ),
@@ -260,6 +294,7 @@ class _UserSearchDialogState extends ConsumerState<UserSearchDialog> {
           ],
         ),
       ),
+      ),
     );
   }
 
@@ -278,7 +313,7 @@ class _UserSearchDialogState extends ConsumerState<UserSearchDialog> {
         child: Padding(
           padding: const EdgeInsets.all(32),
           child: Text(
-            'Search by display name or email address.',
+            'Type a name or email — results update after you pause typing.',
             textAlign: TextAlign.center,
             style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white54),
           ),

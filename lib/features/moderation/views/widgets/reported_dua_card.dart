@@ -14,7 +14,6 @@ class ReportedDuaCard extends ConsumerWidget {
 
   final ModerationReport report;
 
-  static const Color _warning = Color(0xFFFFB74D);
   static const Color _success = Color(0xFF81C784);
   static const Color _danger = Color(0xFFE57373);
   static const Color _restoreGreen = Color(0xFF66BB6A);
@@ -22,7 +21,6 @@ class ReportedDuaCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final statusColor = report.isOpen ? _warning : _success;
     final hiddenPostIds = ref.watch(
       reportedDuasProvider.select((state) => state.hiddenPostIds),
     );
@@ -31,6 +29,23 @@ class ReportedDuaCard extends ConsumerWidget {
       report,
       {...hiddenPostIds, ...cachedHiddenIds},
     );
+    final displayName = report.postUserDisplayName.isNotEmpty
+        ? report.postUserDisplayName
+        : 'Unknown author';
+    final location = report.postLocation.isNotEmpty
+        ? report.postLocation
+        : 'No location';
+    final postStatusLabel = report.postStatus.isNotEmpty
+        ? _titleCase(report.postStatus)
+        : (isPostHidden ? 'Hidden' : 'Active');
+    final postStatusColor =
+        isPostHidden || postStatusLabel.toLowerCase() == 'hidden'
+            ? _danger
+            : _success;
+
+    final duaText = report.postContent.isNotEmpty
+        ? report.postContent
+        : 'No content available';
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -42,79 +57,107 @@ class ReportedDuaCard extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: AppConstants.primary.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(
-                  Icons.flag_rounded,
-                  color: AppConstants.primary,
-                  size: 22,
-                ),
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () => _showReportDetailsDialog(
+                context,
+                report: report,
+                isPostHidden: isPostHidden,
               ),
-              const SizedBox(width: 12),
-              Expanded(
+              borderRadius: BorderRadius.circular(10),
+              mouseCursor: SystemMouseCursors.click,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 2),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Post ${_shortId(report.postId)}',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: AppConstants.primary.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(
+                            Icons.flag_rounded,
+                            color: AppConstants.primary,
+                            size: 22,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                displayName,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                location,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: Colors.white70,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Reported ${_formatDate(report.createdAt)}',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: Colors.white54,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        _StatusBadge(
+                          label: 'Post $postStatusLabel',
+                          color: postStatusColor,
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Reported ${_formatDate(report.createdAt)}',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: Colors.white70,
-                      ),
+                    const SizedBox(height: 14),
+                    _DetailBlock(label: 'Dua', value: duaText),
+                    const SizedBox(height: 14),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        ContentMetaChip(
+                          label: '${report.postReportCount} reports',
+                        ),
+                        ContentMetaChip(
+                          label: '${report.postAmeenCount} ameen',
+                        ),
+                        if (report.postCreatedAt != null)
+                          ContentMetaChip(
+                            label: 'Posted ${_formatDate(report.postCreatedAt)}',
+                          ),
+                        if (isPostHidden && report.postHiddenAt != null)
+                          ContentMetaChip(
+                            label:
+                                'Hidden ${_formatDate(report.postHiddenAt)}',
+                          ),
+                      ],
                     ),
                   ],
                 ),
               ),
-              const SizedBox(width: 8),
-              _StatusBadge(
-                label: _titleCase(report.status),
-                color: statusColor,
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
-          _DetailBlock(
-            label: 'Reason',
-            value: report.reason.isNotEmpty ? report.reason : 'No reason given',
-          ),
-          if (report.details.isNotEmpty) ...[
-            const SizedBox(height: 10),
-            _DetailBlock(label: 'Details', value: report.details),
-          ],
-          const SizedBox(height: 14),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              ContentMetaChip(label: 'Author ${_shortId(report.postAuthorUserId)}'),
-              ContentMetaChip(
-                label: 'Reporter ${_shortId(report.reporterUserId)}',
-              ),
-            ],
+            ),
           ),
           const SizedBox(height: 14),
           Row(
             children: [
-              if (isPostHidden)
-                Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: ContentMetaChip(label: 'Post hidden'),
-                ),
               const Spacer(),
               if (isPostHidden)
                 TextButton.icon(
@@ -167,6 +210,71 @@ class ReportedDuaCard extends ConsumerWidget {
     );
   }
 
+  static void _showReportDetailsDialog(
+    BuildContext context, {
+    required ModerationReport report,
+    required bool isPostHidden,
+  }) {
+    final theme = Theme.of(context);
+
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: AppConstants.surfaceColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
+          ),
+          title: Text(
+            'Report details',
+            style: theme.textTheme.titleLarge?.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          content: SizedBox(
+            width: 420,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _DetailBlock(
+                  label: 'Report reason',
+                  value: report.reason.isNotEmpty
+                      ? report.reason
+                      : 'No reason given',
+                ),
+                const SizedBox(height: 10),
+                _DetailBlock(
+                  label: 'Reporter note',
+                  value: report.details.isNotEmpty
+                      ? report.details
+                      : 'No note provided',
+                ),
+                if (isPostHidden) ...[
+                  const SizedBox(height: 10),
+                  _DetailBlock(
+                    label: 'Hidden reason by admin',
+                    value: report.postHiddenReason.isNotEmpty
+                        ? report.postHiddenReason
+                        : 'No reason recorded',
+                  ),
+                ],
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Future<void> _onHidePressed(BuildContext context, WidgetRef ref) async {
     final hidden = await showHideDuaDialog(
       context,
@@ -176,7 +284,7 @@ class ReportedDuaCard extends ConsumerWidget {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Post ${_shortId(report.postId)} has been hidden.'),
+        content: Text('${_postSummary(report)} has been hidden.'),
       ),
     );
     await ref.read(reportedDuasProvider.notifier).refresh();
@@ -192,16 +300,23 @@ class ReportedDuaCard extends ConsumerWidget {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Post ${_shortId(report.postId)} has been restored.'),
+        content: Text('${_postSummary(report)} has been restored.'),
       ),
     );
     await ref.read(reportedDuasProvider.notifier).refresh();
     await ref.read(hiddenPostsPaginationProvider.notifier).refresh();
   }
 
-  static String _shortId(String value) {
-    if (value.length <= 10) return value;
-    return '${value.substring(0, 8)}…';
+  static String _postSummary(ModerationReport report) {
+    if (report.postContent.isNotEmpty) {
+      final content = report.postContent.trim();
+      if (content.length <= 48) return '"$content"';
+      return '"${content.substring(0, 45)}…"';
+    }
+    if (report.postUserDisplayName.isNotEmpty) {
+      return "${report.postUserDisplayName}'s dua";
+    }
+    return 'Dua';
   }
 
   static String _titleCase(String value) {

@@ -64,7 +64,9 @@ class _UserDetailDialogState extends ConsumerState<UserDetailDialog> {
   void initState() {
     super.initState();
     Future.microtask(
-      () => ref.read(userDetailCacheProvider.notifier).ensureLoaded(widget.userId),
+      () => ref
+          .read(userDetailCacheProvider.notifier)
+          .ensureLoaded(widget.userId),
     );
   }
 
@@ -104,9 +106,21 @@ class _UserDetailDialogState extends ConsumerState<UserDetailDialog> {
     final theme = Theme.of(context);
     final maxHeight = MediaQuery.sizeOf(context).height * 0.88;
     final dialogWidth = _dialogMaxWidth(context);
-    final isLoading = entry.isLoading && !entry.hasDetail;
     final errorMessage = entry.errorMessage;
     final detail = entry.detail;
+
+    final Widget body;
+    if (detail != null) {
+      body = _buildContent(context, entry, detail);
+    } else if (errorMessage != null) {
+      body = _DialogError(
+        message: errorMessage,
+        onRetry: () =>
+            ref.read(userDetailCacheProvider.notifier).retry(widget.userId),
+      );
+    } else {
+      body = const _DialogLoading();
+    }
 
     return Dialog(
       backgroundColor: AppConstants.surfaceColor,
@@ -158,18 +172,7 @@ class _UserDetailDialogState extends ConsumerState<UserDetailDialog> {
               ),
             ),
             const Divider(height: 1, color: Color(0xFF1E1E20)),
-            Flexible(
-              child: isLoading
-                  ? const _DialogLoading()
-                  : errorMessage != null && detail == null
-                      ? _DialogError(
-                          message: errorMessage,
-                          onRetry: () => ref
-                              .read(userDetailCacheProvider.notifier)
-                              .retry(widget.userId),
-                        )
-                      : _buildContent(context, entry, detail!),
-            ),
+            Flexible(child: body),
             const Divider(height: 1, color: Color(0xFF1E1E20)),
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 12, 24, 20),
