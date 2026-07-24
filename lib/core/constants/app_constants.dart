@@ -15,4 +15,6 @@ class AppConstants {
   static final Color inputFillColor = Color.lerp(bgColor, white, 0.04)!;
 
   static const String emamLogo = 'assets/images/emam.png';
+
+  static const String feedbackUrl = 'https://crisp.chat/en/';
 }

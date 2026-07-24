@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 Future<void> _confirmAndSignOut(BuildContext context, WidgetRef ref) async {
   final theme = Theme.of(context);
@@ -57,6 +58,30 @@ class AppDrawer extends ConsumerWidget {
     context.go(path);
   }
 
+  Future<void> _openFeedback(BuildContext context) async {
+    if (Scaffold.maybeOf(context)?.isDrawerOpen ?? false) {
+      Navigator.of(context).pop();
+    }
+    final uri = Uri.parse(AppConstants.feedbackUrl);
+    try {
+      final launched = await launchUrl(
+        uri,
+        webOnlyWindowName: '_blank',
+      );
+      if (!launched && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not open feedback link')),
+        );
+      }
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not open feedback link')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentPath = GoRouterState.of(context).matchedLocation;
@@ -91,7 +116,7 @@ class AppDrawer extends ConsumerWidget {
           ListTile(
             leading: const Icon(Icons.feedback),
             title: const Text('F E E D B A C K'),
-            onTap: () {},
+            onTap: () => _openFeedback(context),
           ),
           ListTile(
             leading: const Icon(CupertinoIcons.arrow_left_square_fill),
