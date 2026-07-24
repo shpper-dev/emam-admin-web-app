@@ -1,5 +1,6 @@
 import 'package:emam_admin_web_app/core/constants/app_constants.dart';
 import 'package:emam_admin_web_app/features/content/views/widgets/content_section_card.dart';
+import 'package:emam_admin_web_app/features/dashboard/provider/selected_users_tab_provider.dart';
 import 'package:emam_admin_web_app/features/moderation/provider/hidden_posts_provider.dart';
 import 'package:emam_admin_web_app/features/moderation/provider/reported_duas_provider.dart';
 import 'package:emam_admin_web_app/features/users/provider/restricted_users_provider.dart';
@@ -9,18 +10,12 @@ import 'package:emam_admin_web_app/features/users/views/widgets/users_management
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class DashboardView extends ConsumerStatefulWidget {
+class DashboardView extends ConsumerWidget {
   const DashboardView({super.key});
 
   @override
-  ConsumerState<DashboardView> createState() => _DashboardViewState();
-}
-
-class _DashboardViewState extends ConsumerState<DashboardView> {
-  UsersTab _selectedTab = UsersTab.all;
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectedTab = ref.watch(selectedUsersTabProvider);
     final usersState = ref.watch(usersPaginationProvider);
     final usersNotifier = ref.read(usersPaginationProvider.notifier);
     final restrictedState = ref.watch(restrictedUsersPaginationProvider);
@@ -40,7 +35,7 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
           color: AppConstants.primary,
           backgroundColor: AppConstants.surfaceColor,
           onRefresh: () async {
-            switch (_selectedTab) {
+            switch (selectedTab) {
               case UsersTab.all:
                 await usersNotifier.refresh();
               case UsersTab.blocked:
@@ -113,8 +108,10 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
                 ),
                 const SizedBox(height: 24),
                 _DashboardStatsRow(
-                  selectedTab: _selectedTab,
-                  onTabSelected: (tab) => setState(() => _selectedTab = tab),
+                  selectedTab: selectedTab,
+                  onTabSelected: ref
+                      .read(selectedUsersTabProvider.notifier)
+                      .select,
                   usersState: usersState,
                   restrictedState: restrictedState,
                   reportedDuasState: reportedDuasState,
@@ -122,7 +119,7 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
                 ),
                 const SizedBox(height: 24),
                 UsersManagementSection(
-                  selectedTab: _selectedTab,
+                  selectedTab: selectedTab,
                   usersState: usersState,
                   restrictedState: restrictedState,
                   reportedDuasState: reportedDuasState,
