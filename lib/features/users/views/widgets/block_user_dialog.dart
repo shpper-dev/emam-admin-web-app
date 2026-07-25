@@ -1,6 +1,9 @@
 import 'package:dio/dio.dart';
-import 'package:emam_admin_web_app/core/constants/app_constants.dart';
 import 'package:emam_admin_web_app/core/network/api_error.dart';
+import 'package:emam_admin_web_app/core/widgets/admin_alert_dialog.dart';
+import 'package:emam_admin_web_app/core/widgets/dialog_error_text.dart';
+import 'package:emam_admin_web_app/core/widgets/dialog_submit_button.dart';
+import 'package:emam_admin_web_app/core/widgets/reason_text_field.dart';
 import 'package:emam_admin_web_app/features/users/provider/users_repository_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -86,85 +89,40 @@ class _BlockUserDialogState extends ConsumerState<BlockUserDialog> {
         ? widget.displayName
         : 'this user';
 
-    return AlertDialog(
-      backgroundColor: AppConstants.surfaceColor,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
-      ),
-      title: Text(
-        'Block user',
-        style: theme.textTheme.titleLarge?.copyWith(
-          color: Colors.white,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-      content: SizedBox(
-        width: 420,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Apply a 30-day posting restriction to $name.',
-              style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white70),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _reasonController,
-              enabled: !_isSubmitting,
-              maxLines: 3,
-              style: const TextStyle(color: Colors.white),
-              cursorColor: AppConstants.primary,
-              onChanged: (_) => setState(() {}),
-              decoration: InputDecoration(
-                labelText: 'Reason',
-                labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
-                filled: true,
-                fillColor: AppConstants.inputFillColor,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(
-                    color: Colors.white.withValues(alpha: 0.12),
-                  ),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(
-                    color: Colors.white.withValues(alpha: 0.12),
-                  ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: AppConstants.primary),
-                ),
-              ),
-            ),
-            if (_errorMessage != null) ...[
-              const SizedBox(height: 12),
-              Text(
-                _errorMessage!,
-                style: theme.textTheme.bodySmall?.copyWith(color: _danger),
-              ),
-            ],
+    return AdminAlertDialog(
+      title: 'Block user',
+      contentWidth: 420,
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Apply a 30-day posting restriction to $name.',
+            style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white70),
+          ),
+          const SizedBox(height: 16),
+          ReasonTextField(
+            controller: _reasonController,
+            enabled: !_isSubmitting,
+            onChanged: (_) => setState(() {}),
+          ),
+          if (_errorMessage != null) ...[
+            const SizedBox(height: 12),
+            DialogErrorText(_errorMessage!),
           ],
-        ),
+        ],
       ),
       actions: [
         TextButton(
           onPressed: _isSubmitting ? null : () => Navigator.of(context).pop(),
           child: const Text('Cancel'),
         ),
-        TextButton(
-          onPressed: _canSubmit ? _submit : null,
-          style: TextButton.styleFrom(foregroundColor: _danger),
-          child: _isSubmitting
-              ? const SizedBox(
-                  width: 18,
-                  height: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : const Text('Block'),
+        DialogSubmitButton(
+          label: 'Block',
+          color: _danger,
+          enabled: _canSubmit,
+          isSubmitting: _isSubmitting,
+          onPressed: _submit,
         ),
       ],
     );

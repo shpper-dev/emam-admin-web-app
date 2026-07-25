@@ -1,4 +1,4 @@
-import 'package:emam_admin_web_app/core/constants/app_constants.dart';
+import 'package:emam_admin_web_app/core/widgets/section_empty_message.dart';
 import 'package:emam_admin_web_app/features/content/views/widgets/content_section_card.dart';
 import 'package:emam_admin_web_app/features/moderation/models/hidden_post.dart';
 import 'package:emam_admin_web_app/features/moderation/models/moderation_report.dart';
@@ -221,10 +221,10 @@ class UsersManagementSection extends StatelessWidget {
     required List<ModerationReport> reports,
   }) {
     if (isLoading) {
-      return const _PanelLoading();
+      return const SectionLoadingIndicator();
     }
     if (errorMessage != null) {
-      return _PanelError(
+      return SectionErrorMessage(
         message: errorMessage,
         onRetry: isAll
             ? onUsersRetry
@@ -298,7 +298,7 @@ class _AllUsersBody extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (users.isEmpty)
-          const _EmptyMessage('No users found.')
+          const SectionEmptyMessage('No users found.')
         else
           _UserGrid(
             itemCount: users.length,
@@ -333,7 +333,7 @@ class _ReportedDuasBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (reports.isEmpty) {
-      return const _EmptyMessage('No reported duas found.');
+      return const SectionEmptyMessage('No reported duas found.');
     }
 
     return _UserGrid(
@@ -368,7 +368,7 @@ class _HiddenPostsBody extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (posts.isEmpty)
-          const _EmptyMessage('No hidden posts found.')
+          const SectionEmptyMessage('No hidden posts found.')
         else
           _UserGrid(
             itemCount: posts.length,
@@ -411,7 +411,7 @@ class _BlockedUsersBody extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (users.isEmpty)
-          const _EmptyMessage('No blocked users found.')
+          const SectionEmptyMessage('No blocked users found.')
         else
           _UserGrid(
             itemCount: users.length,
@@ -482,74 +482,3 @@ int _gridColumns(double width) {
   return 1;
 }
 
-class _EmptyMessage extends StatelessWidget {
-  const _EmptyMessage(this.message);
-
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 24),
-        child: Text(
-          message,
-          style: const TextStyle(color: Colors.white54),
-        ),
-      ),
-    );
-  }
-}
-
-class _PanelLoading extends StatelessWidget {
-  const _PanelLoading();
-
-  @override
-  Widget build(BuildContext context) {
-    return const SizedBox(
-      height: 120,
-      child: Center(
-        child: SizedBox(
-          height: 28,
-          width: 28,
-          child: CircularProgressIndicator(
-            strokeWidth: 2.4,
-            color: AppConstants.primary,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _PanelError extends StatelessWidget {
-  const _PanelError({required this.message, required this.onRetry});
-
-  final String message;
-  final Future<void> Function() onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          const Icon(Icons.error_outline, color: Colors.white54),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              message,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium
-                  ?.copyWith(color: Colors.white70),
-            ),
-          ),
-          const SizedBox(width: 12),
-          TextButton(onPressed: onRetry, child: const Text('Retry')),
-        ],
-      ),
-    );
-  }
-}

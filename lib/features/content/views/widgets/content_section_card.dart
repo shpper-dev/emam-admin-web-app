@@ -235,13 +235,13 @@ class ContentSectionAsync<T> extends StatelessWidget {
         title: title,
         subtitle: subtitle,
         icon: icon,
-        child: const _SectionLoading(),
+        child: const SectionLoadingIndicator(),
       ),
       error: (error, _) => ContentSectionCard(
         title: title,
         subtitle: subtitle,
         icon: icon,
-        child: _SectionError(
+        child: SectionErrorMessage(
           message: error is DioException
               ? parseApiError(error)
               : 'Failed to load. Please try again.',
@@ -253,8 +253,9 @@ class ContentSectionAsync<T> extends StatelessWidget {
   }
 }
 
-class _SectionLoading extends StatelessWidget {
-  const _SectionLoading();
+/// Small centered spinner shown while a section's content is loading.
+class SectionLoadingIndicator extends StatelessWidget {
+  const SectionLoadingIndicator({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -274,8 +275,10 @@ class _SectionLoading extends StatelessWidget {
   }
 }
 
-class _SectionError extends StatelessWidget {
-  const _SectionError({required this.message, required this.onRetry});
+/// Error row with a retry button, shown in place of a section's content
+/// when its data failed to load.
+class SectionErrorMessage extends StatelessWidget {
+  const SectionErrorMessage({super.key, required this.message, required this.onRetry});
 
   final String message;
   final VoidCallback onRetry;

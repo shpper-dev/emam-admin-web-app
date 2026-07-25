@@ -1,4 +1,9 @@
 import 'package:emam_admin_web_app/core/constants/app_constants.dart';
+import 'package:emam_admin_web_app/core/utils/formatters.dart';
+import 'package:emam_admin_web_app/core/widgets/admin_alert_dialog.dart';
+import 'package:emam_admin_web_app/core/widgets/detail_block.dart';
+import 'package:emam_admin_web_app/core/widgets/pill_action_button.dart';
+import 'package:emam_admin_web_app/core/widgets/status_badge.dart';
 import 'package:emam_admin_web_app/features/content/views/widgets/content_section_card.dart';
 import 'package:emam_admin_web_app/features/moderation/models/moderation_report.dart';
 import 'package:emam_admin_web_app/features/moderation/provider/hidden_posts_provider.dart';
@@ -36,7 +41,7 @@ class ReportedDuaCard extends ConsumerWidget {
         ? report.postLocation
         : 'No location';
     final postStatusLabel = report.postStatus.isNotEmpty
-        ? _titleCase(report.postStatus)
+        ? titleCase(report.postStatus)
         : (isPostHidden ? 'Hidden' : 'Active');
     final postStatusColor =
         isPostHidden || postStatusLabel.toLowerCase() == 'hidden'
@@ -49,11 +54,7 @@ class ReportedDuaCard extends ConsumerWidget {
 
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppConstants.bgColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
-      ),
+      decoration: AppConstants.cardDecoration,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -111,7 +112,7 @@ class ReportedDuaCard extends ConsumerWidget {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'Reported ${_formatDate(report.createdAt)}',
+                                'Reported ${_formatReportDate(report.createdAt)}',
                                 style: theme.textTheme.bodySmall?.copyWith(
                                   color: Colors.white54,
                                 ),
@@ -120,14 +121,14 @@ class ReportedDuaCard extends ConsumerWidget {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        _StatusBadge(
+                        StatusBadge(
                           label: 'Post $postStatusLabel',
                           color: postStatusColor,
                         ),
                       ],
                     ),
                     const SizedBox(height: 14),
-                    _DetailBlock(label: 'Dua', value: duaText),
+                    DetailBlock(label: 'Dua', value: duaText),
                     const SizedBox(height: 14),
                     Wrap(
                       spacing: 8,
@@ -141,12 +142,12 @@ class ReportedDuaCard extends ConsumerWidget {
                         ),
                         if (report.postCreatedAt != null)
                           ContentMetaChip(
-                            label: 'Posted ${_formatDate(report.postCreatedAt)}',
+                            label: 'Posted ${_formatReportDate(report.postCreatedAt)}',
                           ),
                         if (isPostHidden && report.postHiddenAt != null)
                           ContentMetaChip(
                             label:
-                                'Hidden ${_formatDate(report.postHiddenAt)}',
+                                'Hidden ${_formatReportDate(report.postHiddenAt)}',
                           ),
                       ],
                     ),
@@ -160,48 +161,22 @@ class ReportedDuaCard extends ConsumerWidget {
             children: [
               const Spacer(),
               if (isPostHidden)
-                TextButton.icon(
+                PillActionButton(
+                  icon: Icons.visibility_rounded,
+                  label: 'Restore',
+                  color: _restoreGreen,
                   onPressed: report.postId.isEmpty
                       ? null
                       : () => _onRestorePressed(context, ref),
-                  icon: const Icon(Icons.visibility_rounded, size: 18),
-                  label: const Text('Restore'),
-                  style: TextButton.styleFrom(
-                    foregroundColor: _restoreGreen,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 12,
-                    ),
-                    minimumSize: Size.zero,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    side: BorderSide(
-                      color: _restoreGreen.withValues(alpha: 0.55),
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
                 )
               else
-                TextButton.icon(
+                PillActionButton(
+                  icon: Icons.visibility_off_rounded,
+                  label: 'Hide',
+                  color: _danger,
                   onPressed: report.postId.isEmpty
                       ? null
                       : () => _onHidePressed(context, ref),
-                  icon: const Icon(Icons.visibility_off_rounded, size: 18),
-                  label: const Text('Hide'),
-                  style: TextButton.styleFrom(
-                    foregroundColor: _danger,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 12,
-                    ),
-                    minimumSize: Size.zero,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    side: BorderSide(color: _danger.withValues(alpha: 0.55)),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
                 ),
             ],
           ),
@@ -215,54 +190,39 @@ class ReportedDuaCard extends ConsumerWidget {
     required ModerationReport report,
     required bool isPostHidden,
   }) {
-    final theme = Theme.of(context);
-
     showDialog<void>(
       context: context,
       builder: (dialogContext) {
-        return AlertDialog(
-          backgroundColor: AppConstants.surfaceColor,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-            side: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
-          ),
-          title: Text(
-            'Report details',
-            style: theme.textTheme.titleLarge?.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          content: SizedBox(
-            width: 420,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                _DetailBlock(
-                  label: 'Report reason',
-                  value: report.reason.isNotEmpty
-                      ? report.reason
-                      : 'No reason given',
-                ),
+        return AdminAlertDialog(
+          title: 'Report details',
+          contentWidth: 420,
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              DetailBlock(
+                label: 'Report reason',
+                value: report.reason.isNotEmpty
+                    ? report.reason
+                    : 'No reason given',
+              ),
+              const SizedBox(height: 10),
+              DetailBlock(
+                label: 'Reporter note',
+                value: report.details.isNotEmpty
+                    ? report.details
+                    : 'No note provided',
+              ),
+              if (isPostHidden) ...[
                 const SizedBox(height: 10),
-                _DetailBlock(
-                  label: 'Reporter note',
-                  value: report.details.isNotEmpty
-                      ? report.details
-                      : 'No note provided',
+                DetailBlock(
+                  label: 'Hidden reason by admin',
+                  value: report.postHiddenReason.isNotEmpty
+                      ? report.postHiddenReason
+                      : 'No reason recorded',
                 ),
-                if (isPostHidden) ...[
-                  const SizedBox(height: 10),
-                  _DetailBlock(
-                    label: 'Hidden reason by admin',
-                    value: report.postHiddenReason.isNotEmpty
-                        ? report.postHiddenReason
-                        : 'No reason recorded',
-                  ),
-                ],
               ],
-            ),
+            ],
           ),
           actions: [
             TextButton(
@@ -319,85 +279,6 @@ class ReportedDuaCard extends ConsumerWidget {
     return 'Dua';
   }
 
-  static String _titleCase(String value) {
-    if (value.isEmpty) return value;
-    return value[0].toUpperCase() + value.substring(1).toLowerCase();
-  }
-
-  static String _formatDate(DateTime? date) {
-    if (date == null) return 'unknown date';
-    final local = date.toLocal();
-    return '${local.year.toString().padLeft(4, '0')}-'
-        '${local.month.toString().padLeft(2, '0')}-'
-        '${local.day.toString().padLeft(2, '0')} '
-        '${local.hour.toString().padLeft(2, '0')}:'
-        '${local.minute.toString().padLeft(2, '0')}';
-  }
-}
-
-class _DetailBlock extends StatelessWidget {
-  const _DetailBlock({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.03),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: Colors.white54,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: Colors.white.withValues(alpha: 0.88),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _StatusBadge extends StatelessWidget {
-  const _StatusBadge({required this.label, required this.color});
-
-  final String label;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.14),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withValues(alpha: 0.4)),
-      ),
-      child: Text(
-        label,
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: color,
-              fontWeight: FontWeight.w700,
-            ),
-      ),
-    );
-  }
+  static String _formatReportDate(DateTime? date) =>
+      formatAdminDate(date, unknownLabel: 'unknown date', includeTime: true);
 }

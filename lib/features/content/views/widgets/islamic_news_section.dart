@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:emam_admin_web_app/core/constants/app_constants.dart';
 import 'package:emam_admin_web_app/core/utils/image_proxy.dart';
+import 'package:emam_admin_web_app/core/widgets/section_empty_message.dart';
 import 'package:emam_admin_web_app/features/content/models/islamic_news_item.dart';
 import 'package:emam_admin_web_app/features/content/views/widgets/content_section_card.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +22,12 @@ class IslamicNewsSection extends StatelessWidget {
           ? ContentMetaChip(label: _formatGeneratedAt(news.generatedAt))
           : null,
       child: news.newsFeed.isEmpty
-          ? const _EmptyState(message: 'No news articles available.')
+          ? SectionEmptyMessage(
+              'No news articles available.',
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: Colors.white54),
+            )
           : LayoutBuilder(
               builder: (context, constraints) {
                 final columns = contentGridColumns(constraints.maxWidth);
@@ -59,11 +65,7 @@ class _NewsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppConstants.bgColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
-      ),
+      decoration: AppConstants.cardDecoration,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -144,28 +146,6 @@ class _NewsCard extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _EmptyState extends StatelessWidget {
-  const _EmptyState({required this.message});
-
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 24),
-      child: Center(
-        child: Text(
-          message,
-          style: Theme.of(context)
-              .textTheme
-              .bodyMedium
-              ?.copyWith(color: Colors.white54),
-        ),
       ),
     );
   }

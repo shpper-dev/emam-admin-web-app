@@ -1,4 +1,7 @@
 import 'package:emam_admin_web_app/core/constants/app_constants.dart';
+import 'package:emam_admin_web_app/core/utils/formatters.dart';
+import 'package:emam_admin_web_app/core/widgets/pill_action_button.dart';
+import 'package:emam_admin_web_app/core/widgets/status_badge.dart';
 import 'package:emam_admin_web_app/features/content/views/widgets/content_section_card.dart';
 import 'package:emam_admin_web_app/features/users/models/restricted_user.dart';
 import 'package:emam_admin_web_app/features/users/provider/user_detail_cache_provider.dart';
@@ -40,7 +43,7 @@ class RestrictedUserCard extends ConsumerWidget {
     final restrictionColor =
         moderation.isPermanent ? _danger : _warning;
     final restrictionLabel = moderation.postingRestriction.isNotEmpty
-        ? _titleCase(moderation.postingRestriction)
+        ? titleCase(moderation.postingRestriction)
         : 'Restricted';
 
     return Material(
@@ -50,11 +53,7 @@ class RestrictedUserCard extends ConsumerWidget {
         onTap: onTap,
         child: Container(
           padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: AppConstants.bgColor,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
-          ),
+          decoration: AppConstants.cardDecoration,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -92,7 +91,7 @@ class RestrictedUserCard extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  _RestrictionBadge(
+                  StatusBadge(
                     label: restrictionLabel,
                     color: restrictionColor,
                   ),
@@ -146,7 +145,7 @@ class RestrictedUserCard extends ConsumerWidget {
                     _StatusChip(
                       icon: Icons.schedule_rounded,
                       label:
-                          'Until ${_formatDate(moderation.restrictedUntil!)}',
+                          'Until ${formatAdminDate(moderation.restrictedUntil)}',
                       color: restrictionColor,
                     ),
                   if ((profile.gender ?? '').isNotEmpty)
@@ -158,36 +157,22 @@ class RestrictedUserCard extends ConsumerWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      'Updated ${_formatDate(user.updatedAt)}',
+                      'Updated ${formatAdminDate(user.updatedAt)}',
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: Colors.white54,
                       ),
                     ),
                   ),
-                  TextButton.icon(
+                  PillActionButton(
+                    icon: Icons.lock_open_rounded,
+                    label: 'Unblock',
+                    color: _unblockGreen,
                     onPressed: () => _onUnblockPressed(
                       context,
                       ref,
                       userId: cacheUserId,
                       displayName: displayName,
                       restrictedUntil: moderation.restrictedUntil,
-                    ),
-                    icon: const Icon(Icons.lock_open_rounded, size: 18),
-                    label: const Text('Unblock'),
-                    style: TextButton.styleFrom(
-                      foregroundColor: _unblockGreen,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 12,
-                      ),
-                      minimumSize: Size.zero,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      side: BorderSide(
-                        color: _unblockGreen.withValues(alpha: 0.55),
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
                     ),
                   ),
                 ],
@@ -224,44 +209,6 @@ class RestrictedUserCard extends ConsumerWidget {
     await refreshAfterUserRestrictionChange(ref, userId: userId);
   }
 
-  static String _titleCase(String value) {
-    if (value.isEmpty) return value;
-    return value[0].toUpperCase() + value.substring(1).toLowerCase();
-  }
-
-  static String _formatDate(DateTime? date) {
-    if (date == null) return 'unknown';
-    final local = date.toLocal();
-    return '${local.year.toString().padLeft(4, '0')}-'
-        '${local.month.toString().padLeft(2, '0')}-'
-        '${local.day.toString().padLeft(2, '0')}';
-  }
-}
-
-class _RestrictionBadge extends StatelessWidget {
-  const _RestrictionBadge({required this.label, required this.color});
-
-  final String label;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.14),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withValues(alpha: 0.4)),
-      ),
-      child: Text(
-        label,
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: color,
-              fontWeight: FontWeight.w700,
-            ),
-      ),
-    );
-  }
 }
 
 class _StatusChip extends StatelessWidget {

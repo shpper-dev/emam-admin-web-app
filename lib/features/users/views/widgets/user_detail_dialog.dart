@@ -1,4 +1,5 @@
 import 'package:emam_admin_web_app/core/constants/app_constants.dart';
+import 'package:emam_admin_web_app/core/utils/formatters.dart';
 import 'package:emam_admin_web_app/features/content/views/widgets/content_section_card.dart';
 import 'package:emam_admin_web_app/features/users/models/app_user.dart';
 import 'package:emam_admin_web_app/features/users/models/user_detail.dart';
@@ -8,15 +9,7 @@ import 'package:emam_admin_web_app/features/users/views/widgets/users_pagination
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-String _formatDetailDate(DateTime? date) {
-  if (date == null) return 'unknown';
-  final local = date.toLocal();
-  return '${local.year.toString().padLeft(4, '0')}-'
-      '${local.month.toString().padLeft(2, '0')}-'
-      '${local.day.toString().padLeft(2, '0')} '
-      '${local.hour.toString().padLeft(2, '0')}:'
-      '${local.minute.toString().padLeft(2, '0')}';
-}
+String _formatDetailDate(DateTime? date) => formatAdminDate(date, includeTime: true);
 
 String _titleCaseLabel(String value) {
   if (value.isEmpty) return '—';

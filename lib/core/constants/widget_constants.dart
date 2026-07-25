@@ -1,5 +1,6 @@
 import 'package:emam_admin_web_app/core/constants/app_constants.dart';
 import 'package:emam_admin_web_app/core/router/route_paths.dart';
+import 'package:emam_admin_web_app/core/widgets/admin_alert_dialog.dart';
 import 'package:emam_admin_web_app/features/auth/provider/auth_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -12,19 +13,8 @@ Future<void> _confirmAndSignOut(BuildContext context, WidgetRef ref) async {
   final confirmed = await showDialog<bool>(
     context: context,
     builder: (dialogContext) {
-      return AlertDialog(
-        backgroundColor: AppConstants.surfaceColor,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
-        ),
-        title: Text(
-          'Log out',
-          style: theme.textTheme.titleLarge?.copyWith(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+      return AdminAlertDialog(
+        title: 'Log out',
         content: Text(
           'Are you sure you want to log out?',
           style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white70),

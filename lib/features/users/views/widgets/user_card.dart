@@ -1,4 +1,6 @@
 import 'package:emam_admin_web_app/core/constants/app_constants.dart';
+import 'package:emam_admin_web_app/core/utils/formatters.dart';
+import 'package:emam_admin_web_app/core/widgets/pill_action_button.dart';
 import 'package:emam_admin_web_app/features/users/models/app_user.dart';
 import 'package:emam_admin_web_app/features/users/models/user_detail.dart';
 import 'package:emam_admin_web_app/features/users/models/restricted_user.dart';
@@ -52,11 +54,7 @@ class UserCard extends ConsumerWidget {
         onTap: onTap,
         child: Container(
           padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: AppConstants.bgColor,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
-          ),
+          decoration: AppConstants.cardDecoration,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -108,52 +106,26 @@ class UserCard extends ConsumerWidget {
                     ),
                   ),
                   if (isRestricted)
-                    TextButton.icon(
+                    PillActionButton(
+                      icon: Icons.lock_open_rounded,
+                      label: 'Unblock',
+                      color: _unblockGreen,
                       onPressed: () => _onUnblockPressed(
                         context,
                         ref,
                         displayName: displayName,
                         restrictedUntil: restrictedUntil,
                       ),
-                      icon: const Icon(Icons.lock_open_rounded, size: 18),
-                      label: const Text('Unblock'),
-                      style: TextButton.styleFrom(
-                        foregroundColor: _unblockGreen,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 12,
-                        ),
-                        minimumSize: Size.zero,
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        side: BorderSide(
-                          color: _unblockGreen.withValues(alpha: 0.55),
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
                     )
                   else
-                    TextButton.icon(
+                    PillActionButton(
+                      icon: Icons.block_rounded,
+                      label: 'Block',
+                      color: _danger,
                       onPressed: () => _onBlockPressed(
                         context,
                         ref,
                         displayName: displayName,
-                      ),
-                      icon: const Icon(Icons.block_rounded, size: 18),
-                      label: const Text('Block'),
-                      style: TextButton.styleFrom(
-                        foregroundColor: _danger,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 12,
-                        ),
-                        minimumSize: Size.zero,
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        side: BorderSide(color: _danger.withValues(alpha: 0.55)),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
                       ),
                     ),
                 ],
@@ -245,13 +217,6 @@ class UserCard extends ConsumerWidget {
     await refreshAfterUserRestrictionChange(ref, userId: user.id);
   }
 
-  String _updatedLabel(DateTime? updatedAt) {
-    if (updatedAt == null) return 'Last active: unknown';
-    final local = updatedAt.toLocal();
-    final date =
-        '${local.year.toString().padLeft(4, '0')}-'
-        '${local.month.toString().padLeft(2, '0')}-'
-        '${local.day.toString().padLeft(2, '0')}';
-    return 'Last active: $date';
-  }
+  String _updatedLabel(DateTime? updatedAt) =>
+      'Last active: ${formatAdminDate(updatedAt)}';
 }

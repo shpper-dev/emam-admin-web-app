@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:emam_admin_web_app/core/constants/app_constants.dart';
 import 'package:emam_admin_web_app/core/utils/image_proxy.dart';
+import 'package:emam_admin_web_app/core/widgets/section_empty_message.dart';
 import 'package:emam_admin_web_app/features/content/models/scholarly_insight.dart';
 import 'package:emam_admin_web_app/features/content/views/widgets/content_section_card.dart';
 import 'package:flutter/material.dart';
@@ -22,15 +23,7 @@ class ScholarlyInsightsSection extends StatelessWidget {
           ? ContentMetaChip(label: insights.generatedAt.split('T').first)
           : null,
       child: insights.insights.isEmpty
-          ? const Center(
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 24),
-                child: Text(
-                  'No scholarly insights available.',
-                  style: TextStyle(color: Colors.white54),
-                ),
-              ),
-            )
+          ? const SectionEmptyMessage('No scholarly insights available.')
           : LayoutBuilder(
               builder: (context, constraints) {
                 final columns = contentGridColumns(constraints.maxWidth);
@@ -62,11 +55,7 @@ class _InsightCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppConstants.bgColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
-      ),
+      decoration: AppConstants.cardDecoration,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

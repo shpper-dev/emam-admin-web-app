@@ -1,4 +1,8 @@
 import 'package:emam_admin_web_app/core/constants/app_constants.dart';
+import 'package:emam_admin_web_app/core/utils/formatters.dart';
+import 'package:emam_admin_web_app/core/widgets/detail_block.dart';
+import 'package:emam_admin_web_app/core/widgets/pill_action_button.dart';
+import 'package:emam_admin_web_app/core/widgets/status_badge.dart';
 import 'package:emam_admin_web_app/features/content/views/widgets/content_section_card.dart';
 import 'package:emam_admin_web_app/features/moderation/models/hidden_post.dart';
 import 'package:emam_admin_web_app/features/moderation/provider/hidden_posts_provider.dart';
@@ -23,11 +27,7 @@ class HiddenPostCard extends ConsumerWidget {
 
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppConstants.bgColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
-      ),
+      decoration: AppConstants.cardDecoration,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -72,20 +72,20 @@ class HiddenPostCard extends ConsumerWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              _StatusBadge(
-                label: _titleCase(post.status),
+              StatusBadge(
+                label: titleCase(post.status),
                 color: _danger,
               ),
             ],
           ),
           const SizedBox(height: 14),
-          _DetailBlock(
+          DetailBlock(
             label: 'Content',
             value: post.content.isNotEmpty ? post.content : 'No content',
           ),
           if (post.hiddenReason.isNotEmpty) ...[
             const SizedBox(height: 10),
-            _DetailBlock(
+            DetailBlock(
               label: 'Hidden reason',
               value: post.hiddenReason,
             ),
@@ -98,7 +98,7 @@ class HiddenPostCard extends ConsumerWidget {
               ContentMetaChip(label: '${post.reportCount} reports'),
               ContentMetaChip(label: '${post.ameenCount} ameen'),
               if (post.hiddenBy.isNotEmpty)
-                ContentMetaChip(label: 'Hidden by ${_shortId(post.hiddenBy)}'),
+                ContentMetaChip(label: 'Hidden by ${shortId(post.hiddenBy)}'),
             ],
           ),
           const SizedBox(height: 12),
@@ -106,31 +106,19 @@ class HiddenPostCard extends ConsumerWidget {
             children: [
               Expanded(
                 child: Text(
-                  'Hidden ${_formatDate(post.hiddenAt)}',
+                  'Hidden ${_formatPostDate(post.hiddenAt)}',
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: Colors.white54,
                   ),
                 ),
               ),
-              TextButton.icon(
+              PillActionButton(
+                icon: Icons.visibility_rounded,
+                label: 'Restore',
+                color: _restoreGreen,
                 onPressed: post.id.isEmpty
                     ? null
                     : () => _onRestorePressed(context, ref),
-                icon: const Icon(Icons.visibility_rounded, size: 18),
-                label: const Text('Restore'),
-                style: TextButton.styleFrom(
-                  foregroundColor: _restoreGreen,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 12,
-                  ),
-                  minimumSize: Size.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  side: BorderSide(color: _restoreGreen.withValues(alpha: 0.55)),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
               ),
             ],
           ),
@@ -149,97 +137,13 @@ class HiddenPostCard extends ConsumerWidget {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          'Post ${_shortId(post.id)} has been restored.',
+          'Post ${shortId(post.id)} has been restored.',
         ),
       ),
     );
     await ref.read(hiddenPostsPaginationProvider.notifier).refresh();
   }
 
-  static String _shortId(String value) {
-    if (value.length <= 10) return value;
-    return '${value.substring(0, 8)}…';
-  }
-
-  static String _titleCase(String value) {
-    if (value.isEmpty) return value;
-    return value[0].toUpperCase() + value.substring(1).toLowerCase();
-  }
-
-  static String _formatDate(DateTime? date) {
-    if (date == null) return 'unknown date';
-    final local = date.toLocal();
-    return '${local.year.toString().padLeft(4, '0')}-'
-        '${local.month.toString().padLeft(2, '0')}-'
-        '${local.day.toString().padLeft(2, '0')} '
-        '${local.hour.toString().padLeft(2, '0')}:'
-        '${local.minute.toString().padLeft(2, '0')}';
-  }
-}
-
-class _DetailBlock extends StatelessWidget {
-  const _DetailBlock({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.03),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: Colors.white54,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: Colors.white.withValues(alpha: 0.88),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _StatusBadge extends StatelessWidget {
-  const _StatusBadge({required this.label, required this.color});
-
-  final String label;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.14),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withValues(alpha: 0.4)),
-      ),
-      child: Text(
-        label,
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: color,
-              fontWeight: FontWeight.w700,
-            ),
-      ),
-    );
-  }
+  static String _formatPostDate(DateTime? date) =>
+      formatAdminDate(date, unknownLabel: 'unknown date', includeTime: true);
 }

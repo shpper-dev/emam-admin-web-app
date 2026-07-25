@@ -1,4 +1,4 @@
-import 'dart:ui';
+import 'package:flutter/material.dart';
 
 class AppConstants {
   AppConstants._();
@@ -13,6 +13,14 @@ class AppConstants {
 
   /// Input fill derived from [bgColor] and [white].
   static final Color inputFillColor = Color.lerp(bgColor, white, 0.04)!;
+
+  /// Standard bordered card look shared by user/moderation list cards and
+  /// content thumbnail cards.
+  static BoxDecoration get cardDecoration => BoxDecoration(
+    color: bgColor,
+    borderRadius: BorderRadius.circular(12),
+    border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+  );
 
   static const String emamLogo = 'assets/images/emam.png';
 

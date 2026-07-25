@@ -58,11 +58,7 @@ class PracticeCardSection extends StatelessWidget {
           final arabic = Container(
             width: double.infinity,
             padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: AppConstants.bgColor,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
-            ),
+            decoration: AppConstants.cardDecoration,
             child: Text(
               card.arabicText,
               textAlign: TextAlign.center,
