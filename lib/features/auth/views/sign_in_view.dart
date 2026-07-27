@@ -68,30 +68,76 @@ class _SignInViewState extends ConsumerState<SignInView> {
 
     return Scaffold(
       backgroundColor: AppConstants.bgColor,
-      body: Center(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(
-            horizontal: MediaQuery.sizeOf(context).width < 600 ? 20 : 32,
-            vertical: 24,
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          const _SignInBackdrop(),
+          Center(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.symmetric(
+                horizontal: MediaQuery.sizeOf(context).width < 600 ? 20 : 32,
+                vertical: 24,
+              ),
+              child: SignInCard(
+                formKey: _formKey,
+                emailController: _emailController,
+                passwordController: _passwordController,
+                obscurePassword: _obscurePassword,
+                rememberMe: _rememberMe,
+                isSubmitting: _isSubmitting,
+                errorMessage: errorMessage,
+                logoPath: AppConstants.emamLogo,
+                onTogglePassword: () {
+                  setState(() => _obscurePassword = !_obscurePassword);
+                },
+                onRememberMeChanged: (value) {
+                  setState(() => _rememberMe = value);
+                },
+                onSignIn: _onSignIn,
+                onFieldChanged: _clearError,
+              ),
+            ),
           ),
-          child: SignInCard(
-            formKey: _formKey,
-            emailController: _emailController,
-            passwordController: _passwordController,
-            obscurePassword: _obscurePassword,
-            rememberMe: _rememberMe,
-            isSubmitting: _isSubmitting,
-            errorMessage: errorMessage,
-            logoPath: AppConstants.emamLogo,
-            onTogglePassword: () {
-              setState(() => _obscurePassword = !_obscurePassword);
-            },
-            onRememberMeChanged: (value) {
-              setState(() => _rememberMe = value);
-            },
-            onSignIn: _onSignIn,
-            onFieldChanged: _clearError,
+        ],
+      ),
+    );
+  }
+}
+
+/// Decorative, non-interactive glow behind the sign-in card. Purely visual —
+/// ignored for hit-testing so it never intercepts input.
+class _SignInBackdrop extends StatelessWidget {
+  const _SignInBackdrop();
+
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Positioned(
+            top: -160,
+            right: -120,
+            child: _glowCircle(420, AppConstants.primary.withValues(alpha: 0.10)),
           ),
+          Positioned(
+            bottom: -180,
+            left: -140,
+            child: _glowCircle(460, AppConstants.primary.withValues(alpha: 0.06)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _glowCircle(double size, Color color) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: RadialGradient(
+          colors: [color, color.withValues(alpha: 0)],
         ),
       ),
     );

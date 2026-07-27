@@ -20,6 +20,13 @@ class AppConstants {
     color: bgColor,
     borderRadius: BorderRadius.circular(12),
     border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+    boxShadow: [
+      BoxShadow(
+        color: Colors.black.withValues(alpha: 0.25),
+        blurRadius: 10,
+        offset: const Offset(0, 4),
+      ),
+    ],
   );
 
   static const String emamLogo = 'assets/images/emam.png';

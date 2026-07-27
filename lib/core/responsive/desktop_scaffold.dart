@@ -18,7 +18,7 @@ class DesktopScaffold extends StatelessWidget {
           const AppDrawer().paddingOnly(left: 28),
           Container(
             width: 1,
-            color: Colors.grey.shade900,
+            color: const Color(0xFF1E1E20),
           ),
           Expanded(child: body),
         ],

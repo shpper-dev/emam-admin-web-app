@@ -17,6 +17,9 @@ class AppTheme {
         scaffoldBackgroundColor: AppConstants.bgColor,
         brightness: Brightness.dark,
         fontFamily: GoogleFonts.aBeeZee().fontFamily,
+        splashColor: AppConstants.primary.withValues(alpha: 0.10),
+        highlightColor: AppConstants.primary.withValues(alpha: 0.05),
+        hoverColor: AppConstants.primary.withValues(alpha: 0.06),
         colorScheme: const ColorScheme.dark(
           primary: AppConstants.primary,
           onPrimary: Colors.black,
@@ -28,12 +31,44 @@ class AppTheme {
         appBarTheme: AppBarTheme(
           backgroundColor: AppConstants.bgColor,
           foregroundColor: AppConstants.primary,
+          elevation: 0,
+          scrolledUnderElevation: 0,
+          surfaceTintColor: Colors.transparent,
           iconTheme: const IconThemeData(color: AppConstants.primary),
           titleTextStyle: GoogleFonts.aBeeZee(
             color: AppConstants.primary,
             fontSize: 20,
             fontWeight: FontWeight.w600,
           ),
+        ),
+        dividerTheme: const DividerThemeData(
+          color: Color(0xFF1E1E20),
+          thickness: 1,
+          space: 1,
+        ),
+        dialogTheme: const DialogThemeData(
+          surfaceTintColor: Colors.transparent,
+        ),
+        cardTheme: const CardThemeData(
+          surfaceTintColor: Colors.transparent,
+        ),
+        progressIndicatorTheme: const ProgressIndicatorThemeData(
+          color: AppConstants.primary,
+        ),
+        tooltipTheme: TooltipThemeData(
+          decoration: BoxDecoration(
+            color: AppConstants.surfaceColor,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+          ),
+          textStyle: GoogleFonts.aBeeZee(color: Colors.white, fontSize: 12),
+        ),
+        scrollbarTheme: ScrollbarThemeData(
+          thumbColor: WidgetStateProperty.all(
+            Colors.white.withValues(alpha: 0.18),
+          ),
+          radius: const Radius.circular(8),
+          thickness: WidgetStateProperty.all(6),
         ),
         inputDecorationTheme: InputDecorationTheme(
           labelStyle: GoogleFonts.aBeeZee(color: Colors.white),
@@ -66,7 +101,15 @@ class AppTheme {
           iconColor: AppConstants.primary,
         ),
         snackBarTheme: SnackBarThemeData(
-          contentTextStyle: GoogleFonts.aBeeZee(color: Colors.black),
+          backgroundColor: AppConstants.surfaceColor,
+          contentTextStyle: GoogleFonts.aBeeZee(color: Colors.white),
+          actionTextColor: AppConstants.primary,
+          behavior: SnackBarBehavior.floating,
+          elevation: 4,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
+          ),
         ),
       );
 }

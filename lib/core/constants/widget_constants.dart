@@ -91,6 +91,13 @@ class AppDrawer extends ConsumerWidget {
               ),
             ),
           ),
+          Divider(
+            height: 1,
+            indent: 20,
+            endIndent: 20,
+            color: Colors.white.withValues(alpha: 0.08),
+          ),
+          const SizedBox(height: 12),
           _DrawerTile(
             icon: Icons.dashboard_rounded,
             label: 'D A S H B O A R D',
@@ -103,14 +110,16 @@ class AppDrawer extends ConsumerWidget {
             selected: currentPath == RoutePaths.content,
             onTap: () => _navigate(context, RoutePaths.content),
           ),
-          ListTile(
-            leading: const Icon(Icons.feedback),
-            title: const Text('F E E D B A C K'),
+          _DrawerTile(
+            icon: Icons.feedback,
+            label: 'F E E D B A C K',
+            selected: false,
             onTap: () => _openFeedback(context),
           ),
-          ListTile(
-            leading: const Icon(CupertinoIcons.arrow_left_square_fill),
-            title: const Text('L O G O U T'),
+          _DrawerTile(
+            icon: CupertinoIcons.arrow_left_square_fill,
+            label: 'L O G O U T',
+            selected: false,
             onTap: () async {
               if (Scaffold.maybeOf(context)?.isDrawerOpen ?? false) {
                 Navigator.of(context).pop();
@@ -139,12 +148,20 @@ class _DrawerTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      leading: Icon(icon),
-      title: Text(label),
-      selected: selected,
-      selectedTileColor: AppConstants.primary.withValues(alpha: 0.12),
-      onTap: onTap,
+    final color = selected ? AppConstants.primary : Colors.white70;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
+      child: ListTile(
+        leading: Icon(icon, color: color),
+        title: Text(label, style: TextStyle(color: color)),
+        selected: selected,
+        selectedTileColor: AppConstants.primary.withValues(alpha: 0.12),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        onTap: onTap,
+      ),
     );
   }
 }
