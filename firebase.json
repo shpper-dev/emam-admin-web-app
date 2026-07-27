@@ -1,0 +1,55 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "emamadmin",
+          "appId": "1:361117106259:android:e3fa9d7b2f5eba3adcc6a6",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "ios": {
+        "default": {
+          "projectId": "emamadmin",
+          "appId": "1:361117106259:ios:978a18ba5e2bc7b4dcc6a6",
+          "uploadDebugSymbols": false,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
+        }
+      },
+      "macos": {
+        "default": {
+          "projectId": "emamadmin",
+          "appId": "1:361117106259:ios:978a18ba5e2bc7b4dcc6a6",
+          "uploadDebugSymbols": false,
+          "fileOutput": "macos/Runner/GoogleService-Info.plist"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "emamadmin",
+          "configurations": {
+            "android": "1:361117106259:android:e3fa9d7b2f5eba3adcc6a6",
+            "ios": "1:361117106259:ios:978a18ba5e2bc7b4dcc6a6",
+            "macos": "1:361117106259:ios:978a18ba5e2bc7b4dcc6a6",
+            "web": "1:361117106259:web:2f4a5ee790497911dcc6a6",
+            "windows": "1:361117106259:web:6782559618a70979dcc6a6"
+          }
+        }
+      }
+    }
+  },
+  "hosting": {
+    "public": "build/web",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}

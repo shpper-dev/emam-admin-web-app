@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "361117106259",
+    "project_id": "emamadmin",
+    "storage_bucket": "emamadmin.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:361117106259:android:e3fa9d7b2f5eba3adcc6a6",
+        "android_client_info": {
+          "package_name": "com.example.emam_admin_web_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCwbNiFmiy2LusyuaoRKibf5b2exM84Pfs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
