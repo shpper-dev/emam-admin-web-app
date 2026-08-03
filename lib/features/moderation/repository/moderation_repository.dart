@@ -47,10 +47,7 @@ class ModerationRepository {
     return ids;
   }
 
-  Future<void> hideDuaPost(
-    String postId, {
-    required String reason,
-  }) async {
+  Future<void> hideDuaPost(String postId, {required String reason}) async {
     await _client.post<void>(
       ApiConstants.hideDuaPost(postId),
       data: {'reason': reason},

@@ -64,12 +64,14 @@ class ModerationReport {
 
   factory ModerationReport.fromJson(Map<String, dynamic> json) {
     final postJson = _readPostMap(json);
-    var postStatus = _readString(json, const [
-      'post_status',
-      'postStatus',
-      'dua_post_status',
-      'duaPostStatus',
-    ]) ?? '';
+    var postStatus =
+        _readString(json, const [
+          'post_status',
+          'postStatus',
+          'dua_post_status',
+          'duaPostStatus',
+        ]) ??
+        '';
     var postHidden = _readBool(json, const [
       'is_post_hidden',
       'post_hidden',
@@ -85,22 +87,23 @@ class ModerationReport {
         _readString(postJson, const ['status', 'post_status', 'postStatus']),
         _readString(postJson, const ['visibility', 'post_visibility']),
       ]);
-      postHidden = postHidden ||
+      postHidden =
+          postHidden ||
           _readBool(postJson, const ['hidden', 'is_hidden', 'isHidden']) ||
           _hasHiddenTimestamp(postJson);
       if (postStatus.toLowerCase() == 'hidden') postHidden = true;
     }
 
-    postHidden = postHidden ||
+    postHidden =
+        postHidden ||
         _hasHiddenTimestamp(json) ||
         _statusImpliesHidden(postStatus) ||
-        _statusImpliesHidden(_readString(json, const [
-              'visibility',
-              'post_visibility',
-            ]) ??
-            '');
+        _statusImpliesHidden(
+          _readString(json, const ['visibility', 'post_visibility']) ?? '',
+        );
 
-    final resolutionAction = json['resolution_action'] as String? ??
+    final resolutionAction =
+        json['resolution_action'] as String? ??
         json['resolutionAction'] as String?;
     final action = (resolutionAction ?? '').trim().toLowerCase();
     if (action == 'hide' || action == 'hidden' || action == 'post_hidden') {
@@ -110,34 +113,35 @@ class ModerationReport {
     return ModerationReport(
       id: json['id'] as String? ?? '',
       postId: _readPostId(json, postJson),
-      postAuthorUserId: _readString(json, const [
+      postAuthorUserId:
+          _readString(json, const [
             'post_author_user_id',
             'postAuthorUserId',
           ]) ??
           _readString(postJson ?? const {}, const ['user_id', 'userId']) ??
           '',
-      reporterUserId: _readString(json, const [
-            'reporter_user_id',
-            'reporterUserId',
-          ]) ??
-          '',
+      reporterUserId:
+          _readString(json, const ['reporter_user_id', 'reporterUserId']) ?? '',
       reason: json['reason'] as String? ?? '',
       details: json['details'] as String? ?? '',
       status: json['status'] as String? ?? '',
       postStatus: postStatus,
       postHidden: postHidden,
       postContent: _readString(postJson ?? const {}, const ['content']) ?? '',
-      postUserDisplayName: _readString(postJson ?? const {}, const [
+      postUserDisplayName:
+          _readString(postJson ?? const {}, const [
             'user_display_name',
             'userDisplayName',
           ]) ??
           '',
-      postLocation:
-          _readString(postJson ?? const {}, const ['location']) ?? '',
+      postLocation: _readString(postJson ?? const {}, const ['location']) ?? '',
       postAmeenCount: _readInt(postJson, const ['ameen_count', 'ameenCount']),
-      postReportCount:
-          _readInt(postJson, const ['report_count', 'reportCount']),
-      postHiddenReason: _readString(postJson ?? const {}, const [
+      postReportCount: _readInt(postJson, const [
+        'report_count',
+        'reportCount',
+      ]),
+      postHiddenReason:
+          _readString(postJson ?? const {}, const [
             'hidden_reason',
             'hiddenReason',
           ]) ??
@@ -149,7 +153,8 @@ class ModerationReport {
           ? _parseDate(postJson['created_at'] ?? postJson['createdAt'])
           : null,
       resolutionAction: resolutionAction,
-      resolutionNote: json['resolution_note'] as String? ??
+      resolutionNote:
+          json['resolution_note'] as String? ??
           json['resolutionNote'] as String?,
       resolvedBy:
           json['resolved_by'] as String? ?? json['resolvedBy'] as String?,
@@ -168,7 +173,12 @@ class ModerationReport {
     Map<String, dynamic>? postJson,
   ) {
     return _firstNonEmpty([
-      _readString(json, const ['post_id', 'postId', 'dua_post_id', 'duaPostId']),
+      _readString(json, const [
+        'post_id',
+        'postId',
+        'dua_post_id',
+        'duaPostId',
+      ]),
       if (postJson != null)
         _readString(postJson, const ['id', 'post_id', 'postId']),
     ]);

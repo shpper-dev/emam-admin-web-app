@@ -1,3 +1,4 @@
+import 'package:emam_admin_web_app/core/constants/app_constants.dart';
 import 'package:flutter/material.dart';
 
 /// Small outlined icon+label button used for card-level moderation actions
@@ -20,15 +21,21 @@ class PillActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextButton.icon(
       onPressed: onPressed,
-      icon: Icon(icon, size: 18),
-      label: Text(label),
+      icon: Icon(icon, size: 17),
+      label: Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
       style: TextButton.styleFrom(
         foregroundColor: color,
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+        backgroundColor: color.withValues(alpha: 0.08),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppConstants.space12,
+          vertical: AppConstants.space12,
+        ),
         minimumSize: Size.zero,
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        side: BorderSide(color: color.withValues(alpha: 0.55)),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        side: BorderSide(color: color.withValues(alpha: 0.4)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppConstants.radiusSm),
+        ),
       ),
     );
   }

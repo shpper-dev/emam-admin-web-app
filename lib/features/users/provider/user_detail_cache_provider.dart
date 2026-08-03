@@ -53,9 +53,7 @@ class UserDetailCacheState {
   UserDetailCacheEntry entryFor(String userId) =>
       entries[userId] ?? const UserDetailCacheEntry();
 
-  UserDetailCacheState copyWith({
-    Map<String, UserDetailCacheEntry>? entries,
-  }) {
+  UserDetailCacheState copyWith({Map<String, UserDetailCacheEntry>? entries}) {
     return UserDetailCacheState(entries: entries ?? this.entries);
   }
 }
@@ -96,7 +94,9 @@ class UserDetailCacheNotifier extends Notifier<UserDetailCacheState> {
     if (id.isEmpty) return;
 
     final entry = state.entryFor(id);
-    if (!entry.hasDetail || !entry.hasNextPostToken || entry.isLoadingMorePosts) {
+    if (!entry.hasDetail ||
+        !entry.hasNextPostToken ||
+        entry.isLoadingMorePosts) {
       return;
     }
 
@@ -156,10 +156,7 @@ class UserDetailCacheNotifier extends Notifier<UserDetailCacheState> {
   Future<void> _fetchDetail(String userId) async {
     final existing = state.entryFor(userId);
     if (!existing.hasDetail) {
-      _patch(
-        userId,
-        existing.copyWith(isLoading: true, errorMessage: null),
-      );
+      _patch(userId, existing.copyWith(isLoading: true, errorMessage: null));
     }
 
     try {
@@ -179,15 +176,16 @@ class UserDetailCacheNotifier extends Notifier<UserDetailCacheState> {
     } on DioException catch (e) {
       _patch(
         userId,
-        state.entryFor(userId).copyWith(
-              isLoading: false,
-              errorMessage: parseApiError(e),
-            ),
+        state
+            .entryFor(userId)
+            .copyWith(isLoading: false, errorMessage: parseApiError(e)),
       );
     } catch (_) {
       _patch(
         userId,
-        state.entryFor(userId).copyWith(
+        state
+            .entryFor(userId)
+            .copyWith(
               isLoading: false,
               errorMessage: 'Failed to load user details. Please try again.',
             ),
@@ -196,13 +194,11 @@ class UserDetailCacheNotifier extends Notifier<UserDetailCacheState> {
   }
 
   void _patch(String userId, UserDetailCacheEntry entry) {
-    state = state.copyWith(
-      entries: {...state.entries, userId: entry},
-    );
+    state = state.copyWith(entries: {...state.entries, userId: entry});
   }
 }
 
 final userDetailCacheProvider =
     NotifierProvider<UserDetailCacheNotifier, UserDetailCacheState>(
-  UserDetailCacheNotifier.new,
-);
+      UserDetailCacheNotifier.new,
+    );

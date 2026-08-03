@@ -31,12 +31,11 @@ class RestrictedUsersPageState {
 
   RestrictedUsersResponse? get currentResponse =>
       pages.isEmpty || currentPage < 1 || currentPage > pages.length
-          ? null
-          : pages[currentPage - 1];
+      ? null
+      : pages[currentPage - 1];
 
   /// Total restricted users from the most recent response (server-side count).
-  int? get totalRestricted =>
-      pages.isEmpty ? null : pages.last.totalRestricted;
+  int? get totalRestricted => pages.isEmpty ? null : pages.last.totalRestricted;
 
   bool get hasNextToken =>
       pages.isNotEmpty && (pages.last.nextPageToken ?? '').isNotEmpty;
@@ -114,10 +113,7 @@ class RestrictedUsersPaginationNotifier
         isLoading: false,
       );
     } on DioException catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: parseApiError(e),
-      );
+      state = state.copyWith(isLoading: false, errorMessage: parseApiError(e));
     } catch (_) {
       state = state.copyWith(
         isLoading: false,
@@ -127,25 +123,26 @@ class RestrictedUsersPaginationNotifier
   }
 }
 
-final restrictedUsersPaginationProvider = NotifierProvider<
-    RestrictedUsersPaginationNotifier, RestrictedUsersPageState>(
-  RestrictedUsersPaginationNotifier.new,
-);
+final restrictedUsersPaginationProvider =
+    NotifierProvider<
+      RestrictedUsersPaginationNotifier,
+      RestrictedUsersPageState
+    >(RestrictedUsersPaginationNotifier.new);
 
 /// Moderation info for restricted users from every loaded restricted-users page.
 final restrictedModerationByUserIdProvider =
     Provider<Map<String, UserModeration>>((ref) {
-  final pages = ref.watch(restrictedUsersPaginationProvider).pages;
-  final map = <String, UserModeration>{};
-  for (final response in pages) {
-    for (final restricted in response.users) {
-      final id = restricted.userId.isNotEmpty
-          ? restricted.userId
-          : restricted.profile.id;
-      if (id.isNotEmpty) {
-        map[id] = restricted.moderation;
+      final pages = ref.watch(restrictedUsersPaginationProvider).pages;
+      final map = <String, UserModeration>{};
+      for (final response in pages) {
+        for (final restricted in response.users) {
+          final id = restricted.userId.isNotEmpty
+              ? restricted.userId
+              : restricted.profile.id;
+          if (id.isNotEmpty) {
+            map[id] = restricted.moderation;
+          }
+        }
       }
-    }
-  }
-  return map;
-});
+      return map;
+    });

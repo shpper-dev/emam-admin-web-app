@@ -26,7 +26,7 @@ class IslamicNewsSection extends StatelessWidget {
               'No news articles available.',
               style: Theme.of(
                 context,
-              ).textTheme.bodyMedium?.copyWith(color: Colors.white54),
+              ).textTheme.bodyMedium?.copyWith(color: AppConstants.textMuted),
             )
           : LayoutBuilder(
               builder: (context, constraints) {
@@ -99,7 +99,7 @@ class _NewsCard extends StatelessWidget {
                     alignment: Alignment.center,
                     child: const Icon(
                       Icons.image_not_supported_outlined,
-                      color: Colors.white38,
+                      color: AppConstants.textFaint,
                       size: 20,
                     ),
                   ),
@@ -117,16 +117,15 @@ class _NewsCard extends StatelessWidget {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   item.publishedAt,
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodySmall
-                      ?.copyWith(color: Colors.white54),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: AppConstants.textMuted,
+                  ),
                 ),
                 const SizedBox(height: 12),
                 Wrap(

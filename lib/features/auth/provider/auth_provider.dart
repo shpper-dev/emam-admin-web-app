@@ -16,8 +16,9 @@ class SignInErrorNotifier extends Notifier<String?> {
   void clear() => state = null;
 }
 
-final signInErrorProvider =
-    NotifierProvider<SignInErrorNotifier, String?>(SignInErrorNotifier.new);
+final signInErrorProvider = NotifierProvider<SignInErrorNotifier, String?>(
+  SignInErrorNotifier.new,
+);
 
 class AuthNotifier extends AsyncNotifier<AuthSession?> {
   @override

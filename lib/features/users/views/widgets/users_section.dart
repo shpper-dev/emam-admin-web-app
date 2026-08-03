@@ -1,3 +1,4 @@
+import 'package:emam_admin_web_app/core/constants/app_constants.dart';
 import 'package:emam_admin_web_app/features/content/views/widgets/content_section_card.dart';
 import 'package:emam_admin_web_app/features/users/models/app_user.dart';
 import 'package:emam_admin_web_app/features/users/views/widgets/user_card.dart';
@@ -87,7 +88,7 @@ class _EmptyUsers extends StatelessWidget {
         padding: EdgeInsets.symmetric(vertical: 24),
         child: Text(
           'No users found.',
-          style: TextStyle(color: Colors.white54),
+          style: TextStyle(color: AppConstants.textMuted),
         ),
       ),
     );

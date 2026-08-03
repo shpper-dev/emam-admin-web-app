@@ -74,8 +74,7 @@ class AppUser {
     DateTime? restrictedUntil;
     if (moderation is Map<String, dynamic>) {
       canPost = moderation['can_post'] as bool?;
-      postingRestriction =
-          moderation['posting_restriction'] as String? ?? '';
+      postingRestriction = moderation['posting_restriction'] as String? ?? '';
       restrictedUntil = _parseDate(moderation['restricted_until']);
     }
     return AppUser(

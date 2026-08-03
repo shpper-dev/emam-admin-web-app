@@ -5,11 +5,7 @@ import 'package:emam_admin_web_app/core/responsive/tablet_scaffold.dart';
 import 'package:flutter/material.dart';
 
 class AdminShell extends StatelessWidget {
-  const AdminShell({
-    super.key,
-    required this.body,
-    this.title = 'Admin Panel',
-  });
+  const AdminShell({super.key, required this.body, this.title = 'Admin Panel'});
 
   final Widget body;
   final String title;

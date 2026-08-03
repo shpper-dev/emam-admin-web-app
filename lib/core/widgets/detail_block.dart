@@ -1,3 +1,4 @@
+import 'package:emam_admin_web_app/core/constants/app_constants.dart';
 import 'package:flutter/material.dart';
 
 /// Labeled value block used in moderation cards to show a single field
@@ -14,11 +15,11 @@ class DetailBlock extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(AppConstants.space12),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.03),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+        borderRadius: BorderRadius.circular(AppConstants.radiusSm),
+        border: Border.all(color: AppConstants.borderColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -26,7 +27,7 @@ class DetailBlock extends StatelessWidget {
           Text(
             label,
             style: theme.textTheme.labelSmall?.copyWith(
-              color: Colors.white54,
+              color: AppConstants.textMuted,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -34,7 +35,7 @@ class DetailBlock extends StatelessWidget {
           Text(
             value,
             style: theme.textTheme.bodyMedium?.copyWith(
-              color: Colors.white.withValues(alpha: 0.88),
+              color: AppConstants.textPrimary.withValues(alpha: 0.92),
             ),
           ),
         ],

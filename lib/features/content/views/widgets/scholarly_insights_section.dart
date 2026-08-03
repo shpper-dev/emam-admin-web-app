@@ -124,9 +124,9 @@ class _InsightCard extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   'By ${insight.author}',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodySmall?.copyWith(color: Colors.white70),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: AppConstants.textSecondary,
+                  ),
                 ),
                 const SizedBox(height: 12),
                 // SelectableText(insight.thumbnailUrl),

@@ -54,10 +54,7 @@ class HiddenPost {
 }
 
 class HiddenPostsResponse {
-  const HiddenPostsResponse({
-    required this.posts,
-    required this.nextPageToken,
-  });
+  const HiddenPostsResponse({required this.posts, required this.nextPageToken});
 
   final List<HiddenPost> posts;
   final String? nextPageToken;

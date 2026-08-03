@@ -19,10 +19,6 @@ class ReportedDuaCard extends ConsumerWidget {
 
   final ModerationReport report;
 
-  static const Color _success = Color(0xFF81C784);
-  static const Color _danger = Color(0xFFE57373);
-  static const Color _restoreGreen = Color(0xFF66BB6A);
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
@@ -30,10 +26,10 @@ class ReportedDuaCard extends ConsumerWidget {
       reportedDuasProvider.select((state) => state.hiddenPostIds),
     );
     final cachedHiddenIds = ref.watch(hiddenPostIdsProvider);
-    final isPostHidden = isReportedPostHidden(
-      report,
-      {...hiddenPostIds, ...cachedHiddenIds},
-    );
+    final isPostHidden = isReportedPostHidden(report, {
+      ...hiddenPostIds,
+      ...cachedHiddenIds,
+    });
     final displayName = report.postUserDisplayName.isNotEmpty
         ? report.postUserDisplayName
         : 'Unknown author';
@@ -45,8 +41,8 @@ class ReportedDuaCard extends ConsumerWidget {
         : (isPostHidden ? 'Hidden' : 'Active');
     final postStatusColor =
         isPostHidden || postStatusLabel.toLowerCase() == 'hidden'
-            ? _danger
-            : _success;
+        ? AppConstants.danger
+        : AppConstants.success;
 
     final duaText = report.postContent.isNotEmpty
         ? report.postContent
@@ -107,14 +103,14 @@ class ReportedDuaCard extends ConsumerWidget {
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: theme.textTheme.bodySmall?.copyWith(
-                                  color: Colors.white70,
+                                  color: AppConstants.textSecondary,
                                 ),
                               ),
                               const SizedBox(height: 4),
                               Text(
                                 'Reported ${_formatReportDate(report.createdAt)}',
                                 style: theme.textTheme.bodySmall?.copyWith(
-                                  color: Colors.white54,
+                                  color: AppConstants.textMuted,
                                 ),
                               ),
                             ],
@@ -142,7 +138,8 @@ class ReportedDuaCard extends ConsumerWidget {
                         ),
                         if (report.postCreatedAt != null)
                           ContentMetaChip(
-                            label: 'Posted ${_formatReportDate(report.postCreatedAt)}',
+                            label:
+                                'Posted ${_formatReportDate(report.postCreatedAt)}',
                           ),
                         if (isPostHidden && report.postHiddenAt != null)
                           ContentMetaChip(
@@ -164,7 +161,7 @@ class ReportedDuaCard extends ConsumerWidget {
                 PillActionButton(
                   icon: Icons.visibility_rounded,
                   label: 'Restore',
-                  color: _restoreGreen,
+                  color: AppConstants.success,
                   onPressed: report.postId.isEmpty
                       ? null
                       : () => _onRestorePressed(context, ref),
@@ -173,7 +170,7 @@ class ReportedDuaCard extends ConsumerWidget {
                 PillActionButton(
                   icon: Icons.visibility_off_rounded,
                   label: 'Hide',
-                  color: _danger,
+                  color: AppConstants.danger,
                   onPressed: report.postId.isEmpty
                       ? null
                       : () => _onHidePressed(context, ref),
@@ -236,32 +233,22 @@ class ReportedDuaCard extends ConsumerWidget {
   }
 
   Future<void> _onHidePressed(BuildContext context, WidgetRef ref) async {
-    final hidden = await showHideDuaDialog(
-      context,
-      postId: report.postId,
-    );
+    final hidden = await showHideDuaDialog(context, postId: report.postId);
     if (hidden != true || !context.mounted) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('${_postSummary(report)} has been hidden.'),
-      ),
+      SnackBar(content: Text('${_postSummary(report)} has been hidden.')),
     );
     await ref.read(reportedDuasProvider.notifier).refresh();
     await ref.read(hiddenPostsPaginationProvider.notifier).refresh();
   }
 
   Future<void> _onRestorePressed(BuildContext context, WidgetRef ref) async {
-    final restored = await showRestoreDuaDialog(
-      context,
-      postId: report.postId,
-    );
+    final restored = await showRestoreDuaDialog(context, postId: report.postId);
     if (restored != true || !context.mounted) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('${_postSummary(report)} has been restored.'),
-      ),
+      SnackBar(content: Text('${_postSummary(report)} has been restored.')),
     );
     await ref.read(reportedDuasProvider.notifier).refresh();
     await ref.read(hiddenPostsPaginationProvider.notifier).refresh();

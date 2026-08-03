@@ -18,9 +18,7 @@ class TokenStorage {
   bool get rememberMe => _prefs.getBool(_rememberMeKey) ?? false;
 
   bool get hasTokens =>
-      accessToken != null &&
-      refreshToken != null &&
-      expiresAt != null;
+      accessToken != null && refreshToken != null && expiresAt != null;
 
   bool get isAccessTokenExpired {
     final expiresAt = this.expiresAt;

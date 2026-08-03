@@ -127,10 +127,7 @@ class UserRecentPost {
 }
 
 class UserRecentPostsPage {
-  const UserRecentPostsPage({
-    required this.posts,
-    required this.nextPageToken,
-  });
+  const UserRecentPostsPage({required this.posts, required this.nextPageToken});
 
   final List<UserRecentPost> posts;
   final String? nextPageToken;

@@ -3,10 +3,7 @@ import 'package:emam_admin_web_app/core/network/dio_client.dart';
 import 'package:emam_admin_web_app/core/storage/token_storage.dart';
 
 class AuthInterceptor extends Interceptor {
-  AuthInterceptor({
-    required this._tokenStorage,
-    required this._refresher,
-  });
+  AuthInterceptor({required this._tokenStorage, required this._refresher});
 
   final TokenStorage _tokenStorage;
   final TokenRefresher _refresher;

@@ -21,20 +21,17 @@ class UserCard extends ConsumerWidget {
   final VoidCallback? onTap;
 
   static const double _avatarSize = 56;
-  static const Color _danger = Color(0xFFE57373);
-  static const Color _unblockGreen = Color(0xFF66BB6A);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final listPhotoUrl = user.photoUrl.trim();
     final cachedDetail = ref.watch(
-      userDetailCacheProvider.select(
-        (state) => state.entryFor(user.id).detail,
-      ),
+      userDetailCacheProvider.select((state) => state.entryFor(user.id).detail),
     );
-    final listModeration =
-        ref.watch(restrictedModerationByUserIdProvider)[user.id];
+    final listModeration = ref.watch(
+      restrictedModerationByUserIdProvider,
+    )[user.id];
     final cachedDetailPhoto = cachedDetail?.user.photoUrl ?? '';
     final photoUrl = listPhotoUrl.isNotEmpty
         ? listPhotoUrl
@@ -42,10 +39,16 @@ class UserCard extends ConsumerWidget {
     final displayName = user.displayName.isNotEmpty
         ? user.displayName
         : 'Unnamed user';
-    final isRestricted =
-        _resolveIsRestricted(user, cachedDetail, listModeration);
-    final restrictedUntil =
-        _resolveRestrictedUntil(user, cachedDetail, listModeration);
+    final isRestricted = _resolveIsRestricted(
+      user,
+      cachedDetail,
+      listModeration,
+    );
+    final restrictedUntil = _resolveRestrictedUntil(
+      user,
+      cachedDetail,
+      listModeration,
+    );
 
     return Material(
       color: Colors.transparent,
@@ -86,7 +89,7 @@ class UserCard extends ConsumerWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: theme.textTheme.bodySmall?.copyWith(
-                            color: Colors.white70,
+                            color: AppConstants.textSecondary,
                           ),
                         ),
                       ],
@@ -101,7 +104,7 @@ class UserCard extends ConsumerWidget {
                     child: Text(
                       _updatedLabel(user.updatedAt),
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: Colors.white54,
+                        color: AppConstants.textMuted,
                       ),
                     ),
                   ),
@@ -109,7 +112,7 @@ class UserCard extends ConsumerWidget {
                     PillActionButton(
                       icon: Icons.lock_open_rounded,
                       label: 'Unblock',
-                      color: _unblockGreen,
+                      color: AppConstants.success,
                       onPressed: () => _onUnblockPressed(
                         context,
                         ref,
@@ -121,7 +124,7 @@ class UserCard extends ConsumerWidget {
                     PillActionButton(
                       icon: Icons.block_rounded,
                       label: 'Block',
-                      color: _danger,
+                      color: AppConstants.danger,
                       onPressed: () => _onBlockPressed(
                         context,
                         ref,
@@ -187,11 +190,7 @@ class UserCard extends ConsumerWidget {
     );
     if (blocked != true || !context.mounted) return;
 
-    showRestrictionSnackBar(
-      context,
-      displayName: displayName,
-      blocked: true,
-    );
+    showRestrictionSnackBar(context, displayName: displayName, blocked: true);
     await refreshAfterUserRestrictionChange(ref, userId: user.id);
   }
 
@@ -209,11 +208,7 @@ class UserCard extends ConsumerWidget {
     );
     if (unblocked != true || !context.mounted) return;
 
-    showRestrictionSnackBar(
-      context,
-      displayName: displayName,
-      blocked: false,
-    );
+    showRestrictionSnackBar(context, displayName: displayName, blocked: false);
     await refreshAfterUserRestrictionChange(ref, userId: user.id);
   }
 

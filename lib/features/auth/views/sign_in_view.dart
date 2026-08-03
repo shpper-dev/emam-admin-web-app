@@ -52,7 +52,9 @@ class _SignInViewState extends ConsumerState<SignInView> {
 
     setState(() => _isSubmitting = true);
 
-    await ref.read(authProvider.notifier).signIn(
+    await ref
+        .read(authProvider.notifier)
+        .signIn(
           email: _emailController.text,
           password: _passwordController.text,
           rememberMe: _rememberMe,
@@ -118,12 +120,18 @@ class _SignInBackdrop extends StatelessWidget {
           Positioned(
             top: -160,
             right: -120,
-            child: _glowCircle(420, AppConstants.primary.withValues(alpha: 0.10)),
+            child: _glowCircle(
+              420,
+              AppConstants.primary.withValues(alpha: 0.10),
+            ),
           ),
           Positioned(
             bottom: -180,
             left: -140,
-            child: _glowCircle(460, AppConstants.primary.withValues(alpha: 0.06)),
+            child: _glowCircle(
+              460,
+              AppConstants.primary.withValues(alpha: 0.06),
+            ),
           ),
         ],
       ),
@@ -136,9 +144,7 @@ class _SignInBackdrop extends StatelessWidget {
       height: size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        gradient: RadialGradient(
-          colors: [color, color.withValues(alpha: 0)],
-        ),
+        gradient: RadialGradient(colors: [color, color.withValues(alpha: 0)]),
       ),
     );
   }

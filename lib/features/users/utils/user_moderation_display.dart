@@ -1,8 +1,5 @@
 /// Whether the user is under a posting restriction (blocked).
-bool isUserPostingRestricted({
-  bool? canPost,
-  String postingRestriction = '',
-}) {
+bool isUserPostingRestricted({bool? canPost, String postingRestriction = ''}) {
   if (canPost == false) return true;
   final normalized = postingRestriction.trim().toLowerCase();
   return normalized == 'temporary' || normalized == 'permanent';

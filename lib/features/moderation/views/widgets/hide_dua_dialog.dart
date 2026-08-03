@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:emam_admin_web_app/core/constants/app_constants.dart';
 import 'package:emam_admin_web_app/core/network/api_error.dart';
 import 'package:emam_admin_web_app/core/utils/formatters.dart';
 import 'package:emam_admin_web_app/core/widgets/admin_alert_dialog.dart';
@@ -29,8 +30,6 @@ class HideDuaDialog extends ConsumerStatefulWidget {
 }
 
 class _HideDuaDialogState extends ConsumerState<HideDuaDialog> {
-  static const Color _danger = Color(0xFFE57373);
-
   final _reasonController = TextEditingController();
   bool _isSubmitting = false;
   String? _errorMessage;
@@ -53,10 +52,9 @@ class _HideDuaDialogState extends ConsumerState<HideDuaDialog> {
     });
 
     try {
-      await ref.read(moderationRepositoryProvider).hideDuaPost(
-            widget.postId,
-            reason: _reasonController.text.trim(),
-          );
+      await ref
+          .read(moderationRepositoryProvider)
+          .hideDuaPost(widget.postId, reason: _reasonController.text.trim());
       if (!mounted) return;
       Navigator.of(context).pop(true);
     } on DioException catch (e) {
@@ -90,7 +88,9 @@ class _HideDuaDialogState extends ConsumerState<HideDuaDialog> {
         children: [
           Text(
             'Hide $postLabel from the feed. This action is applied immediately.',
-            style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white70),
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: AppConstants.textSecondary,
+            ),
           ),
           const SizedBox(height: 16),
           ReasonTextField(
@@ -111,7 +111,7 @@ class _HideDuaDialogState extends ConsumerState<HideDuaDialog> {
         ),
         DialogSubmitButton(
           label: 'Hide',
-          color: _danger,
+          color: AppConstants.danger,
           enabled: _canSubmit,
           isSubmitting: _isSubmitting,
           onPressed: _submit,

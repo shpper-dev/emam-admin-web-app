@@ -1,3 +1,4 @@
+import 'package:emam_admin_web_app/core/constants/app_constants.dart';
 import 'package:flutter/material.dart';
 
 /// Small pill-shaped label used to show a status/category (e.g. a
@@ -11,10 +12,10 @@ class StatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.14),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(AppConstants.radiusPill),
         border: Border.all(color: color.withValues(alpha: 0.4)),
       ),
       child: Text(

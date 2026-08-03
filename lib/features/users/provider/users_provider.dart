@@ -37,8 +37,8 @@ class UsersPageState {
 
   UsersResponse? get currentResponse =>
       pages.isEmpty || currentPage < 1 || currentPage > pages.length
-          ? null
-          : pages[currentPage - 1];
+      ? null
+      : pages[currentPage - 1];
 
   /// True when the last discovered page reports a `next_page_token`, i.e. the
   /// server says there is at least one more page we haven't fetched yet.
@@ -99,7 +99,10 @@ class UsersPaginationNotifier extends Notifier<UsersPageState> {
     return _fetch(pageToken: token, replace: false);
   }
 
-  Future<void> _fetch({required String? pageToken, required bool replace}) async {
+  Future<void> _fetch({
+    required String? pageToken,
+    required bool replace,
+  }) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
     try {
       final repo = ref.read(usersRepositoryProvider);
@@ -116,10 +119,7 @@ class UsersPaginationNotifier extends Notifier<UsersPageState> {
         isLoading: false,
       );
     } on DioException catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: parseApiError(e),
-      );
+      state = state.copyWith(isLoading: false, errorMessage: parseApiError(e));
     } catch (_) {
       state = state.copyWith(
         isLoading: false,
@@ -131,5 +131,5 @@ class UsersPaginationNotifier extends Notifier<UsersPageState> {
 
 final usersPaginationProvider =
     NotifierProvider<UsersPaginationNotifier, UsersPageState>(
-  UsersPaginationNotifier.new,
-);
+      UsersPaginationNotifier.new,
+    );

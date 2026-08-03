@@ -23,8 +23,8 @@ enum ContentSection {
 
 final selectedContentSectionProvider =
     NotifierProvider<SelectedContentSectionNotifier, ContentSection>(
-  SelectedContentSectionNotifier.new,
-);
+      SelectedContentSectionNotifier.new,
+    );
 
 class SelectedContentSectionNotifier extends Notifier<ContentSection> {
   @override
@@ -49,8 +49,9 @@ final islamicNewsProvider = FutureProvider<IslamicNewsResponse>((ref) {
   return ref.watch(contentRepositoryProvider).fetchIslamicNews();
 });
 
-final scholarlyInsightsProvider =
-    FutureProvider<ScholarlyInsightsResponse>((ref) {
+final scholarlyInsightsProvider = FutureProvider<ScholarlyInsightsResponse>((
+  ref,
+) {
   return ref.watch(contentRepositoryProvider).fetchScholarlyInsights();
 });
 

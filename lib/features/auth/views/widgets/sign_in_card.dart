@@ -89,7 +89,7 @@ class SignInCard extends StatelessWidget {
     return InputDecoration(
       filled: true,
       fillColor: AppConstants.inputFillColor,
-      labelStyle: const TextStyle(color: Colors.white),
+      labelStyle: const TextStyle(color: AppConstants.textPrimary),
       prefixIconColor: AppConstants.primary,
       suffixIconColor: AppConstants.primary,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -155,7 +155,7 @@ class SignInCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: layout.titleSize,
                         fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                        color: AppConstants.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -163,7 +163,7 @@ class SignInCard extends StatelessWidget {
                       'Sign in to manage your admin panel.',
                       style: TextStyle(
                         fontSize: layout.subtitleSize,
-                        color: Colors.white.withValues(alpha: 0.75),
+                        color: AppConstants.textSecondary,
                       ),
                     ),
                     SizedBox(height: layout.fieldSpacing + 16),
@@ -172,7 +172,7 @@ class SignInCard extends StatelessWidget {
                       keyboardType: TextInputType.emailAddress,
                       textInputAction: TextInputAction.next,
                       onChanged: (_) => onFieldChanged?.call(),
-                      style: const TextStyle(color: Colors.white),
+                      style: const TextStyle(color: AppConstants.textPrimary),
                       cursorColor: AppConstants.primary,
                       decoration: inputDecoration.copyWith(
                         labelText: 'E-Mail',
@@ -195,7 +195,7 @@ class SignInCard extends StatelessWidget {
                       textInputAction: TextInputAction.done,
                       onChanged: (_) => onFieldChanged?.call(),
                       onFieldSubmitted: (_) => onSignIn(),
-                      style: const TextStyle(color: Colors.white),
+                      style: const TextStyle(color: AppConstants.textPrimary),
                       cursorColor: AppConstants.primary,
                       decoration: inputDecoration.copyWith(
                         labelText: 'Password',
@@ -226,9 +226,9 @@ class SignInCard extends StatelessWidget {
                           child: Checkbox(
                             value: rememberMe,
                             activeColor: AppConstants.primary,
-                            checkColor: Colors.black,
+                            checkColor: AppConstants.black,
                             side: BorderSide(
-                              color: Colors.white.withValues(alpha: 0.5),
+                              color: AppConstants.borderColorStrong,
                             ),
                             onChanged: (value) =>
                                 onRememberMeChanged(value ?? false),
@@ -237,7 +237,7 @@ class SignInCard extends StatelessWidget {
                         const SizedBox(width: 8),
                         const Text(
                           'Remember Me',
-                          style: TextStyle(color: Colors.white),
+                          style: TextStyle(color: AppConstants.textPrimary),
                         ),
                       ],
                     ),
@@ -250,11 +250,12 @@ class SignInCard extends StatelessWidget {
                           vertical: 10,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.red.withValues(alpha: 0.12),
-                          borderRadius:
-                              BorderRadius.circular(layout.borderRadius - 4),
+                          color: AppConstants.danger.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(
+                            layout.borderRadius - 4,
+                          ),
                           border: Border.all(
-                            color: Colors.red.withValues(alpha: 0.45),
+                            color: AppConstants.danger.withValues(alpha: 0.45),
                           ),
                         ),
                         child: Row(
@@ -263,14 +264,14 @@ class SignInCard extends StatelessWidget {
                             Icon(
                               Icons.error_outline_rounded,
                               size: 18,
-                              color: Colors.red.shade300,
+                              color: AppConstants.danger,
                             ),
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
                                 errorMessage!,
                                 style: TextStyle(
-                                  color: Colors.red.shade200,
+                                  color: AppConstants.danger,
                                   fontSize: layout.subtitleSize,
                                 ),
                               ),
@@ -291,7 +292,7 @@ class SignInCard extends StatelessWidget {
                                 width: 22,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
-                                  color: Colors.black,
+                                  color: AppConstants.black,
                                 ),
                               )
                             : const Text('Sign In'),

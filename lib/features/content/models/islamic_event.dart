@@ -34,10 +34,7 @@ class IslamicEvent {
 }
 
 class IslamicEventsResponse {
-  const IslamicEventsResponse({
-    required this.count,
-    required this.events,
-  });
+  const IslamicEventsResponse({required this.count, required this.events});
 
   final int count;
   final List<IslamicEvent> events;

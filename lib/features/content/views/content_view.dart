@@ -21,8 +21,9 @@ class ContentView extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final horizontalPadding =
-            contentHorizontalPadding(constraints.maxWidth);
+        final horizontalPadding = contentHorizontalPadding(
+          constraints.maxWidth,
+        );
 
         return _ContentRefreshWrapper(
           child: SingleChildScrollView(
@@ -40,17 +41,16 @@ class ContentView extends StatelessWidget {
                 Text(
                   'Content Overview',
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        color: AppConstants.primary,
-                        fontWeight: FontWeight.w600,
-                      ),
+                    color: AppConstants.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Tap a section to preview the content it serves to the Emam app.',
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyLarge
-                      ?.copyWith(color: Colors.white70),
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: AppConstants.textSecondary,
+                  ),
                 ),
                 const SizedBox(height: 24),
                 const _SectionTileGrid(),
@@ -147,19 +147,20 @@ class _SectionTile extends ConsumerWidget {
     final background = selected
         ? AppConstants.primary.withValues(alpha: 0.14)
         : AppConstants.surfaceColor;
-    final iconColor =
-        selected ? AppConstants.primary : Colors.white.withValues(alpha: 0.78);
-    final labelColor =
-        selected ? AppConstants.primary : Colors.white.withValues(alpha: 0.88);
+    final iconColor = selected
+        ? AppConstants.primary
+        : Colors.white.withValues(alpha: 0.78);
+    final labelColor = selected
+        ? AppConstants.primary
+        : Colors.white.withValues(alpha: 0.88);
 
     return RepaintBoundary(
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
-          onTap: () => ref
-              .read(selectedContentSectionProvider.notifier)
-              .select(section),
+          onTap: () =>
+              ref.read(selectedContentSectionProvider.notifier).select(section),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 150),
             curve: Curves.easeOut,
@@ -187,9 +188,9 @@ class _SectionTile extends ConsumerWidget {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        color: labelColor,
-                        fontWeight: FontWeight.w600,
-                      ),
+                    color: labelColor,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ],
             ),
@@ -248,12 +249,12 @@ class _SelectedSectionContentState
   }
 
   Widget _slotFor(ContentSection section) => switch (section) {
-        ContentSection.dailyInspiration => const _DailyInspirationSlot(),
-        ContentSection.practiceCard => const _PracticeCardSlot(),
-        ContentSection.islamicEvents => const _IslamicEventsSlot(),
-        ContentSection.islamicNews => const _IslamicNewsSlot(),
-        ContentSection.scholarlyInsights => const _ScholarlyInsightsSlot(),
-      };
+    ContentSection.dailyInspiration => const _DailyInspirationSlot(),
+    ContentSection.practiceCard => const _PracticeCardSlot(),
+    ContentSection.islamicEvents => const _IslamicEventsSlot(),
+    ContentSection.islamicNews => const _IslamicNewsSlot(),
+    ContentSection.scholarlyInsights => const _ScholarlyInsightsSlot(),
+  };
 }
 
 class _DailyInspirationSlot extends ConsumerWidget {

@@ -16,10 +16,7 @@ class DesktopScaffold extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const AppDrawer().paddingOnly(left: 28),
-          Container(
-            width: 1,
-            color: const Color(0xFF1E1E20),
-          ),
+          Container(width: 1, color: AppConstants.dividerColor),
           Expanded(child: body),
         ],
       ),

@@ -33,17 +33,17 @@ class PracticeCardSection extends StatelessWidget {
               const SizedBox(height: 16),
               Text(
                 'Focus Topic',
-                style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      color: AppConstants.primary,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.labelLarge?.copyWith(color: AppConstants.primary),
               ),
               const SizedBox(height: 8),
               Text(
                 card.focusTopic,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.white70,
-                      height: 1.5,
-                    ),
+                  color: AppConstants.textSecondary,
+                  height: 1.5,
+                ),
               ),
               if (card.audioSampleUrl.isNotEmpty) ...[
                 const SizedBox(height: 16),
@@ -63,10 +63,9 @@ class PracticeCardSection extends StatelessWidget {
               card.arabicText,
               textAlign: TextAlign.center,
               textDirection: TextDirection.rtl,
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    height: 1.8,
-                    fontSize: 26,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(height: 1.8, fontSize: 26),
             ),
           );
 
@@ -83,11 +82,7 @@ class PracticeCardSection extends StatelessWidget {
 
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              arabic,
-              const SizedBox(height: 20),
-              details,
-            ],
+            children: [arabic, const SizedBox(height: 20), details],
           );
         },
       ),
@@ -112,17 +107,13 @@ class _InfoRow extends StatelessWidget {
             width: 90,
             child: Text(
               label,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall
-                  ?.copyWith(color: Colors.white54),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: AppConstants.textMuted),
             ),
           ),
           Expanded(
-            child: Text(
-              value,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
+            child: Text(value, style: Theme.of(context).textTheme.bodyMedium),
           ),
         ],
       ),

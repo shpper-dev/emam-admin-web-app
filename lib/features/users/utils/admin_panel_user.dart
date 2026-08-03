@@ -15,8 +15,7 @@ bool isAdminPanelRestrictedUser(RestrictedUser user) =>
     isAdminPanelUserEmail(user.profile.email);
 
 UsersResponse withoutAdminPanelUsers(UsersResponse response) {
-  final users =
-      response.users.where((u) => !isAdminPanelAppUser(u)).toList();
+  final users = response.users.where((u) => !isAdminPanelAppUser(u)).toList();
   if (users.length == response.users.length) return response;
   final removed = response.users.length - users.length;
   return UsersResponse(
@@ -38,8 +37,10 @@ RestrictedUsersResponse withoutAdminPanelRestrictedUsers(
     users: users,
     nextPageToken: response.nextPageToken,
     count: (response.count - removed).clamp(0, response.count),
-    totalRestricted:
-        (response.totalRestricted - removed).clamp(0, response.totalRestricted),
+    totalRestricted: (response.totalRestricted - removed).clamp(
+      0,
+      response.totalRestricted,
+    ),
   );
 }
 

@@ -19,17 +19,21 @@ class DashboardView extends ConsumerWidget {
     final usersState = ref.watch(usersPaginationProvider);
     final usersNotifier = ref.read(usersPaginationProvider.notifier);
     final restrictedState = ref.watch(restrictedUsersPaginationProvider);
-    final restrictedNotifier =
-        ref.read(restrictedUsersPaginationProvider.notifier);
+    final restrictedNotifier = ref.read(
+      restrictedUsersPaginationProvider.notifier,
+    );
     final reportedDuasState = ref.watch(reportedDuasProvider);
     final reportedDuasNotifier = ref.read(reportedDuasProvider.notifier);
     final hiddenPostsState = ref.watch(hiddenPostsPaginationProvider);
-    final hiddenPostsNotifier = ref.read(hiddenPostsPaginationProvider.notifier);
+    final hiddenPostsNotifier = ref.read(
+      hiddenPostsPaginationProvider.notifier,
+    );
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final horizontalPadding =
-            contentHorizontalPadding(constraints.maxWidth);
+        final horizontalPadding = contentHorizontalPadding(
+          constraints.maxWidth,
+        );
 
         return RefreshIndicator(
           color: AppConstants.primary,
@@ -66,9 +70,7 @@ class DashboardView extends ConsumerWidget {
                         children: [
                           Text(
                             'Dashboard',
-                            style: Theme.of(context)
-                                .textTheme
-                                .headlineMedium
+                            style: Theme.of(context).textTheme.headlineMedium
                                 ?.copyWith(
                                   color: AppConstants.primary,
                                   fontWeight: FontWeight.w600,
@@ -77,10 +79,8 @@ class DashboardView extends ConsumerWidget {
                           const SizedBox(height: 8),
                           Text(
                             'Overview of everyone using Emam.',
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyLarge
-                                ?.copyWith(color: Colors.white70),
+                            style: Theme.of(context).textTheme.bodyLarge
+                                ?.copyWith(color: AppConstants.textSecondary),
                           ),
                         ],
                       ),
@@ -190,8 +190,8 @@ class _DashboardStatsRow extends StatelessWidget {
         final columns = constraints.maxWidth >= 1200
             ? 4
             : constraints.maxWidth >= 700
-                ? 2
-                : 1;
+            ? 2
+            : 1;
         const spacing = 16.0;
         final totalSpacing = spacing * (columns - 1);
         final tileWidth = (constraints.maxWidth - totalSpacing) / columns;
@@ -266,34 +266,46 @@ class _StatCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final borderColor = selected
         ? AppConstants.primary.withValues(alpha: 0.55)
-        : Colors.white.withValues(alpha: 0.08);
+        : AppConstants.borderColor;
     final background = selected
         ? AppConstants.primary.withValues(alpha: 0.08)
         : AppConstants.surfaceColor;
 
     return Material(
       color: Colors.transparent,
+      borderRadius: BorderRadius.circular(AppConstants.radiusLg),
       child: InkWell(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppConstants.radiusLg),
         onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.all(20),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          curve: Curves.easeOut,
+          padding: const EdgeInsets.all(AppConstants.space20),
           decoration: BoxDecoration(
             color: background,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(AppConstants.radiusLg),
             border: Border.all(color: borderColor, width: selected ? 1.4 : 1),
+            boxShadow: selected
+                ? [
+                    BoxShadow(
+                      color: AppConstants.primary.withValues(alpha: 0.12),
+                      blurRadius: 20,
+                      offset: const Offset(0, 8),
+                    ),
+                  ]
+                : null,
           ),
           child: Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(AppConstants.space12),
                 decoration: BoxDecoration(
                   color: AppConstants.primary.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(AppConstants.radiusMd),
                 ),
-                child: Icon(icon, color: AppConstants.primary, size: 26),
+                child: Icon(icon, color: AppConstants.primary, size: 24),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: AppConstants.space16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -301,14 +313,15 @@ class _StatCard extends StatelessWidget {
                     Text(
                       label,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Colors.white70,
-                          ),
+                        color: AppConstants.textSecondary,
+                      ),
                     ),
                     const SizedBox(height: 6),
                     Text(
                       value,
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                            color: AppConstants.primary,
+                      style: Theme.of(context).textTheme.headlineSmall
+                          ?.copyWith(
+                            color: AppConstants.textPrimary,
                             fontWeight: FontWeight.w700,
                           ),
                     ),

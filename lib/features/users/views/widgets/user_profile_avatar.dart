@@ -99,10 +99,10 @@ class _UserProfileAvatarState extends State<UserProfileAvatar> {
       child: Text(
         initial,
         style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              color: AppConstants.primary,
-              fontWeight: FontWeight.w700,
-              fontSize: size * 0.4,
-            ),
+          color: AppConstants.primary,
+          fontWeight: FontWeight.w700,
+          fontSize: size * 0.4,
+        ),
       ),
     );
   }

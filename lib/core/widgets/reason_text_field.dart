@@ -21,25 +21,25 @@ class ReasonTextField extends StatelessWidget {
       controller: controller,
       enabled: enabled,
       maxLines: 3,
-      style: const TextStyle(color: Colors.white),
+      style: const TextStyle(color: AppConstants.textPrimary),
       cursorColor: AppConstants.primary,
       onChanged: onChanged,
       decoration: InputDecoration(
         labelText: 'Reason',
-        labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
+        labelStyle: const TextStyle(color: AppConstants.textSecondary),
         filled: true,
         fillColor: AppConstants.inputFillColor,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.12)),
+          borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+          borderSide: BorderSide(color: AppConstants.borderColorStrong),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.12)),
+          borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+          borderSide: BorderSide(color: AppConstants.borderColorStrong),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppConstants.primary),
+          borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+          borderSide: const BorderSide(color: AppConstants.primary, width: 1.5),
         ),
       ),
     );

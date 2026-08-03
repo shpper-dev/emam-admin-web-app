@@ -10,10 +10,7 @@ class UsersRepository {
 
   final DioClient _client;
 
-  Future<UsersResponse> fetchUsers({
-    String? pageToken,
-    int limit = 50,
-  }) async {
+  Future<UsersResponse> fetchUsers({String? pageToken, int limit = 50}) async {
     final response = await _client.get<Map<String, dynamic>>(
       ApiConstants.users,
       queryParameters: {
@@ -32,10 +29,7 @@ class UsersRepository {
   }) async {
     final response = await _client.get<Map<String, dynamic>>(
       ApiConstants.usersSearch,
-      queryParameters: {
-        'q': query.trim(),
-        'limit': limit.clamp(1, 50),
-      },
+      queryParameters: {'q': query.trim(), 'limit': limit.clamp(1, 50)},
     );
     return withoutAdminPanelUsers(
       UsersResponse.fromJson(response.data ?? const {}),
@@ -82,10 +76,7 @@ class UsersRepository {
   }) async {
     await _client.post<void>(
       ApiConstants.userRestriction(userId),
-      data: {
-        'duration': duration,
-        'reason': reason,
-      },
+      data: {'duration': duration, 'reason': reason},
     );
   }
 

@@ -19,8 +19,10 @@ class IslamicEventsSection extends StatelessWidget {
           ? const Center(
               child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 24),
-                child: Text('No events available.',
-                    style: TextStyle(color: Colors.white54)),
+                child: Text(
+                  'No events available.',
+                  style: TextStyle(color: AppConstants.textMuted),
+                ),
               ),
             )
           : LayoutBuilder(
@@ -70,8 +72,8 @@ class _EventCard extends StatelessWidget {
                 child: Text(
                   event.name,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
               if (event.isToday) const ContentMetaChip(label: 'Today'),
@@ -81,17 +83,17 @@ class _EventCard extends StatelessWidget {
           Text(
             event.arabicName,
             textDirection: TextDirection.rtl,
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  color: AppConstants.primary,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleSmall?.copyWith(color: AppConstants.primary),
           ),
           const SizedBox(height: 10),
           Text(
             event.description,
-            style: Theme.of(context)
-                .textTheme
-                .bodyMedium
-                ?.copyWith(color: Colors.white70, height: 1.5),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: AppConstants.textSecondary,
+              height: 1.5,
+            ),
           ),
           const SizedBox(height: 14),
           Wrap(

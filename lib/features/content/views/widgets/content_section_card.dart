@@ -56,16 +56,16 @@ class ContentSectionCard extends StatelessWidget {
                       Text(
                         title,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              color: AppConstants.primary,
-                              fontWeight: FontWeight.w600,
-                            ),
+                          color: AppConstants.primary,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         subtitle,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Colors.white70,
-                            ),
+                          color: AppConstants.textSecondary,
+                        ),
                       ),
                       if (headerExtra != null) ...[
                         const SizedBox(height: 12),
@@ -78,11 +78,8 @@ class ContentSectionCard extends StatelessWidget {
               ],
             ),
           ),
-          const Divider(height: 1, color: Color(0xFF1E1E20)),
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: child,
-          ),
+          const Divider(height: 1, color: AppConstants.dividerColor),
+          Padding(padding: const EdgeInsets.all(20), child: child),
         ],
       ),
     );
@@ -114,9 +111,7 @@ class ContentLinkButton extends StatelessWidget {
 
     final uri = Uri.tryParse(normalized);
     if (uri == null || uri.host.isEmpty) {
-      messenger?.showSnackBar(
-        SnackBar(content: Text('Invalid link: $url')),
-      );
+      messenger?.showSnackBar(SnackBar(content: Text('Invalid link: $url')));
       return;
     }
 
@@ -147,8 +142,9 @@ class ContentLinkButton extends StatelessWidget {
           decoration: BoxDecoration(
             color: AppConstants.primary.withValues(alpha: 0.14),
             borderRadius: BorderRadius.circular(20),
-            border:
-                Border.all(color: AppConstants.primary.withValues(alpha: 0.35)),
+            border: Border.all(
+              color: AppConstants.primary.withValues(alpha: 0.35),
+            ),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -158,9 +154,9 @@ class ContentLinkButton extends StatelessWidget {
               Text(
                 label,
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                      color: AppConstants.primary,
-                      fontWeight: FontWeight.w700,
-                    ),
+                  color: AppConstants.primary,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ],
           ),
@@ -187,9 +183,9 @@ class ContentMetaChip extends StatelessWidget {
       child: Text(
         label,
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: AppConstants.primary,
-              fontWeight: FontWeight.w600,
-            ),
+          color: AppConstants.primary,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }
@@ -278,7 +274,11 @@ class SectionLoadingIndicator extends StatelessWidget {
 /// Error row with a retry button, shown in place of a section's content
 /// when its data failed to load.
 class SectionErrorMessage extends StatelessWidget {
-  const SectionErrorMessage({super.key, required this.message, required this.onRetry});
+  const SectionErrorMessage({
+    super.key,
+    required this.message,
+    required this.onRetry,
+  });
 
   final String message;
   final VoidCallback onRetry;
@@ -290,15 +290,14 @@ class SectionErrorMessage extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const Icon(Icons.error_outline, color: Colors.white54),
+          const Icon(Icons.error_outline, color: AppConstants.textMuted),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               message,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium
-                  ?.copyWith(color: Colors.white70),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: AppConstants.textSecondary,
+              ),
             ),
           ),
           const SizedBox(width: 12),

@@ -72,10 +72,7 @@ class ReportedDuasNotifier extends Notifier<ReportedDuasState> {
         isLoading: false,
       );
     } on DioException catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: parseApiError(e),
-      );
+      state = state.copyWith(isLoading: false, errorMessage: parseApiError(e));
     } catch (_) {
       state = state.copyWith(
         isLoading: false,
@@ -87,5 +84,5 @@ class ReportedDuasNotifier extends Notifier<ReportedDuasState> {
 
 final reportedDuasProvider =
     NotifierProvider<ReportedDuasNotifier, ReportedDuasState>(
-  ReportedDuasNotifier.new,
-);
+      ReportedDuasNotifier.new,
+    );

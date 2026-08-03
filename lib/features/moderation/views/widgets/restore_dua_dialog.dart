@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:emam_admin_web_app/core/constants/app_constants.dart';
 import 'package:emam_admin_web_app/core/network/api_error.dart';
 import 'package:emam_admin_web_app/core/utils/formatters.dart';
 import 'package:emam_admin_web_app/core/widgets/admin_alert_dialog.dart';
@@ -28,8 +29,6 @@ class RestoreDuaDialog extends ConsumerStatefulWidget {
 }
 
 class _RestoreDuaDialogState extends ConsumerState<RestoreDuaDialog> {
-  static const Color _success = Color(0xFF66BB6A);
-
   bool _isSubmitting = false;
   String? _errorMessage;
 
@@ -40,7 +39,9 @@ class _RestoreDuaDialogState extends ConsumerState<RestoreDuaDialog> {
     });
 
     try {
-      await ref.read(moderationRepositoryProvider).restoreDuaPost(widget.postId);
+      await ref
+          .read(moderationRepositoryProvider)
+          .restoreDuaPost(widget.postId);
       if (!mounted) return;
       Navigator.of(context).pop(true);
     } on DioException catch (e) {
@@ -74,7 +75,9 @@ class _RestoreDuaDialogState extends ConsumerState<RestoreDuaDialog> {
         children: [
           Text(
             'Are you sure you want to restore $postLabel? It will be visible in the feed again.',
-            style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white70),
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: AppConstants.textSecondary,
+            ),
           ),
           if (_errorMessage != null) ...[
             const SizedBox(height: 12),
@@ -89,7 +92,7 @@ class _RestoreDuaDialogState extends ConsumerState<RestoreDuaDialog> {
         ),
         DialogSubmitButton(
           label: 'Restore',
-          color: _success,
+          color: AppConstants.success,
           enabled: !_isSubmitting,
           isSubmitting: _isSubmitting,
           onPressed: _submit,

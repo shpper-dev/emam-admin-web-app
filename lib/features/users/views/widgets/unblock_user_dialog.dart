@@ -89,7 +89,9 @@ class _UnblockUserDialogState extends ConsumerState<UnblockUserDialog> {
         children: [
           Text(
             'Are you sure you want to unblock $name? They will be able to post again immediately.',
-            style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white70),
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: AppConstants.textSecondary,
+            ),
           ),
           if (remaining != null) ...[
             const SizedBox(height: 16),
@@ -117,7 +119,7 @@ class _UnblockUserDialogState extends ConsumerState<UnblockUserDialog> {
                         Text(
                           'Automatic unblock',
                           style: theme.textTheme.labelSmall?.copyWith(
-                            color: Colors.white54,
+                            color: AppConstants.textMuted,
                             fontWeight: FontWeight.w600,
                           ),
                         ),

@@ -18,16 +18,12 @@ class RestrictedUserCard extends ConsumerWidget {
   final VoidCallback? onTap;
 
   static const double _avatarSize = 56;
-  static const Color _danger = Color(0xFFE57373);
-  static const Color _warning = Color(0xFFFFB74D);
-  static const Color _unblockGreen = Color(0xFF66BB6A);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final profile = user.profile;
-    final cacheUserId =
-        user.userId.isNotEmpty ? user.userId : profile.id;
+    final cacheUserId = user.userId.isNotEmpty ? user.userId : profile.id;
     final listPhotoUrl = profile.photoUrl.trim();
     final cachedDetailPhoto = ref.watch(
       userDetailCacheProvider.select(
@@ -38,10 +34,12 @@ class RestrictedUserCard extends ConsumerWidget {
         ? listPhotoUrl
         : cachedDetailPhoto.trim();
     final moderation = user.moderation;
-    final displayName =
-        profile.displayName.isNotEmpty ? profile.displayName : 'Unnamed user';
-    final restrictionColor =
-        moderation.isPermanent ? _danger : _warning;
+    final displayName = profile.displayName.isNotEmpty
+        ? profile.displayName
+        : 'Unnamed user';
+    final restrictionColor = moderation.isPermanent
+        ? AppConstants.danger
+        : AppConstants.warning;
     final restrictionLabel = moderation.postingRestriction.isNotEmpty
         ? titleCase(moderation.postingRestriction)
         : 'Restricted';
@@ -84,17 +82,14 @@ class RestrictedUserCard extends ConsumerWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: theme.textTheme.bodySmall?.copyWith(
-                            color: Colors.white70,
+                            color: AppConstants.textSecondary,
                           ),
                         ),
                       ],
                     ),
                   ),
                   const SizedBox(width: 8),
-                  StatusBadge(
-                    label: restrictionLabel,
-                    color: restrictionColor,
-                  ),
+                  StatusBadge(label: restrictionLabel, color: restrictionColor),
                 ],
               ),
               if (moderation.reason.isNotEmpty) ...[
@@ -105,8 +100,9 @@ class RestrictedUserCard extends ConsumerWidget {
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.03),
                     borderRadius: BorderRadius.circular(10),
-                    border:
-                        Border.all(color: Colors.white.withValues(alpha: 0.06)),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.06),
+                    ),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -114,7 +110,7 @@ class RestrictedUserCard extends ConsumerWidget {
                       Text(
                         'Reason',
                         style: theme.textTheme.labelSmall?.copyWith(
-                          color: Colors.white54,
+                          color: AppConstants.textMuted,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -139,7 +135,9 @@ class RestrictedUserCard extends ConsumerWidget {
                         ? Icons.check_circle_outline_rounded
                         : Icons.block_rounded,
                     label: moderation.canPost ? 'Can post' : 'Cannot post',
-                    color: moderation.canPost ? AppConstants.primary : _danger,
+                    color: moderation.canPost
+                        ? AppConstants.primary
+                        : AppConstants.danger,
                   ),
                   if (moderation.restrictedUntil != null)
                     _StatusChip(
@@ -159,14 +157,14 @@ class RestrictedUserCard extends ConsumerWidget {
                     child: Text(
                       'Updated ${formatAdminDate(user.updatedAt)}',
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: Colors.white54,
+                        color: AppConstants.textMuted,
                       ),
                     ),
                   ),
                   PillActionButton(
                     icon: Icons.lock_open_rounded,
                     label: 'Unblock',
-                    color: _unblockGreen,
+                    color: AppConstants.success,
                     onPressed: () => _onUnblockPressed(
                       context,
                       ref,
@@ -201,14 +199,9 @@ class RestrictedUserCard extends ConsumerWidget {
     );
     if (unblocked != true || !context.mounted) return;
 
-    showRestrictionSnackBar(
-      context,
-      displayName: displayName,
-      blocked: false,
-    );
+    showRestrictionSnackBar(context, displayName: displayName, blocked: false);
     await refreshAfterUserRestrictionChange(ref, userId: userId);
   }
-
 }
 
 class _StatusChip extends StatelessWidget {
@@ -239,9 +232,9 @@ class _StatusChip extends StatelessWidget {
           Text(
             label,
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: color,
-                  fontWeight: FontWeight.w600,
-                ),
+              color: color,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ],
       ),

@@ -30,8 +30,8 @@ class HiddenPostsPageState {
 
   HiddenPostsResponse? get currentResponse =>
       pages.isEmpty || currentPage < 1 || currentPage > pages.length
-          ? null
-          : pages[currentPage - 1];
+      ? null
+      : pages[currentPage - 1];
 
   int get totalLoadedPosts =>
       pages.fold<int>(0, (sum, page) => sum + page.posts.length);
@@ -110,10 +110,7 @@ class HiddenPostsPaginationNotifier extends Notifier<HiddenPostsPageState> {
         isLoading: false,
       );
     } on DioException catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: parseApiError(e),
-      );
+      state = state.copyWith(isLoading: false, errorMessage: parseApiError(e));
     } catch (_) {
       state = state.copyWith(
         isLoading: false,
@@ -123,10 +120,10 @@ class HiddenPostsPaginationNotifier extends Notifier<HiddenPostsPageState> {
   }
 }
 
-final hiddenPostsPaginationProvider = NotifierProvider<
-    HiddenPostsPaginationNotifier, HiddenPostsPageState>(
-  HiddenPostsPaginationNotifier.new,
-);
+final hiddenPostsPaginationProvider =
+    NotifierProvider<HiddenPostsPaginationNotifier, HiddenPostsPageState>(
+      HiddenPostsPaginationNotifier.new,
+    );
 
 /// Post IDs from every loaded hidden-posts page (for reported-dua cards).
 final hiddenPostIdsProvider = Provider<Set<String>>((ref) {

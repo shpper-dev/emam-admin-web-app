@@ -53,15 +53,13 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         routes: [
           GoRoute(
             path: RoutePaths.dashboard,
-            pageBuilder: (context, state) => const NoTransitionPage(
-              child: DashboardView(),
-            ),
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: DashboardView()),
           ),
           GoRoute(
             path: RoutePaths.content,
-            pageBuilder: (context, state) => const NoTransitionPage(
-              child: ContentView(),
-            ),
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: ContentView()),
           ),
         ],
       ),

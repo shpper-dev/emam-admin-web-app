@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:emam_admin_web_app/core/constants/app_constants.dart';
 import 'package:emam_admin_web_app/core/network/api_error.dart';
 import 'package:emam_admin_web_app/core/widgets/admin_alert_dialog.dart';
 import 'package:emam_admin_web_app/core/widgets/dialog_error_text.dart';
@@ -15,10 +16,8 @@ Future<bool?> showBlockUserDialog(
 }) {
   return showDialog<bool>(
     context: context,
-    builder: (context) => BlockUserDialog(
-      userId: userId,
-      displayName: displayName,
-    ),
+    builder: (context) =>
+        BlockUserDialog(userId: userId, displayName: displayName),
   );
 }
 
@@ -37,8 +36,6 @@ class BlockUserDialog extends ConsumerStatefulWidget {
 }
 
 class _BlockUserDialogState extends ConsumerState<BlockUserDialog> {
-  static const Color _danger = Color(0xFFE57373);
-
   final _reasonController = TextEditingController();
   bool _isSubmitting = false;
   String? _errorMessage;
@@ -61,7 +58,9 @@ class _BlockUserDialogState extends ConsumerState<BlockUserDialog> {
     });
 
     try {
-      await ref.read(usersRepositoryProvider).applyUserRestriction(
+      await ref
+          .read(usersRepositoryProvider)
+          .applyUserRestriction(
             widget.userId,
             reason: _reasonController.text.trim(),
           );
@@ -98,7 +97,9 @@ class _BlockUserDialogState extends ConsumerState<BlockUserDialog> {
         children: [
           Text(
             'Apply a 30-day posting restriction to $name.',
-            style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white70),
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: AppConstants.textSecondary,
+            ),
           ),
           const SizedBox(height: 16),
           ReasonTextField(
@@ -119,7 +120,7 @@ class _BlockUserDialogState extends ConsumerState<BlockUserDialog> {
         ),
         DialogSubmitButton(
           label: 'Block',
-          color: _danger,
+          color: AppConstants.danger,
           enabled: _canSubmit,
           isSubmitting: _isSubmitting,
           onPressed: _submit,

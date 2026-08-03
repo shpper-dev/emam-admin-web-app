@@ -22,19 +22,24 @@ class AdminAlertDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final width = contentWidth;
-    final body = width == null ? content : SizedBox(width: width, child: content);
+    final body = width == null
+        ? content
+        : SizedBox(width: width, child: content);
 
     return AlertDialog(
-      backgroundColor: AppConstants.surfaceColor,
+      backgroundColor: AppConstants.surfaceElevated,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
+        borderRadius: BorderRadius.circular(AppConstants.radiusLg),
+        side: BorderSide(color: AppConstants.borderColor),
       ),
+      titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
+      contentPadding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
+      actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       title: Text(
         title,
         style: theme.textTheme.titleLarge?.copyWith(
-          color: Colors.white,
-          fontWeight: FontWeight.w600,
+          color: AppConstants.textPrimary,
+          fontWeight: FontWeight.w700,
         ),
       ),
       content: body,

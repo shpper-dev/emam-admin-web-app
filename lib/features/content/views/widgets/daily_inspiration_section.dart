@@ -45,11 +45,7 @@ class DailyInspirationSection extends StatelessWidget {
           }
 
           return Column(
-            children: [
-              duaCard,
-              const SizedBox(height: 16),
-              ayahCard,
-            ],
+            children: [duaCard, const SizedBox(height: 16), ayahCard],
           );
         },
       ),
@@ -82,26 +78,25 @@ class _InspirationBlock extends StatelessWidget {
           Text(
             title,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: AppConstants.primary,
-                  fontWeight: FontWeight.w600,
-                ),
+              color: AppConstants.primary,
+              fontWeight: FontWeight.w600,
+            ),
           ),
           const SizedBox(height: 16),
           Text(
             arabic,
             textDirection: TextDirection.rtl,
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  height: 1.8,
-                  fontSize: 24,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.headlineSmall?.copyWith(height: 1.8, fontSize: 24),
           ),
           const SizedBox(height: 14),
           Text(
             english,
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: Colors.white70,
-                  height: 1.5,
-                ),
+              color: AppConstants.textSecondary,
+              height: 1.5,
+            ),
           ),
           const SizedBox(height: 14),
           ContentMetaChip(label: footer),

@@ -1,3 +1,4 @@
+import 'package:emam_admin_web_app/core/constants/app_constants.dart';
 import 'package:flutter/material.dart';
 
 /// Inline error message shown inside a dialog's content, in the app's
@@ -7,13 +8,13 @@ class DialogErrorText extends StatelessWidget {
 
   final String message;
 
-  static const Color _danger = Color(0xFFE57373);
-
   @override
   Widget build(BuildContext context) {
     return Text(
       message,
-      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: _danger),
+      style: Theme.of(
+        context,
+      ).textTheme.bodySmall?.copyWith(color: AppConstants.danger),
     );
   }
 }

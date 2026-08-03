@@ -26,23 +26,25 @@ class SectionEmptyMessage extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              padding: const EdgeInsets.all(14),
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.04),
+                color: AppConstants.primary.withValues(alpha: 0.06),
                 shape: BoxShape.circle,
-                border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+                border: Border.all(
+                  color: AppConstants.primary.withValues(alpha: 0.16),
+                ),
               ),
               child: Icon(
                 icon,
                 size: 26,
-                color: AppConstants.primary.withValues(alpha: 0.6),
+                color: AppConstants.primary.withValues(alpha: 0.65),
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: AppConstants.space16),
             Text(
               message,
               textAlign: TextAlign.center,
-              style: style ?? const TextStyle(color: Colors.white54),
+              style: style ?? const TextStyle(color: AppConstants.textMuted),
             ),
           ],
         ),

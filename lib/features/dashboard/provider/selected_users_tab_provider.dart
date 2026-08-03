@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final selectedUsersTabProvider =
     NotifierProvider<SelectedUsersTabNotifier, UsersTab>(
-  SelectedUsersTabNotifier.new,
-);
+      SelectedUsersTabNotifier.new,
+    );
 
 class SelectedUsersTabNotifier extends Notifier<UsersTab> {
   @override

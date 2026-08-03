@@ -98,25 +98,23 @@ class _PagerButton extends StatelessWidget {
     required bool selected,
     required bool enabled,
     required VoidCallback onTap,
-  }) =>
-      _PagerButton._(
-        enabled: enabled,
-        onTap: onTap,
-        selected: selected,
-        label: label,
-      );
+  }) => _PagerButton._(
+    enabled: enabled,
+    onTap: onTap,
+    selected: selected,
+    label: label,
+  );
 
   factory _PagerButton.icon({
     required IconData icon,
     required bool enabled,
     required VoidCallback onTap,
-  }) =>
-      _PagerButton._(
-        enabled: enabled,
-        onTap: onTap,
-        selected: false,
-        icon: icon,
-      );
+  }) => _PagerButton._(
+    enabled: enabled,
+    onTap: onTap,
+    selected: false,
+    icon: icon,
+  );
 
   final bool enabled;
   final bool selected;
@@ -149,9 +147,9 @@ class _PagerButton extends StatelessWidget {
         : Text(
             label!,
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: foreground,
-                  fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
-                ),
+              color: foreground,
+              fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
+            ),
           );
 
     return Material(
@@ -166,8 +164,7 @@ class _PagerButton extends StatelessWidget {
           decoration: BoxDecoration(
             color: background,
             borderRadius: BorderRadius.circular(10),
-            border:
-                Border.all(color: borderColor, width: selected ? 1.4 : 1),
+            border: Border.all(color: borderColor, width: selected ? 1.4 : 1),
           ),
           child: content,
         ),

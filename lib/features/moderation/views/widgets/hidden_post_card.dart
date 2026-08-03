@@ -15,9 +15,6 @@ class HiddenPostCard extends ConsumerWidget {
 
   final HiddenPost post;
 
-  static const Color _danger = Color(0xFFE57373);
-  static const Color _restoreGreen = Color(0xFF66BB6A);
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
@@ -37,12 +34,12 @@ class HiddenPostCard extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: _danger.withValues(alpha: 0.12),
+                  color: AppConstants.danger.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
                   Icons.visibility_off_rounded,
-                  color: _danger,
+                  color: AppConstants.danger,
                   size: 22,
                 ),
               ),
@@ -65,7 +62,7 @@ class HiddenPostCard extends ConsumerWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: Colors.white70,
+                        color: AppConstants.textSecondary,
                       ),
                     ),
                   ],
@@ -74,7 +71,7 @@ class HiddenPostCard extends ConsumerWidget {
               const SizedBox(width: 8),
               StatusBadge(
                 label: titleCase(post.status),
-                color: _danger,
+                color: AppConstants.danger,
               ),
             ],
           ),
@@ -85,10 +82,7 @@ class HiddenPostCard extends ConsumerWidget {
           ),
           if (post.hiddenReason.isNotEmpty) ...[
             const SizedBox(height: 10),
-            DetailBlock(
-              label: 'Hidden reason',
-              value: post.hiddenReason,
-            ),
+            DetailBlock(label: 'Hidden reason', value: post.hiddenReason),
           ],
           const SizedBox(height: 14),
           Wrap(
@@ -108,14 +102,14 @@ class HiddenPostCard extends ConsumerWidget {
                 child: Text(
                   'Hidden ${_formatPostDate(post.hiddenAt)}',
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: Colors.white54,
+                    color: AppConstants.textMuted,
                   ),
                 ),
               ),
               PillActionButton(
                 icon: Icons.visibility_rounded,
                 label: 'Restore',
-                color: _restoreGreen,
+                color: AppConstants.success,
                 onPressed: post.id.isEmpty
                     ? null
                     : () => _onRestorePressed(context, ref),
@@ -128,18 +122,11 @@ class HiddenPostCard extends ConsumerWidget {
   }
 
   Future<void> _onRestorePressed(BuildContext context, WidgetRef ref) async {
-    final restored = await showRestoreDuaDialog(
-      context,
-      postId: post.id,
-    );
+    final restored = await showRestoreDuaDialog(context, postId: post.id);
     if (restored != true || !context.mounted) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Post ${shortId(post.id)} has been restored.',
-        ),
-      ),
+      SnackBar(content: Text('Post ${shortId(post.id)} has been restored.')),
     );
     await ref.read(hiddenPostsPaginationProvider.notifier).refresh();
   }

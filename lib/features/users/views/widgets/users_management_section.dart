@@ -63,26 +63,26 @@ class UsersManagementSection extends StatelessWidget {
     final isLoading = isAll
         ? usersState.isLoading && usersResponse == null
         : isReportedDuas
-            ? reportedDuasState.isLoading && reportedDuasState.reports.isEmpty
-            : isHiddenPosts
-                ? hiddenPostsState.isLoading && hiddenPostsResponse == null
-                : restrictedState.isLoading && restrictedResponse == null;
+        ? reportedDuasState.isLoading && reportedDuasState.reports.isEmpty
+        : isHiddenPosts
+        ? hiddenPostsState.isLoading && hiddenPostsResponse == null
+        : restrictedState.isLoading && restrictedResponse == null;
     final errorMessage = isAll
         ? usersState.errorMessage
         : isReportedDuas
-            ? reportedDuasState.errorMessage
-            : isHiddenPosts
-                ? hiddenPostsState.errorMessage
-                : restrictedState.errorMessage;
+        ? reportedDuasState.errorMessage
+        : isHiddenPosts
+        ? hiddenPostsState.errorMessage
+        : restrictedState.errorMessage;
 
     return ContentSectionCard(
       title: isAll
           ? 'All Users'
           : isReportedDuas
-              ? "Reported Dua's"
-              : isHiddenPosts
-                  ? 'Hidden Posts'
-                  : 'Blocked Users',
+          ? "Reported Dua's"
+          : isHiddenPosts
+          ? 'Hidden Posts'
+          : 'Blocked Users',
       subtitle: _subtitle(
         isAll: isAll,
         isReportedDuas: isReportedDuas,
@@ -95,10 +95,10 @@ class UsersManagementSection extends StatelessWidget {
       icon: isAll
           ? Icons.people_alt_rounded
           : isReportedDuas
-              ? Icons.flag_rounded
-              : isHiddenPosts
-                  ? Icons.visibility_off_rounded
-                  : Icons.block_rounded,
+          ? Icons.flag_rounded
+          : isHiddenPosts
+          ? Icons.visibility_off_rounded
+          : Icons.block_rounded,
       trailing: _trailingChip(
         isAll: isAll,
         isReportedDuas: isReportedDuas,
@@ -165,10 +165,8 @@ class UsersManagementSection extends StatelessWidget {
 
     if (restrictedResponse == null) return 'Users with posting restrictions';
     final users = restrictedResponse.users;
-    final temporaryCount =
-        users.where((u) => u.moderation.isTemporary).length;
-    final permanentCount =
-        users.where((u) => u.moderation.isPermanent).length;
+    final temporaryCount = users.where((u) => u.moderation.isTemporary).length;
+    final permanentCount = users.where((u) => u.moderation.isPermanent).length;
     final pageLabel = _pageLabel(
       restrictedState.currentPage,
       restrictedState.discoveredPages,
@@ -197,7 +195,10 @@ class UsersManagementSection extends StatelessWidget {
     if (isHiddenPosts && hiddenPostsResponse != null) {
       return ContentMetaChip(label: '${hiddenPostsResponse.posts.length}');
     }
-    if (!isAll && !isReportedDuas && !isHiddenPosts && restrictedResponse != null) {
+    if (!isAll &&
+        !isReportedDuas &&
+        !isHiddenPosts &&
+        restrictedResponse != null) {
       return ContentMetaChip(label: '${restrictedResponse.totalRestricted}');
     }
     return null;
@@ -229,10 +230,10 @@ class UsersManagementSection extends StatelessWidget {
         onRetry: isAll
             ? onUsersRetry
             : isReportedDuas
-                ? onReportedDuasRetry
-                : isHiddenPosts
-                    ? onHiddenPostsRetry
-                    : onRestrictedRetry,
+            ? onReportedDuasRetry
+            : isHiddenPosts
+            ? onHiddenPostsRetry
+            : onRestrictedRetry,
       );
     }
 
@@ -306,10 +307,7 @@ class _AllUsersBody extends StatelessWidget {
               final user = users[index];
               return UserCard(
                 user: user,
-                onTap: () => showUserDetailDialog(
-                  context,
-                  userId: user.id,
-                ),
+                onTap: () => showUserDetailDialog(context, userId: user.id),
               );
             },
           ),
@@ -417,14 +415,12 @@ class _BlockedUsersBody extends StatelessWidget {
             itemCount: users.length,
             itemBuilder: (index) {
               final user = users[index];
-              final userId =
-                  user.userId.isNotEmpty ? user.userId : user.profile.id;
+              final userId = user.userId.isNotEmpty
+                  ? user.userId
+                  : user.profile.id;
               return RestrictedUserCard(
                 user: user,
-                onTap: () => showUserDetailDialog(
-                  context,
-                  userId: userId,
-                ),
+                onTap: () => showUserDetailDialog(context, userId: userId),
               );
             },
           ),
@@ -441,10 +437,7 @@ class _BlockedUsersBody extends StatelessWidget {
 }
 
 class _UserGrid extends StatelessWidget {
-  const _UserGrid({
-    required this.itemCount,
-    required this.itemBuilder,
-  });
+  const _UserGrid({required this.itemCount, required this.itemBuilder});
 
   final int itemCount;
   final Widget Function(int index) itemBuilder;
@@ -481,4 +474,3 @@ int _gridColumns(double width) {
   if (width >= 720) return 2;
   return 1;
 }
-

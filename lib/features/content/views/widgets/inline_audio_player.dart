@@ -9,11 +9,7 @@ import 'package:just_audio/just_audio.dart';
 /// Fully self-contained: it owns its own [AudioPlayer], disposes it, and
 /// reloads when [url] changes. Safe to drop into any card.
 class InlineAudioPlayer extends StatefulWidget {
-  const InlineAudioPlayer({
-    super.key,
-    required this.url,
-    this.title,
-  });
+  const InlineAudioPlayer({super.key, required this.url, this.title});
 
   final String url;
   final String? title;
@@ -91,23 +87,28 @@ class _InlineAudioPlayerState extends State<InlineAudioPlayer> {
       child: _error != null
           ? Row(
               children: [
-                const Icon(Icons.error_outline,
-                    color: Colors.redAccent, size: 20),
+                const Icon(
+                  Icons.error_outline,
+                  color: AppConstants.danger,
+                  size: 20,
+                ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     'Audio failed to load: $_error',
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodySmall
-                        ?.copyWith(color: Colors.white70),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: AppConstants.textSecondary,
+                    ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.refresh_rounded,
-                      color: Colors.white70, size: 20),
+                  icon: const Icon(
+                    Icons.refresh_rounded,
+                    color: AppConstants.textSecondary,
+                    size: 20,
+                  ),
                   onPressed: () => _load(widget.url),
                   tooltip: 'Retry',
                 ),
@@ -120,9 +121,9 @@ class _InlineAudioPlayerState extends State<InlineAudioPlayer> {
                   Text(
                     widget.title!,
                     style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          color: AppConstants.primary,
-                          fontWeight: FontWeight.w600,
-                        ),
+                      color: AppConstants.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   const SizedBox(height: 6),
                 ],
@@ -132,10 +133,7 @@ class _InlineAudioPlayerState extends State<InlineAudioPlayer> {
                     const SizedBox(width: 10),
                     Expanded(child: _ProgressBar(player: _player)),
                     const SizedBox(width: 10),
-                    _TimeLabel(
-                      player: _player,
-                      formatter: _formatDuration,
-                    ),
+                    _TimeLabel(player: _player, formatter: _formatDuration),
                   ],
                 ),
               ],
@@ -158,7 +156,8 @@ class _PlayPauseButton extends StatelessWidget {
         final state = snapshot.data;
         final processing = state?.processingState;
         final isPlaying = state?.playing ?? false;
-        final isBuffering = processing == ProcessingState.loading ||
+        final isBuffering =
+            processing == ProcessingState.loading ||
             processing == ProcessingState.buffering ||
             loading;
 
@@ -172,9 +171,7 @@ class _PlayPauseButton extends StatelessWidget {
                 ),
               )
             : Icon(
-                isPlaying
-                    ? Icons.pause_rounded
-                    : Icons.play_arrow_rounded,
+                isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
                 color: AppConstants.primary,
                 size: 26,
               );
@@ -187,11 +184,7 @@ class _PlayPauseButton extends StatelessWidget {
             onTap: isBuffering
                 ? null
                 : () => isPlaying ? player.pause() : player.play(),
-            child: SizedBox(
-              width: 40,
-              height: 40,
-              child: Center(child: child),
-            ),
+            child: SizedBox(width: 40, height: 40, child: Center(child: child)),
           ),
         );
       },
@@ -231,8 +224,7 @@ class _ProgressBarState extends State<_ProgressBar> {
               data: SliderTheme.of(context).copyWith(
                 trackHeight: 3,
                 thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
-                overlayShape:
-                    const RoundSliderOverlayShape(overlayRadius: 12),
+                overlayShape: const RoundSliderOverlayShape(overlayRadius: 12),
                 activeTrackColor: AppConstants.primary,
                 inactiveTrackColor: Colors.white.withValues(alpha: 0.12),
                 thumbColor: AppConstants.primary,
@@ -247,8 +239,7 @@ class _ProgressBarState extends State<_ProgressBar> {
                     : null,
                 onChangeEnd: maxMs > 0
                     ? (v) {
-                        widget.player
-                            .seek(Duration(milliseconds: v.toInt()));
+                        widget.player.seek(Duration(milliseconds: v.toInt()));
                         setState(() => _dragValue = null);
                       }
                     : null,
@@ -280,9 +271,9 @@ class _TimeLabel extends StatelessWidget {
             return Text(
               '${formatter(position)} / ${formatter(duration)}',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.white70,
-                    fontFeatures: const [FontFeature.tabularFigures()],
-                  ),
+                color: AppConstants.textSecondary,
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
             );
           },
         );

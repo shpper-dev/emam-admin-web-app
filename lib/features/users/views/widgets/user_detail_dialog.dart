@@ -9,7 +9,8 @@ import 'package:emam_admin_web_app/features/users/views/widgets/users_pagination
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-String _formatDetailDate(DateTime? date) => formatAdminDate(date, includeTime: true);
+String _formatDetailDate(DateTime? date) =>
+    formatAdminDate(date, includeTime: true);
 
 String _titleCaseLabel(String value) {
   if (value.isEmpty) return '—';
@@ -66,7 +67,8 @@ class _UserDetailDialogState extends ConsumerState<UserDetailDialog> {
   UserDetailCacheEntry _entry(WidgetRef ref) =>
       ref.watch(userDetailCacheProvider).entryFor(widget.userId);
 
-  int _discoveredPostPages(UserDetailCacheEntry entry) => entry.postPages.length;
+  int _discoveredPostPages(UserDetailCacheEntry entry) =>
+      entry.postPages.length;
 
   UserRecentPostsPage? _currentPostsPage(UserDetailCacheEntry entry) {
     final pages = entry.postPages;
@@ -159,14 +161,17 @@ class _UserDetailDialogState extends ConsumerState<UserDetailDialog> {
                   IconButton(
                     tooltip: 'Close',
                     onPressed: () => Navigator.of(context).pop(),
-                    icon: const Icon(Icons.close_rounded, color: Colors.white70),
+                    icon: const Icon(
+                      Icons.close_rounded,
+                      color: AppConstants.textSecondary,
+                    ),
                   ),
                 ],
               ),
             ),
-            const Divider(height: 1, color: Color(0xFF1E1E20)),
+            const Divider(height: 1, color: AppConstants.dividerColor),
             Flexible(child: body),
-            const Divider(height: 1, color: Color(0xFF1E1E20)),
+            const Divider(height: 1, color: AppConstants.dividerColor),
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 12, 24, 20),
               child: Row(
@@ -191,8 +196,9 @@ class _UserDetailDialogState extends ConsumerState<UserDetailDialog> {
     UserDetailResponse detail,
   ) {
     final user = detail.user;
-    final displayName =
-        user.displayName.isNotEmpty ? user.displayName : 'Unnamed user';
+    final displayName = user.displayName.isNotEmpty
+        ? user.displayName
+        : 'Unnamed user';
     final postsPage = _currentPostsPage(entry);
     final errorMessage = entry.errorMessage;
 
@@ -212,21 +218,25 @@ class _UserDetailDialogState extends ConsumerState<UserDetailDialog> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFB74D).withValues(alpha: 0.1),
+                      color: AppConstants.warning.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: const Color(0xFFFFB74D).withValues(alpha: 0.35),
+                        color: AppConstants.warning.withValues(alpha: 0.35),
                       ),
                     ),
                     child: Text(
                       'User record was not found on the server.',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: const Color(0xFFFFB74D),
-                          ),
+                        color: AppConstants.warning,
+                      ),
                     ),
                   ),
                 ),
-              _ProfileHeader(user: user, displayName: displayName, isWide: isWide),
+              _ProfileHeader(
+                user: user,
+                displayName: displayName,
+                isWide: isWide,
+              ),
               const SizedBox(height: 24),
               if (isWide)
                 Row(
@@ -305,8 +315,8 @@ class _UserDetailDialogState extends ConsumerState<UserDetailDialog> {
                       Text(
                         errorMessage,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: const Color(0xFFE57373),
-                            ),
+                          color: AppConstants.danger,
+                        ),
                       ),
                       const SizedBox(height: 12),
                     ],
@@ -314,14 +324,11 @@ class _UserDetailDialogState extends ConsumerState<UserDetailDialog> {
                       Text(
                         'No recent posts.',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Colors.white54,
-                            ),
+                          color: AppConstants.textMuted,
+                        ),
                       )
                     else
-                      _RecentPostsList(
-                        posts: postsPage.posts,
-                        isWide: isWide,
-                      ),
+                      _RecentPostsList(posts: postsPage.posts, isWide: isWide),
                     const SizedBox(height: 8),
                     UsersPaginationBar(
                       currentPage: _postCurrentPage,
@@ -341,63 +348,53 @@ class _UserDetailDialogState extends ConsumerState<UserDetailDialog> {
   }
 
   List<_InfoItem> _moderationItems(UserDetailResponse detail) => [
-        _InfoItem(
-          label: 'Posting restriction',
-          value: _titleCaseLabel(detail.moderation.postingRestriction),
-        ),
-        _InfoItem(
-          label: 'Can post',
-          value: detail.moderation.canPost ? 'Yes' : 'No',
-          highlight: detail.moderation.canPost,
-        ),
-        _InfoItem(
-          label: 'Active posts',
-          value: '${detail.postCount}',
-        ),
-        _InfoItem(
-          label: 'Hidden posts',
-          value: '${detail.hiddenPostCount}',
-        ),
-      ];
+    _InfoItem(
+      label: 'Posting restriction',
+      value: _titleCaseLabel(detail.moderation.postingRestriction),
+    ),
+    _InfoItem(
+      label: 'Can post',
+      value: detail.moderation.canPost ? 'Yes' : 'No',
+      highlight: detail.moderation.canPost,
+    ),
+    _InfoItem(label: 'Active posts', value: '${detail.postCount}'),
+    _InfoItem(label: 'Hidden posts', value: '${detail.hiddenPostCount}'),
+  ];
 
   List<_InfoItem> _activityItems(UserDetailResponse detail) => [
-        _InfoItem(
-          label: 'Prayers tracked',
-          value: '${detail.stats.prayersTracked}',
-        ),
-        _InfoItem(
-          label: 'Khutbahs (AI)',
-          value: '${detail.stats.khutbahsAi}',
-        ),
-        _InfoItem(
-          label: 'Tajweed score',
-          value: detail.stats.tajweedScore.toStringAsFixed(1),
-        ),
-        _InfoItem(
-          label: 'Qari recitations',
-          value: '${detail.stats.qariRecitationCount}',
-        ),
-      ];
+    _InfoItem(
+      label: 'Prayers tracked',
+      value: '${detail.stats.prayersTracked}',
+    ),
+    _InfoItem(label: 'Khutbahs (AI)', value: '${detail.stats.khutbahsAi}'),
+    _InfoItem(
+      label: 'Tajweed score',
+      value: detail.stats.tajweedScore.toStringAsFixed(1),
+    ),
+    _InfoItem(
+      label: 'Qari recitations',
+      value: '${detail.stats.qariRecitationCount}',
+    ),
+  ];
 
   List<_InfoItem> _recitationItems(UserDetailResponse detail) => [
-        _InfoItem(
-          label: 'Ayahs read',
-          value: '${detail.recitation.totalAyahsRead}',
-        ),
-        _InfoItem(
-          label: 'Overall progress',
-          value:
-              '${(detail.recitation.overallPercent * 100).toStringAsFixed(2)}%',
-        ),
-        _InfoItem(
-          label: 'Surahs started',
-          value: '${detail.recitation.surahsStarted}',
-        ),
-        _InfoItem(
-          label: 'Surahs completed',
-          value: '${detail.recitation.surahsCompleted}',
-        ),
-      ];
+    _InfoItem(
+      label: 'Ayahs read',
+      value: '${detail.recitation.totalAyahsRead}',
+    ),
+    _InfoItem(
+      label: 'Overall progress',
+      value: '${(detail.recitation.overallPercent * 100).toStringAsFixed(2)}%',
+    ),
+    _InfoItem(
+      label: 'Surahs started',
+      value: '${detail.recitation.surahsStarted}',
+    ),
+    _InfoItem(
+      label: 'Surahs completed',
+      value: '${detail.recitation.surahsCompleted}',
+    ),
+  ];
 }
 
 class _ProfileHeader extends StatelessWidget {
@@ -481,7 +478,7 @@ class _ProfileHeader extends StatelessWidget {
               child: Text(
                 user.email.isNotEmpty ? user.email : 'No email',
                 style: theme.textTheme.bodyMedium?.copyWith(
-                  color: Colors.white70,
+                  color: AppConstants.textSecondary,
                 ),
               ),
             ),
@@ -491,7 +488,7 @@ class _ProfileHeader extends StatelessWidget {
         SelectableText(
           user.id,
           style: theme.textTheme.labelSmall?.copyWith(
-            color: Colors.white38,
+            color: AppConstants.textFaint,
             fontFamily: 'monospace',
             letterSpacing: 0.2,
           ),
@@ -543,13 +540,13 @@ class _MetaLine extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 14, color: Colors.white38),
+        Icon(icon, size: 14, color: AppConstants.textFaint),
         const SizedBox(width: 6),
         Text(
           label,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Colors.white54,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: AppConstants.textMuted),
         ),
       ],
     );
@@ -644,11 +641,7 @@ class _RecentPostsList extends StatelessWidget {
 }
 
 class _InfoItem {
-  const _InfoItem({
-    required this.label,
-    required this.value,
-    this.highlight,
-  });
+  const _InfoItem({required this.label, required this.value, this.highlight});
 
   final String label;
   final String value;
@@ -707,8 +700,8 @@ class _DetailBlock extends StatelessWidget {
     final valueColor = highlight == true
         ? AppConstants.primary
         : highlight == false
-            ? const Color(0xFFE57373)
-            : Colors.white.withValues(alpha: 0.9);
+        ? AppConstants.danger
+        : Colors.white.withValues(alpha: 0.9);
 
     return Container(
       width: double.infinity,
@@ -724,7 +717,7 @@ class _DetailBlock extends StatelessWidget {
           Text(
             label,
             style: theme.textTheme.labelSmall?.copyWith(
-              color: Colors.white54,
+              color: AppConstants.textMuted,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -752,7 +745,7 @@ class _RecentPostTile extends StatelessWidget {
     final theme = Theme.of(context);
     final statusColor = post.status.toLowerCase() == 'active'
         ? AppConstants.primary
-        : const Color(0xFFE57373);
+        : AppConstants.danger;
 
     return Container(
       width: double.infinity,
@@ -771,7 +764,7 @@ class _RecentPostTile extends StatelessWidget {
                 child: Text(
                   post.location.isNotEmpty ? post.location : 'Unknown location',
                   style: theme.textTheme.labelSmall?.copyWith(
-                    color: Colors.white54,
+                    color: AppConstants.textMuted,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -796,9 +789,7 @@ class _RecentPostTile extends StatelessWidget {
             children: [
               ContentMetaChip(label: 'Ameen ${post.ameenCount}'),
               ContentMetaChip(label: 'Reports ${post.reportCount}'),
-              ContentMetaChip(
-                label: _formatDetailDate(post.createdAt),
-              ),
+              ContentMetaChip(label: _formatDetailDate(post.createdAt)),
             ],
           ),
           if ((post.hiddenReason ?? '').isNotEmpty) ...[
@@ -806,7 +797,7 @@ class _RecentPostTile extends StatelessWidget {
             Text(
               'Hidden: ${post.hiddenReason}',
               style: theme.textTheme.bodySmall?.copyWith(
-                color: const Color(0xFFE57373),
+                color: AppConstants.danger,
               ),
             ),
           ],
@@ -834,9 +825,9 @@ class _StatusBadge extends StatelessWidget {
       child: Text(
         label,
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: color,
-              fontWeight: FontWeight.w700,
-            ),
+          color: color,
+          fontWeight: FontWeight.w700,
+        ),
       ),
     );
   }
@@ -876,15 +867,14 @@ class _DialogError extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.error_outline, color: Colors.white54),
+          const Icon(Icons.error_outline, color: AppConstants.textMuted),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               message,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium
-                  ?.copyWith(color: Colors.white70),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: AppConstants.textSecondary,
+              ),
             ),
           ),
           const SizedBox(width: 12),

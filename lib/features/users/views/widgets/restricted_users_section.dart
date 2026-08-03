@@ -1,3 +1,4 @@
+import 'package:emam_admin_web_app/core/constants/app_constants.dart';
 import 'package:emam_admin_web_app/features/content/views/widgets/content_section_card.dart';
 import 'package:emam_admin_web_app/features/users/models/restricted_user.dart';
 import 'package:emam_admin_web_app/features/users/views/widgets/restricted_user_card.dart';
@@ -25,10 +26,8 @@ class RestrictedUsersSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final users = response.users;
-    final temporaryCount =
-        users.where((u) => u.moderation.isTemporary).length;
-    final permanentCount =
-        users.where((u) => u.moderation.isPermanent).length;
+    final temporaryCount = users.where((u) => u.moderation.isTemporary).length;
+    final permanentCount = users.where((u) => u.moderation.isPermanent).length;
     final pageLabel = hasNextToken || discoveredPages > 1
         ? 'Page $currentPage · '
         : '';
@@ -94,7 +93,7 @@ class _EmptyRestrictedUsers extends StatelessWidget {
         padding: EdgeInsets.symmetric(vertical: 24),
         child: Text(
           'No blocked users found.',
-          style: TextStyle(color: Colors.white54),
+          style: TextStyle(color: AppConstants.textMuted),
         ),
       ),
     );
