@@ -96,4 +96,7 @@ class AppConstants {
   static const String emamLogo = 'assets/images/emam.png';
 
   static const String feedbackUrl = 'https://crisp.chat/en/';
+
+  static const String firebaseAnalyticsUrl =
+      'https://console.firebase.google.com/u/1/project/emam-backend/analytics/app/ios:com.example.emamFrontend/overview/reports~2Fdashboard%3Fr%3Dfirebase-overview&fpn%3D175596050244';
 }

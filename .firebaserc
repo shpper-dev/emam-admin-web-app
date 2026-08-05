@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "emamadmin"
+    "default": "emamadmin",
+    "analytics": "emam-backend"
   }
 }

@@ -71,6 +71,27 @@ class AppDrawer extends ConsumerWidget {
     }
   }
 
+  Future<void> _openFirebaseAnalytics(BuildContext context) async {
+    if (Scaffold.maybeOf(context)?.isDrawerOpen ?? false) {
+      Navigator.of(context).pop();
+    }
+    final uri = Uri.parse(AppConstants.firebaseAnalyticsUrl);
+    try {
+      final launched = await launchUrl(uri, webOnlyWindowName: '_blank');
+      if (!launched && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not open Firebase Analytics')),
+        );
+      }
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not open Firebase Analytics')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentPath = GoRouterState.of(context).matchedLocation;
@@ -123,6 +144,12 @@ class AppDrawer extends ConsumerWidget {
             label: 'Contents',
             selected: currentPath == RoutePaths.content,
             onTap: () => _navigate(context, RoutePaths.content),
+          ),
+          _DrawerTile(
+            icon: Icons.insights_rounded,
+            label: 'Analytics',
+            selected: false,
+            onTap: () => _openFirebaseAnalytics(context),
           ),
           const SizedBox(height: AppConstants.space16),
           Padding(
