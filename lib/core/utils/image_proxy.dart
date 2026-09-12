@@ -14,6 +14,12 @@ String proxiedImageUrl(String url, {int? width, int? height}) {
   final trimmed = url.trim();
   if (trimmed.isEmpty) return trimmed;
   if (trimmed.startsWith('https://images.weserv.nl')) return trimmed;
+  // Firebase Storage URLs carry access tokens; never send them to a third party.
+  final host = Uri.tryParse(trimmed)?.host ?? '';
+  if (host == 'firebasestorage.googleapis.com' ||
+      host.endsWith('.googleusercontent.com')) {
+    return trimmed;
+  }
 
   // weserv expects the full source URL (including https://) in `url`.
   final params = <String, String>{

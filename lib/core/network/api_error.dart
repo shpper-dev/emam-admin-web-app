@@ -32,6 +32,12 @@ String _parseBadResponse(DioException error) {
         return _friendlyFirebaseMessage(message);
       }
     }
+    final detail = data['detail'];
+    if (detail is String && detail.isNotEmpty) return detail;
+    if (detail is List && detail.isNotEmpty) {
+      final first = detail.first;
+      if (first is Map && first['msg'] is String) return first['msg'] as String;
+    }
     final message = data['message'] as String?;
     if (message != null) return message;
   }
@@ -42,10 +48,10 @@ String _parseBadResponse(DioException error) {
   }
 
   return switch (statusCode) {
-    400 => 'Invalid request. Please check your credentials.',
-    401 => 'Invalid email or password.',
+    400 => 'Invalid request. Please try again.',
+    401 => 'Your session has expired. Please sign in again.',
     403 => 'Access denied. Please contact support.',
-    404 => 'Service unavailable. Please try again later.',
+    404 => 'Not found. It may have been removed.',
     429 => 'Too many attempts. Please try again later.',
     _ => 'Something went wrong. Please try again.',
   };

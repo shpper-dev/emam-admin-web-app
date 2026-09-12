@@ -105,7 +105,7 @@ class UserDetailCacheNotifier extends Notifier<UserDetailCacheState> {
 
     try {
       final repo = ref.read(usersRepositoryProvider);
-      final response = await repo.fetchUserDetail(
+      final page = await repo.fetchUserPosts(
         id,
         pageToken: token,
         limit: kUserDetailPostsPageSize,
@@ -115,7 +115,7 @@ class UserDetailCacheNotifier extends Notifier<UserDetailCacheState> {
         id,
         current.copyWith(
           isLoadingMorePosts: false,
-          postPages: [...current.postPages, response.recentPosts],
+          postPages: [...current.postPages, page],
         ),
       );
     } on DioException catch (e) {
@@ -161,10 +161,7 @@ class UserDetailCacheNotifier extends Notifier<UserDetailCacheState> {
 
     try {
       final repo = ref.read(usersRepositoryProvider);
-      final detail = await repo.fetchUserDetail(
-        userId,
-        limit: kUserDetailPostsPageSize,
-      );
+      final detail = await repo.fetchUserDetail(userId);
       _patch(
         userId,
         UserDetailCacheEntry(

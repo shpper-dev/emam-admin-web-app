@@ -7,6 +7,7 @@ class DioClient {
   DioClient({
     required TokenStorage tokenStorage,
     required TokenRefresher refresher,
+    void Function()? onSessionExpired,
   }) : _dio = Dio(
          BaseOptions(
            baseUrl: ApiConstants.apiBaseUrl,
@@ -16,7 +17,12 @@ class DioClient {
          ),
        ) {
     _dio.interceptors.add(
-      AuthInterceptor(tokenStorage: tokenStorage, refresher: refresher),
+      AuthInterceptor(
+        tokenStorage: tokenStorage,
+        refresher: refresher,
+        dio: _dio,
+        onSessionExpired: onSessionExpired,
+      ),
     );
   }
 

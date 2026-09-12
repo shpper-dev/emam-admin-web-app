@@ -8,11 +8,23 @@ class ModerationRepository {
 
   final DioClient _client;
 
-  Future<ModerationReportsResponse> fetchReports() async {
+  Future<ModerationReportsResponse> fetchReports({
+    String status = 'open',
+    int limit = 100,
+  }) async {
     final response = await _client.get<Map<String, dynamic>>(
       ApiConstants.moderationReports,
+      queryParameters: {'status': status, 'limit': limit},
     );
     return ModerationReportsResponse.fromJson(response.data ?? const {});
+  }
+
+  /// [action] is `dismiss` or `action_taken`.
+  Future<void> resolveReport(String reportId, {required String action}) async {
+    await _client.post<void>(
+      ApiConstants.resolveReport(reportId),
+      data: {'action': action},
+    );
   }
 
   Future<HiddenPostsResponse> fetchHiddenPosts({

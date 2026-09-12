@@ -8,9 +8,12 @@ class ApiConstants {
   static const String restrictedUsers = '/admin/users/restricted';
 
   static String userDetail(String userId) => '$users/$userId/detail';
+  static String userPosts(String userId) => '$users/$userId/posts';
   static String userRestriction(String userId) => '$users/$userId/restriction';
   static String userUnblock(String userId) => '$users/$userId/unblock';
   static const String moderationReports = '/admin/moderation/reports';
+  static String resolveReport(String reportId) =>
+      '$moderationReports/$reportId/resolve';
   static const String hiddenPosts = '/admin/moderation/posts/hidden';
   static String hideDuaPost(String postId) =>
       '/admin/moderation/posts/$postId/hide';

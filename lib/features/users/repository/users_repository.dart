@@ -52,21 +52,28 @@ class UsersRepository {
     );
   }
 
-  Future<UserDetailResponse> fetchUserDetail(
+  Future<UserDetailResponse> fetchUserDetail(String userId) async {
+    final response = await _client.get<Map<String, dynamic>>(
+      ApiConstants.userDetail(userId),
+    );
+    return hideAdminPanelUserDetail(
+      UserDetailResponse.fromJson(response.data ?? const {}),
+    );
+  }
+
+  Future<UserRecentPostsPage> fetchUserPosts(
     String userId, {
     String? pageToken,
     int limit = kUserDetailPostsPageSize,
   }) async {
     final response = await _client.get<Map<String, dynamic>>(
-      ApiConstants.userDetail(userId),
+      ApiConstants.userPosts(userId),
       queryParameters: {
         'limit': limit,
         if (pageToken != null && pageToken.isNotEmpty) 'page_token': pageToken,
       },
     );
-    return hideAdminPanelUserDetail(
-      UserDetailResponse.fromJson(response.data ?? const {}),
-    );
+    return UserRecentPostsPage.fromJson(response.data ?? const {});
   }
 
   Future<void> applyUserRestriction(

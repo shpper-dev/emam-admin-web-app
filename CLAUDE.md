@@ -20,8 +20,8 @@ flutter test test/widget_test.dart   # run a single test file
 flutter build web                    # production web build
 ```
 
-There is no custom lint config beyond the default `flutter_lints` rules — `analysis_options.yaml` doesn't
-override anything. Dart SDK constraint is `^3.12.2` (see `pubspec.yaml`).
+There is no custom lint config beyond the default `flutter_lints` rules — `analysis_options.yaml` only
+excludes build and platform folders from analysis. Dart SDK constraint is `^3.12.2` (see `pubspec.yaml`).
 
 ## Architecture
 

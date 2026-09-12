@@ -6,6 +6,7 @@ import 'package:emam_admin_web_app/core/widgets/status_badge.dart';
 import 'package:emam_admin_web_app/features/content/views/widgets/content_section_card.dart';
 import 'package:emam_admin_web_app/features/moderation/models/hidden_post.dart';
 import 'package:emam_admin_web_app/features/moderation/provider/hidden_posts_provider.dart';
+import 'package:emam_admin_web_app/features/moderation/provider/reported_duas_provider.dart';
 import 'package:emam_admin_web_app/features/moderation/views/widgets/restore_dua_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -129,6 +130,7 @@ class HiddenPostCard extends ConsumerWidget {
       SnackBar(content: Text('Post ${shortId(post.id)} has been restored.')),
     );
     await ref.read(hiddenPostsPaginationProvider.notifier).refresh();
+    await ref.read(reportedDuasProvider.notifier).refresh();
   }
 
   static String _formatPostDate(DateTime? date) =>

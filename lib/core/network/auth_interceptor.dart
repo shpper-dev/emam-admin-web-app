@@ -1,13 +1,24 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:emam_admin_web_app/core/network/dio_client.dart';
 import 'package:emam_admin_web_app/core/storage/token_storage.dart';
 
 class AuthInterceptor extends Interceptor {
-  AuthInterceptor({required this._tokenStorage, required this._refresher});
+  AuthInterceptor({
+    required this._tokenStorage,
+    required this._refresher,
+    required this._dio,
+    this._onSessionExpired,
+  });
 
   final TokenStorage _tokenStorage;
   final TokenRefresher _refresher;
-  bool _isRefreshing = false;
+  final Dio _dio;
+  final void Function()? _onSessionExpired;
+  Completer<bool>? _refreshCompleter;
+
+  static const _retriedKey = 'authRetried';
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
@@ -26,27 +37,47 @@ class AuthInterceptor extends Interceptor {
     DioException err,
     ErrorInterceptorHandler handler,
   ) async {
-    final skipAuth = err.requestOptions.extra['skipAuth'] == true;
-    if (skipAuth || err.response?.statusCode != 401) {
+    final options = err.requestOptions;
+    final skipAuth = options.extra['skipAuth'] == true;
+    if (skipAuth ||
+        options.extra[_retriedKey] == true ||
+        err.response?.statusCode != 401) {
       handler.next(err);
       return;
     }
 
-    if (_isRefreshing) {
+    if (!await _refreshOnce()) {
       handler.next(err);
       return;
     }
 
-    _isRefreshing = true;
+    options.extra[_retriedKey] = true;
+    options.headers['Authorization'] = 'Bearer ${_tokenStorage.accessToken}';
+    try {
+      final response = await _dio.fetch<dynamic>(options);
+      handler.resolve(response);
+    } on DioException catch (e) {
+      handler.next(e);
+    }
+  }
+
+  Future<bool> _refreshOnce() async {
+    final pending = _refreshCompleter;
+    if (pending != null) return pending.future;
+
+    final completer = Completer<bool>();
+    _refreshCompleter = completer;
+    var refreshed = false;
     try {
       await _refresher.refreshAccessToken();
-      final response = await Dio().fetch(err.requestOptions);
-      handler.resolve(response);
+      refreshed = true;
     } catch (_) {
       await _tokenStorage.clear();
-      handler.next(err);
+      _onSessionExpired?.call();
     } finally {
-      _isRefreshing = false;
+      _refreshCompleter = null;
+      completer.complete(refreshed);
     }
+    return refreshed;
   }
 }

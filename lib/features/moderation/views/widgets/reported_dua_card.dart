@@ -157,6 +157,17 @@ class ReportedDuaCard extends ConsumerWidget {
           Row(
             children: [
               const Spacer(),
+              if (report.isOpen && report.id.isNotEmpty) ...[
+                PillActionButton(
+                  icon: Icons.done_rounded,
+                  label: 'Dismiss',
+                  color: AppConstants.textSecondary,
+                  onPressed: report.postId.isEmpty
+                      ? null
+                      : () => _onDismissPressed(context, ref),
+                ),
+                const SizedBox(width: 8),
+              ],
               if (isPostHidden)
                 PillActionButton(
                   icon: Icons.visibility_rounded,
@@ -236,10 +247,22 @@ class ReportedDuaCard extends ConsumerWidget {
     final hidden = await showHideDuaDialog(context, postId: report.postId);
     if (hidden != true || !context.mounted) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('${_postSummary(report)} has been hidden.')),
+    final notifier = ref.read(reportedDuasProvider.notifier);
+    final resolved = await notifier.resolveOpenReportsForPost(
+      report.postId,
+      action: 'action_taken',
     );
-    await ref.read(reportedDuasProvider.notifier).refresh();
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          resolved
+              ? '${_postSummary(report)} has been hidden.'
+              : '${_postSummary(report)} was hidden, but its reports could not be closed.',
+        ),
+      ),
+    );
+    await notifier.refresh();
     await ref.read(hiddenPostsPaginationProvider.notifier).refresh();
   }
 
@@ -252,6 +275,47 @@ class ReportedDuaCard extends ConsumerWidget {
     );
     await ref.read(reportedDuasProvider.notifier).refresh();
     await ref.read(hiddenPostsPaginationProvider.notifier).refresh();
+  }
+
+  Future<void> _onDismissPressed(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AdminAlertDialog(
+        title: 'Dismiss reports',
+        contentWidth: 420,
+        content: const Text(
+          'Close the open reports for this dua without hiding it?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Dismiss'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !context.mounted) return;
+
+    final notifier = ref.read(reportedDuasProvider.notifier);
+    final resolved = await notifier.resolveOpenReportsForPost(
+      report.postId,
+      action: 'dismiss',
+    );
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          resolved
+              ? 'Reports for ${_postSummary(report)} dismissed.'
+              : 'Could not dismiss reports. Please try again.',
+        ),
+      ),
+    );
+    await notifier.refresh();
   }
 
   static String _postSummary(ModerationReport report) {

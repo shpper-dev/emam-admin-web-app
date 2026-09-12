@@ -55,6 +55,26 @@ class ReportedDuasNotifier extends Notifier<ReportedDuasState> {
     await _load();
   }
 
+  /// Resolves every loaded open report for [postId]. Returns false on failure.
+  Future<bool> resolveOpenReportsForPost(
+    String postId, {
+    required String action,
+  }) async {
+    final repo = ref.read(moderationRepositoryProvider);
+    final reportIds = state.reports
+        .where((r) => r.postId == postId && r.isOpen && r.id.isNotEmpty)
+        .map((r) => r.id)
+        .toList();
+    try {
+      for (final id in reportIds) {
+        await repo.resolveReport(id, action: action);
+      }
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   Future<void> _load() async {
     state = state.copyWith(isLoading: true, errorMessage: null);
     try {
