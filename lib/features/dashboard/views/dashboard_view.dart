@@ -69,7 +69,7 @@ class DashboardView extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Dashboard',
+                            'Dashboard Overview',
                             style: Theme.of(context).textTheme.headlineMedium
                                 ?.copyWith(
                                   color: AppConstants.primary,
