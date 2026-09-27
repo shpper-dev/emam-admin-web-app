@@ -206,6 +206,7 @@ class _DashboardStatsRow extends StatelessWidget {
                 label: 'All users',
                 value: allUsers,
                 icon: Icons.people_alt_rounded,
+                baseColor: AppConstants.primary,
                 selected: selectedTab == UsersTab.all,
                 onTap: () => onTabSelected(UsersTab.all),
               ),
@@ -216,6 +217,7 @@ class _DashboardStatsRow extends StatelessWidget {
                 label: 'Blocked users',
                 value: blocked,
                 icon: Icons.block_rounded,
+                baseColor: AppConstants.danger,
                 selected: selectedTab == UsersTab.blocked,
                 onTap: () => onTabSelected(UsersTab.blocked),
               ),
@@ -226,6 +228,7 @@ class _DashboardStatsRow extends StatelessWidget {
                 label: "Reported Dua's",
                 value: reportedDuas,
                 icon: Icons.flag_rounded,
+                baseColor: AppConstants.warning,
                 selected: selectedTab == UsersTab.reportedDuas,
                 onTap: () => onTabSelected(UsersTab.reportedDuas),
               ),
@@ -236,6 +239,7 @@ class _DashboardStatsRow extends StatelessWidget {
                 label: 'Hidden posts',
                 value: hiddenPosts,
                 icon: Icons.visibility_off_rounded,
+                baseColor: AppConstants.info,
                 selected: selectedTab == UsersTab.hiddenPosts,
                 onTap: () => onTabSelected(UsersTab.hiddenPosts),
               ),
@@ -252,6 +256,7 @@ class _StatCard extends StatelessWidget {
     required this.label,
     required this.value,
     required this.icon,
+    required this.baseColor,
     required this.selected,
     required this.onTap,
   });
@@ -259,16 +264,20 @@ class _StatCard extends StatelessWidget {
   final String label;
   final String value;
   final IconData icon;
+
+  /// Distinct hue per metric (gold/danger/warning/info) so the four tiles
+  /// are scannable at a glance instead of all sharing the brand accent.
+  final Color baseColor;
   final bool selected;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final borderColor = selected
-        ? AppConstants.primary.withValues(alpha: 0.55)
+        ? baseColor.withValues(alpha: 0.6)
         : AppConstants.borderColor;
     final background = selected
-        ? AppConstants.primary.withValues(alpha: 0.08)
+        ? baseColor.withValues(alpha: 0.08)
         : AppConstants.surfaceColor;
 
     return Material(
@@ -285,25 +294,25 @@ class _StatCard extends StatelessWidget {
             color: background,
             borderRadius: BorderRadius.circular(AppConstants.radiusLg),
             border: Border.all(color: borderColor, width: selected ? 1.4 : 1),
-            boxShadow: selected
-                ? [
-                    BoxShadow(
-                      color: AppConstants.primary.withValues(alpha: 0.12),
-                      blurRadius: 20,
-                      offset: const Offset(0, 8),
-                    ),
-                  ]
-                : null,
+            boxShadow: [
+              BoxShadow(
+                color: selected
+                    ? baseColor.withValues(alpha: 0.16)
+                    : Colors.black.withValues(alpha: 0.2),
+                blurRadius: selected ? 20 : 14,
+                offset: const Offset(0, 8),
+              ),
+            ],
           ),
           child: Row(
             children: [
               Container(
                 padding: const EdgeInsets.all(AppConstants.space12),
                 decoration: BoxDecoration(
-                  color: AppConstants.primary.withValues(alpha: 0.12),
+                  color: baseColor.withValues(alpha: 0.14),
                   borderRadius: BorderRadius.circular(AppConstants.radiusMd),
                 ),
-                child: Icon(icon, color: AppConstants.primary, size: 24),
+                child: Icon(icon, color: baseColor, size: 24),
               ),
               const SizedBox(width: AppConstants.space16),
               Expanded(

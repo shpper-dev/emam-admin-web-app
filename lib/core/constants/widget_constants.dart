@@ -15,6 +15,8 @@ Future<void> _confirmAndSignOut(BuildContext context, WidgetRef ref) async {
     builder: (dialogContext) {
       return AdminAlertDialog(
         title: 'Log out',
+        icon: Icons.logout_rounded,
+        accentColor: AppConstants.danger,
         content: Text(
           'Are you sure you want to log out?',
           style: theme.textTheme.bodyMedium?.copyWith(
@@ -156,6 +158,12 @@ class AppDrawer extends ConsumerWidget {
             label: 'Analytics',
             selected: false,
             onTap: () => _openFirebaseAnalytics(context),
+          ),
+          _DrawerTile(
+            icon: Icons.devices_rounded,
+            label: 'Devices',
+            selected: currentPath == RoutePaths.devices,
+            onTap: () => _navigate(context, RoutePaths.devices),
           ),
           const SizedBox(height: AppConstants.space16),
           Padding(

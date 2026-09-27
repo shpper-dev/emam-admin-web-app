@@ -3,6 +3,7 @@ import 'package:emam_admin_web_app/core/constants/api_constants.dart';
 import 'package:emam_admin_web_app/core/constants/app_constants.dart';
 import 'package:emam_admin_web_app/core/network/api_error.dart';
 import 'package:emam_admin_web_app/core/widgets/admin_alert_dialog.dart';
+import 'package:emam_admin_web_app/core/widgets/inline_retry_error.dart';
 import 'package:emam_admin_web_app/core/widgets/pill_action_button.dart';
 import 'package:emam_admin_web_app/core/widgets/status_badge.dart';
 import 'package:emam_admin_web_app/features/content/views/widgets/content_section_card.dart';
@@ -56,7 +57,7 @@ class VoiceServerView extends ConsumerWidget {
                   padding: EdgeInsets.all(AppConstants.space40),
                   child: Center(child: CircularProgressIndicator()),
                 ),
-                error: (error, _) => _LoadError(
+                error: (error, _) => InlineRetryError(
                   message: error is DioException
                       ? parseApiError(error)
                       : error.toString(),
@@ -100,6 +101,8 @@ class _VoiceServerCardState extends ConsumerState<_VoiceServerCard> {
       context: context,
       builder: (dialogContext) => AdminAlertDialog(
         title: 'Turn off the voice server?',
+        icon: Icons.power_settings_new_rounded,
+        accentColor: AppConstants.warning,
         content: Text(
           'Anyone using the demo right now will be cut off.',
           style: Theme.of(
@@ -331,34 +334,6 @@ class _InfoRow extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _LoadError extends StatelessWidget {
-  const _LoadError({required this.message, required this.onRetry});
-
-  final String message;
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          message,
-          style: Theme.of(
-            context,
-          ).textTheme.bodyMedium?.copyWith(color: AppConstants.danger),
-        ),
-        const SizedBox(height: AppConstants.space12),
-        TextButton.icon(
-          onPressed: onRetry,
-          icon: const Icon(Icons.refresh_rounded, size: 18),
-          label: const Text('Try again'),
-        ),
-      ],
     );
   }
 }

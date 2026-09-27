@@ -23,6 +23,7 @@ dependencies:
   url_launcher: ^6.3.2
   just_audio: ^0.10.6
   firebase_core: ^4.12.1
+  web: ^1.1.0
 
 dev_dependencies:
   flutter_test:

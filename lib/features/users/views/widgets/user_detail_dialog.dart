@@ -1,5 +1,6 @@
 import 'package:emam_admin_web_app/core/constants/app_constants.dart';
 import 'package:emam_admin_web_app/core/utils/formatters.dart';
+import 'package:emam_admin_web_app/core/widgets/inline_retry_error.dart';
 import 'package:emam_admin_web_app/features/content/views/widgets/content_section_card.dart';
 import 'package:emam_admin_web_app/features/users/models/app_user.dart';
 import 'package:emam_admin_web_app/features/users/models/user_detail.dart';
@@ -108,10 +109,13 @@ class _UserDetailDialogState extends ConsumerState<UserDetailDialog> {
     if (detail != null) {
       body = _buildContent(context, entry, detail);
     } else if (errorMessage != null) {
-      body = _DialogError(
-        message: errorMessage,
-        onRetry: () =>
-            ref.read(userDetailCacheProvider.notifier).retry(widget.userId),
+      body = Padding(
+        padding: const EdgeInsets.all(20),
+        child: InlineRetryError(
+          message: errorMessage,
+          onRetry: () =>
+              ref.read(userDetailCacheProvider.notifier).retry(widget.userId),
+        ),
       );
     } else {
       body = const _DialogLoading();
@@ -849,37 +853,6 @@ class _DialogLoading extends StatelessWidget {
             color: AppConstants.primary,
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _DialogError extends StatelessWidget {
-  const _DialogError({required this.message, required this.onRetry});
-
-  final String message;
-  final Future<void> Function() onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Icon(Icons.error_outline, color: AppConstants.textMuted),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              message,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppConstants.textSecondary,
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          TextButton(onPressed: onRetry, child: const Text('Retry')),
-        ],
       ),
     );
   }

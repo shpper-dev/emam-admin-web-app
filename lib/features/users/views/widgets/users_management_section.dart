@@ -1,3 +1,4 @@
+import 'package:emam_admin_web_app/core/constants/app_constants.dart';
 import 'package:emam_admin_web_app/core/widgets/section_empty_message.dart';
 import 'package:emam_admin_web_app/features/content/views/widgets/content_section_card.dart';
 import 'package:emam_admin_web_app/features/moderation/models/hidden_post.dart';
@@ -74,6 +75,13 @@ class UsersManagementSection extends StatelessWidget {
         : isHiddenPosts
         ? hiddenPostsState.errorMessage
         : restrictedState.errorMessage;
+    final accentColor = isAll
+        ? AppConstants.primary
+        : isReportedDuas
+        ? AppConstants.warning
+        : isHiddenPosts
+        ? AppConstants.info
+        : AppConstants.danger;
 
     return ContentSectionCard(
       title: isAll
@@ -99,6 +107,7 @@ class UsersManagementSection extends StatelessWidget {
           : isHiddenPosts
           ? Icons.visibility_off_rounded
           : Icons.block_rounded,
+      accentColor: accentColor,
       trailing: _trailingChip(
         isAll: isAll,
         isReportedDuas: isReportedDuas,
@@ -107,6 +116,7 @@ class UsersManagementSection extends StatelessWidget {
         restrictedResponse: restrictedResponse,
         hiddenPostsResponse: hiddenPostsResponse,
         reportCount: reportedDuasState.reports.length,
+        accentColor: accentColor,
       ),
       child: _buildBody(
         context,
@@ -185,21 +195,31 @@ class UsersManagementSection extends StatelessWidget {
     required RestrictedUsersResponse? restrictedResponse,
     required HiddenPostsResponse? hiddenPostsResponse,
     required int reportCount,
+    required Color accentColor,
   }) {
     if (isAll && usersResponse != null) {
-      return ContentMetaChip(label: '${usersResponse.users.length}');
+      return ContentMetaChip(
+        label: '${usersResponse.users.length}',
+        color: accentColor,
+      );
     }
     if (isReportedDuas && reportCount > 0) {
-      return ContentMetaChip(label: '$reportCount');
+      return ContentMetaChip(label: '$reportCount', color: accentColor);
     }
     if (isHiddenPosts && hiddenPostsResponse != null) {
-      return ContentMetaChip(label: '${hiddenPostsResponse.posts.length}');
+      return ContentMetaChip(
+        label: '${hiddenPostsResponse.posts.length}',
+        color: accentColor,
+      );
     }
     if (!isAll &&
         !isReportedDuas &&
         !isHiddenPosts &&
         restrictedResponse != null) {
-      return ContentMetaChip(label: '${restrictedResponse.totalRestricted}');
+      return ContentMetaChip(
+        label: '${restrictedResponse.totalRestricted}',
+        color: accentColor,
+      );
     }
     return null;
   }

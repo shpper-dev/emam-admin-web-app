@@ -75,12 +75,12 @@ class ReportedDuaCard extends ConsumerWidget {
                         Container(
                           padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
-                            color: AppConstants.primary.withValues(alpha: 0.12),
+                            color: AppConstants.warning.withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: const Icon(
                             Icons.flag_rounded,
-                            color: AppConstants.primary,
+                            color: AppConstants.warning,
                             size: 22,
                           ),
                         ),
@@ -203,6 +203,8 @@ class ReportedDuaCard extends ConsumerWidget {
       builder: (dialogContext) {
         return AdminAlertDialog(
           title: 'Report details',
+          icon: Icons.flag_rounded,
+          accentColor: AppConstants.warning,
           contentWidth: 420,
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -282,6 +284,7 @@ class ReportedDuaCard extends ConsumerWidget {
       context: context,
       builder: (dialogContext) => AdminAlertDialog(
         title: 'Dismiss reports',
+        icon: Icons.done_all_rounded,
         contentWidth: 420,
         content: const Text(
           'Close the open reports for this dua without hiding it?',

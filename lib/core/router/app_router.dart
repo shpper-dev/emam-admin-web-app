@@ -4,6 +4,7 @@ import 'package:emam_admin_web_app/features/auth/provider/auth_provider.dart';
 import 'package:emam_admin_web_app/features/auth/views/sign_in_view.dart';
 import 'package:emam_admin_web_app/features/content/views/content_view.dart';
 import 'package:emam_admin_web_app/features/dashboard/views/dashboard_view.dart';
+import 'package:emam_admin_web_app/features/devices/views/devices_view.dart';
 import 'package:emam_admin_web_app/features/voice_server/views/voice_server_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -48,6 +49,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           final title = switch (state.matchedLocation) {
             RoutePaths.content => 'Contents',
             RoutePaths.voiceDemo => 'Voice Demo',
+            RoutePaths.devices => 'Signed-in Devices',
             _ => 'Dashboard',
           };
           return AdminShell(title: title, body: child);
@@ -67,6 +69,11 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             path: RoutePaths.voiceDemo,
             pageBuilder: (context, state) =>
                 const NoTransitionPage(child: VoiceServerView()),
+          ),
+          GoRoute(
+            path: RoutePaths.devices,
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: DevicesView()),
           ),
         ],
       ),

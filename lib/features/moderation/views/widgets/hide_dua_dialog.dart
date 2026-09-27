@@ -81,6 +81,8 @@ class _HideDuaDialogState extends ConsumerState<HideDuaDialog> {
 
     return AdminAlertDialog(
       title: 'Hide dua',
+      icon: Icons.visibility_off_rounded,
+      accentColor: AppConstants.danger,
       contentWidth: 420,
       content: Column(
         mainAxisSize: MainAxisSize.min,

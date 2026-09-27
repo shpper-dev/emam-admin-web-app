@@ -90,6 +90,8 @@ class _BlockUserDialogState extends ConsumerState<BlockUserDialog> {
 
     return AdminAlertDialog(
       title: 'Block user',
+      icon: Icons.block_rounded,
+      accentColor: AppConstants.danger,
       contentWidth: 420,
       content: Column(
         mainAxisSize: MainAxisSize.min,

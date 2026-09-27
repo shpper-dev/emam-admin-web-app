@@ -33,6 +33,7 @@ class AuthRepository implements TokenRefresher {
       refreshToken: session.refreshToken,
       expiresInSeconds: session.expiresInSeconds,
     );
+    await _tokenStorage.markSignedInNow();
 
     return session;
   }

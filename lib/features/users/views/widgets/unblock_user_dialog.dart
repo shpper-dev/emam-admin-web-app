@@ -42,8 +42,6 @@ class UnblockUserDialog extends ConsumerStatefulWidget {
 }
 
 class _UnblockUserDialogState extends ConsumerState<UnblockUserDialog> {
-  static const Color _success = AppConstants.primary;
-
   bool _isSubmitting = false;
   String? _errorMessage;
 
@@ -82,6 +80,8 @@ class _UnblockUserDialogState extends ConsumerState<UnblockUserDialog> {
 
     return AdminAlertDialog(
       title: 'Unblock user',
+      icon: Icons.lock_open_rounded,
+      accentColor: AppConstants.success,
       contentWidth: 420,
       content: Column(
         mainAxisSize: MainAxisSize.min,
@@ -150,7 +150,7 @@ class _UnblockUserDialogState extends ConsumerState<UnblockUserDialog> {
         ),
         DialogSubmitButton(
           label: 'Unblock',
-          color: _success,
+          color: AppConstants.success,
           enabled: !_isSubmitting,
           isSubmitting: _isSubmitting,
           onPressed: _submit,

@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:emam_admin_web_app/core/constants/app_constants.dart';
 import 'package:emam_admin_web_app/core/network/api_error.dart';
+import 'package:emam_admin_web_app/core/widgets/inline_retry_error.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -14,6 +15,7 @@ class ContentSectionCard extends StatelessWidget {
     required this.child,
     this.trailing,
     this.headerExtra,
+    this.accentColor = AppConstants.primary,
   });
 
   final String title;
@@ -23,6 +25,11 @@ class ContentSectionCard extends StatelessWidget {
   final Widget? trailing;
   final Widget? headerExtra;
 
+  /// Tints the header icon, its badge and the title. Defaults to the brand
+  /// gold; pass a semantic color (e.g. [AppConstants.danger]) so a section's
+  /// identity matches the dashboard tile that links to it.
+  final Color accentColor;
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -31,6 +38,13 @@ class ContentSectionCard extends StatelessWidget {
         color: AppConstants.surfaceColor,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.24),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -43,10 +57,10 @@ class ContentSectionCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: AppConstants.primary.withValues(alpha: 0.12),
+                    color: accentColor.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(icon, color: AppConstants.primary, size: 22),
+                  child: Icon(icon, color: accentColor, size: 22),
                 ),
                 const SizedBox(width: 14),
                 Expanded(
@@ -56,7 +70,7 @@ class ContentSectionCard extends StatelessWidget {
                       Text(
                         title,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: AppConstants.primary,
+                          color: accentColor,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -167,23 +181,28 @@ class ContentLinkButton extends StatelessWidget {
 }
 
 class ContentMetaChip extends StatelessWidget {
-  const ContentMetaChip({super.key, required this.label});
+  const ContentMetaChip({
+    super.key,
+    required this.label,
+    this.color = AppConstants.primary,
+  });
 
   final String label;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: AppConstants.primary.withValues(alpha: 0.12),
+        color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppConstants.primary.withValues(alpha: 0.25)),
+        border: Border.all(color: color.withValues(alpha: 0.25)),
       ),
       child: Text(
         label,
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-          color: AppConstants.primary,
+          color: color,
           fontWeight: FontWeight.w600,
         ),
       ),
@@ -285,25 +304,6 @@ class SectionErrorMessage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          const Icon(Icons.error_outline, color: AppConstants.textMuted),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              message,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppConstants.textSecondary,
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          TextButton(onPressed: onRetry, child: const Text('Retry')),
-        ],
-      ),
-    );
+    return InlineRetryError(message: message, onRetry: onRetry);
   }
 }

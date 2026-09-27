@@ -68,6 +68,8 @@ class _RestoreDuaDialogState extends ConsumerState<RestoreDuaDialog> {
 
     return AdminAlertDialog(
       title: 'Restore dua',
+      icon: Icons.visibility_rounded,
+      accentColor: AppConstants.success,
       contentWidth: 420,
       content: Column(
         mainAxisSize: MainAxisSize.min,

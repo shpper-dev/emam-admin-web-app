@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:emam_admin_web_app/core/constants/app_constants.dart';
 import 'package:emam_admin_web_app/core/network/api_error.dart';
+import 'package:emam_admin_web_app/core/widgets/section_empty_message.dart';
 import 'package:emam_admin_web_app/features/users/models/app_user.dart';
 import 'package:emam_admin_web_app/features/users/provider/users_repository_provider.dart';
 import 'package:emam_admin_web_app/features/users/views/widgets/user_card.dart';
@@ -311,30 +312,21 @@ class _UserSearchDialogState extends ConsumerState<UserSearchDialog> {
     }
 
     if (!_hasSearched) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Text(
-            'Type a name or email — results update after you pause typing.',
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: AppConstants.textMuted,
-            ),
-          ),
+      return SectionEmptyMessage(
+        'Type a name or email — results update after you pause typing.',
+        icon: Icons.person_search_rounded,
+        style: theme.textTheme.bodyMedium?.copyWith(
+          color: AppConstants.textMuted,
         ),
       );
     }
 
     if (_results.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Text(
-            'No users found.',
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: AppConstants.textMuted,
-            ),
-          ),
+      return SectionEmptyMessage(
+        'No users found.',
+        icon: Icons.search_off_rounded,
+        style: theme.textTheme.bodyMedium?.copyWith(
+          color: AppConstants.textMuted,
         ),
       );
     }

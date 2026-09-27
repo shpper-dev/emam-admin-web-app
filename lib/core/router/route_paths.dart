@@ -5,4 +5,5 @@ class RoutePaths {
   static const String dashboard = '/dashboard';
   static const String content = '/content';
   static const String voiceDemo = '/voice-demo';
+  static const String devices = '/devices';
 }
