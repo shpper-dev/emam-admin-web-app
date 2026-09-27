@@ -146,6 +146,12 @@ class AppDrawer extends ConsumerWidget {
             onTap: () => _navigate(context, RoutePaths.content),
           ),
           _DrawerTile(
+            icon: Icons.record_voice_over_rounded,
+            label: 'Voice Demo',
+            selected: currentPath == RoutePaths.voiceDemo,
+            onTap: () => _navigate(context, RoutePaths.voiceDemo),
+          ),
+          _DrawerTile(
             icon: Icons.insights_rounded,
             label: 'Analytics',
             selected: false,

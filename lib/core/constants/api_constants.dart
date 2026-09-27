@@ -26,6 +26,11 @@ class ApiConstants {
   static const String scholarlyInsights = '/admin/content/scholarly-insights';
   static const String dailyInspiration = '/admin/content/daily-inspiration';
 
+  static const String voiceServer = '/admin/system/voice-server';
+  static String voiceServerSwitch(String action) => '$voiceServer/$action';
+  static const String voiceDemoUrl =
+      '$apiBaseUrl/arabic-accent-mirror-gpt-live-rvc';
+
   static const String firebaseWebApiKey =
       'AIzaSyDSxatz31b4auOeKlHD9svES3zxsVqOHAU';
 
