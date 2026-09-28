@@ -224,9 +224,9 @@ class _VoiceServerCardState extends ConsumerState<_VoiceServerCard> {
             runSpacing: AppConstants.space12,
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              if (status.canTurnOn)
+              if (status.canTurnOn || phase == VoiceServerPhase.stopping)
                 FilledButton.icon(
-                  onPressed: _busy
+                  onPressed: _busy || !status.canTurnOn
                       ? null
                       : () =>
                             _run(ref.read(voiceServerProvider.notifier).turnOn),
@@ -251,7 +251,9 @@ class _VoiceServerCardState extends ConsumerState<_VoiceServerCard> {
                   color: AppConstants.info,
                   onPressed: _openDemo,
                 ),
-              if (_busy || status.isTransitioning)
+              if (_busy ||
+                  (status.isTransitioning &&
+                      phase != VoiceServerPhase.stopping))
                 const SizedBox(
                   width: 18,
                   height: 18,
@@ -266,20 +268,18 @@ class _VoiceServerCardState extends ConsumerState<_VoiceServerCard> {
 
   static String _label(VoiceServerPhase phase) => switch (phase) {
     VoiceServerPhase.notConfigured => 'Not set up',
-    VoiceServerPhase.off => 'Off',
+    VoiceServerPhase.off || VoiceServerPhase.stopping => 'Off',
     VoiceServerPhase.starting => 'Starting',
     VoiceServerPhase.loadingVoice => 'Loading voice',
     VoiceServerPhase.ready => 'Ready',
-    VoiceServerPhase.stopping => 'Turning off',
     VoiceServerPhase.unavailable => 'Unavailable',
   };
 
   static Color _color(VoiceServerPhase phase) => switch (phase) {
     VoiceServerPhase.ready => AppConstants.success,
     VoiceServerPhase.starting ||
-    VoiceServerPhase.loadingVoice ||
-    VoiceServerPhase.stopping => AppConstants.warning,
-    VoiceServerPhase.off => AppConstants.textMuted,
+    VoiceServerPhase.loadingVoice => AppConstants.warning,
+    VoiceServerPhase.off || VoiceServerPhase.stopping => AppConstants.textMuted,
     VoiceServerPhase.notConfigured ||
     VoiceServerPhase.unavailable => AppConstants.danger,
   };
@@ -298,7 +298,9 @@ class _VoiceServerCardState extends ConsumerState<_VoiceServerCard> {
         VoiceServerPhase.ready =>
           'Ready. Open the demo and use headphones, so the mirrored voice does '
               'not feed back into the microphone.',
-        VoiceServerPhase.stopping => 'Turning off…',
+        VoiceServerPhase.stopping =>
+          'Off and no longer billed. AWS takes about 4 more minutes to '
+              'release the server, then you can turn it on again.',
         VoiceServerPhase.unavailable =>
           'The server is unavailable (state: ${status.state}).',
       };
