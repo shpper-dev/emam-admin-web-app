@@ -2,20 +2,20 @@ import 'package:emam_admin_web_app/features/users/models/app_user.dart';
 import 'package:emam_admin_web_app/features/users/models/restricted_user.dart';
 import 'package:emam_admin_web_app/features/users/models/user_detail.dart';
 
-/// Signed-in admin; excluded from all user listings in this panel.
-const String kAdminPanelUserEmail = 'safaandsafa4@gmail.com';
-
-bool isAdminPanelUserEmail(String email) {
-  return email.trim().toLowerCase() == kAdminPanelUserEmail.toLowerCase();
+/// The signed-in admin (identity from `/admin/auth/me`) is excluded from all
+/// user listings in this panel.
+bool isAdminPanelUserEmail(String email, String? adminEmail) {
+  if (adminEmail == null || adminEmail.trim().isEmpty) return false;
+  return email.trim().toLowerCase() == adminEmail.trim().toLowerCase();
 }
 
-bool isAdminPanelAppUser(AppUser user) => isAdminPanelUserEmail(user.email);
-
-bool isAdminPanelRestrictedUser(RestrictedUser user) =>
-    isAdminPanelUserEmail(user.profile.email);
-
-UsersResponse withoutAdminPanelUsers(UsersResponse response) {
-  final users = response.users.where((u) => !isAdminPanelAppUser(u)).toList();
+UsersResponse withoutAdminPanelUsers(
+  UsersResponse response,
+  String? adminEmail,
+) {
+  final users = response.users
+      .where((u) => !isAdminPanelUserEmail(u.email, adminEmail))
+      .toList();
   if (users.length == response.users.length) return response;
   final removed = response.users.length - users.length;
   return UsersResponse(
@@ -27,9 +27,10 @@ UsersResponse withoutAdminPanelUsers(UsersResponse response) {
 
 RestrictedUsersResponse withoutAdminPanelRestrictedUsers(
   RestrictedUsersResponse response,
+  String? adminEmail,
 ) {
   final users = response.users
-      .where((u) => !isAdminPanelRestrictedUser(u))
+      .where((u) => !isAdminPanelUserEmail(u.profile.email, adminEmail))
       .toList();
   if (users.length == response.users.length) return response;
   final removed = response.users.length - users.length;
@@ -44,8 +45,11 @@ RestrictedUsersResponse withoutAdminPanelRestrictedUsers(
   );
 }
 
-UserDetailResponse hideAdminPanelUserDetail(UserDetailResponse detail) {
-  if (!isAdminPanelAppUser(detail.user)) return detail;
+UserDetailResponse hideAdminPanelUserDetail(
+  UserDetailResponse detail,
+  String? adminEmail,
+) {
+  if (!isAdminPanelUserEmail(detail.user.email, adminEmail)) return detail;
   return UserDetailResponse(
     found: false,
     user: detail.user,

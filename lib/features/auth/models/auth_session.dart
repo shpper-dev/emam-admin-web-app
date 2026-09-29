@@ -19,6 +19,14 @@ class AuthSession {
   final String refreshToken;
   final int expiresInSeconds;
 
+  AuthSession copyWith({String? email}) => AuthSession(
+    email: email ?? this.email,
+    localId: localId,
+    accessToken: accessToken,
+    refreshToken: refreshToken,
+    expiresInSeconds: expiresInSeconds,
+  );
+
   factory AuthSession.fromSignInResponse({
     required String email,
     required Map<String, dynamic> json,

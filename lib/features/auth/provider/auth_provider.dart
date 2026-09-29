@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:emam_admin_web_app/core/network/api_error.dart';
 import 'package:emam_admin_web_app/core/providers/core_providers.dart';
+import 'package:emam_admin_web_app/features/auth/models/auth_repository.dart';
 import 'package:emam_admin_web_app/features/auth/models/auth_session.dart';
 import 'package:emam_admin_web_app/features/auth/provider/auth_repository_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -47,6 +48,8 @@ class AuthNotifier extends AsyncNotifier<AuthSession?> {
 
       ref.read(signInErrorProvider.notifier).clear();
       state = AsyncData(session);
+    } on NotAdminException {
+      ref.read(signInErrorProvider.notifier).state = NotAdminException.message;
     } on DioException catch (error) {
       ref.read(signInErrorProvider.notifier).state = parseApiError(error);
     } catch (_) {

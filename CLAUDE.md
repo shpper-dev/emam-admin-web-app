@@ -70,8 +70,10 @@ Feature-based structure under `lib/`:
   AuthSession?>` that the router and UI watch; `restoreSession()` runs on app start and auto-refreshes
   an expired token from storage.
 
+- **Admin-only access**: after Firebase sign-in (and on session restore) `AuthRepository` calls `GET /admin/auth/me`; a 401/403 means not an admin, so tokens are discarded and sign-in shows `NotAdminException.message`.
+
 - **Admin-user filtering**: the signed-in admin account itself
-  (`kAdminPanelUserEmail` in `features/users/utils/admin_panel_user.dart`) must never show up in user
+  (email from `GET /admin/auth/me`, exposed as `AuthSession.email` and passed to `UsersRepository` as `adminEmail`; helpers in `features/users/utils/admin_panel_user.dart`) must never show up in user
   lists, restricted-user lists, or user-detail lookups. `UsersRepository` and
   `hideAdminPanelUserDetail`/`withoutAdminPanelUsers`/`withoutAdminPanelRestrictedUsers` filter it out
   and adjust counts accordingly — apply the same filtering if you add new endpoints that return user

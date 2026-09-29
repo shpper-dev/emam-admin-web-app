@@ -6,9 +6,12 @@ import 'package:emam_admin_web_app/features/users/models/user_detail.dart';
 import 'package:emam_admin_web_app/features/users/utils/admin_panel_user.dart';
 
 class UsersRepository {
-  UsersRepository(this._client);
+  UsersRepository(this._client, {this.adminEmail});
 
   final DioClient _client;
+
+  /// Signed-in admin's email (from `/admin/auth/me`), hidden from user lists.
+  final String? adminEmail;
 
   Future<UsersResponse> fetchUsers({String? pageToken, int limit = 50}) async {
     final response = await _client.get<Map<String, dynamic>>(
@@ -20,6 +23,7 @@ class UsersRepository {
     );
     return withoutAdminPanelUsers(
       UsersResponse.fromJson(response.data ?? const {}),
+      adminEmail,
     );
   }
 
@@ -33,6 +37,7 @@ class UsersRepository {
     );
     return withoutAdminPanelUsers(
       UsersResponse.fromJson(response.data ?? const {}),
+      adminEmail,
     );
   }
 
@@ -49,6 +54,7 @@ class UsersRepository {
     );
     return withoutAdminPanelRestrictedUsers(
       RestrictedUsersResponse.fromJson(response.data ?? const {}),
+      adminEmail,
     );
   }
 
@@ -58,6 +64,7 @@ class UsersRepository {
     );
     return hideAdminPanelUserDetail(
       UserDetailResponse.fromJson(response.data ?? const {}),
+      adminEmail,
     );
   }
 

@@ -45,6 +45,9 @@ app.*.map.json
 /android/app/release
 
 # Local tooling and caches
+CLAUDE.md
 node_modules/
 .firebase/
 .tmp_openapi.json
+
+

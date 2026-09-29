@@ -3,6 +3,8 @@ class ApiConstants {
 
   static const String apiBaseUrl = 'https://pathway.emam.ai';
 
+  static const String authMe = '/admin/auth/me';
+
   static const String users = '/admin/users';
   static const String usersSearch = '/admin/users/search';
   static const String restrictedUsers = '/admin/users/restricted';

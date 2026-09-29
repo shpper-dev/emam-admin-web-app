@@ -4,6 +4,13 @@ import 'package:emam_admin_web_app/core/network/dio_client.dart';
 import 'package:emam_admin_web_app/core/storage/token_storage.dart';
 import 'package:emam_admin_web_app/features/auth/models/auth_session.dart';
 
+/// Thrown when the signed-in Firebase user is not an admin.
+class NotAdminException implements Exception {
+  const NotAdminException();
+
+  static const message = 'This account does not have admin access.';
+}
+
 class AuthRepository implements TokenRefresher {
   AuthRepository({required this._tokenStorage});
 
@@ -26,7 +33,11 @@ class AuthRepository implements TokenRefresher {
     );
 
     final data = response.data!;
-    final session = AuthSession.fromSignInResponse(email: email, json: data);
+    var session = AuthSession.fromSignInResponse(email: email, json: data);
+
+    final adminEmail = await _fetchAdminEmail(session.accessToken);
+    if (adminEmail == null) throw const NotAdminException();
+    session = session.copyWith(email: adminEmail.isEmpty ? email : adminEmail);
 
     await _tokenStorage.saveTokens(
       accessToken: session.accessToken,
@@ -36,6 +47,25 @@ class AuthRepository implements TokenRefresher {
     await _tokenStorage.markSignedInNow();
 
     return session;
+  }
+
+  /// Calls `/admin/auth/me`. Returns the admin's email (empty if the body has
+  /// none), or null when the backend says the user is not an admin (`admin` is not
+  /// true, or 401/403).
+  Future<String?> _fetchAdminEmail(String accessToken) async {
+    try {
+      final response = await _authDio.get<Map<String, dynamic>>(
+        '${ApiConstants.apiBaseUrl}${ApiConstants.authMe}',
+        options: Options(headers: {'Authorization': 'Bearer $accessToken'}),
+      );
+      final data = response.data;
+      if (data?['admin'] != true) return null;
+      return (data?['email'] as String?) ?? '';
+    } on DioException catch (e) {
+      final status = e.response?.statusCode;
+      if (status == 401 || status == 403) return null;
+      rethrow;
+    }
   }
 
   @override
@@ -80,9 +110,20 @@ class AuthRepository implements TokenRefresher {
       }
     }
 
-    final email = _tokenStorage.savedEmail ?? '';
+    final String? adminEmail;
+    try {
+      adminEmail = await _fetchAdminEmail(_tokenStorage.accessToken!);
+    } on DioException {
+      // Backend unreachable: fall back to the login screen, keep tokens.
+      return null;
+    }
+    if (adminEmail == null) {
+      await _tokenStorage.clear();
+      return null;
+    }
+
     return AuthSession(
-      email: email,
+      email: adminEmail.isEmpty ? (_tokenStorage.savedEmail ?? '') : adminEmail,
       localId: '',
       accessToken: _tokenStorage.accessToken!,
       refreshToken: _tokenStorage.refreshToken!,
