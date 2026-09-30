@@ -25,11 +25,13 @@ class ReportedDuaCard extends ConsumerWidget {
     final hiddenPostIds = ref.watch(
       reportedDuasProvider.select((state) => state.hiddenPostIds),
     );
+    final restoredPostIds = ref.watch(
+      reportedDuasProvider.select((state) => state.restoredPostIds),
+    );
     final cachedHiddenIds = ref.watch(hiddenPostIdsProvider);
-    final isPostHidden = isReportedPostHidden(report, {
-      ...hiddenPostIds,
-      ...cachedHiddenIds,
-    });
+    final isPostHidden =
+        !restoredPostIds.contains(report.postId.trim()) &&
+        isReportedPostHidden(report, hiddenPostIds, cachedHiddenIds);
     final displayName = report.postUserDisplayName.isNotEmpty
         ? report.postUserDisplayName
         : 'Unknown author';
@@ -249,7 +251,11 @@ class ReportedDuaCard extends ConsumerWidget {
     final hidden = await showHideDuaDialog(context, postId: report.postId);
     if (hidden != true || !context.mounted) return;
 
-    final notifier = ref.read(reportedDuasProvider.notifier);
+    // Read providers up front: refresh() rebuilds the list and disposes this
+    // card, after which `ref` can no longer be used.
+    final notifier = ref.read(reportedDuasProvider.notifier)
+      ..markPostHidden(report.postId.trim());
+    final hiddenPosts = ref.read(hiddenPostsPaginationProvider.notifier);
     final resolved = await notifier.resolveOpenReportsForPost(
       report.postId,
       action: 'action_taken',
@@ -265,18 +271,30 @@ class ReportedDuaCard extends ConsumerWidget {
       ),
     );
     await notifier.refresh();
-    await ref.read(hiddenPostsPaginationProvider.notifier).refresh();
+    await hiddenPosts.refresh();
   }
 
   Future<void> _onRestorePressed(BuildContext context, WidgetRef ref) async {
     final restored = await showRestoreDuaDialog(context, postId: report.postId);
     if (restored != true || !context.mounted) return;
 
+    final notifier = ref.read(reportedDuasProvider.notifier)
+      ..markPostRestored(report.postId.trim());
+    final hiddenPosts = ref.read(hiddenPostsPaginationProvider.notifier);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('${_postSummary(report)} has been restored.')),
     );
-    await ref.read(reportedDuasProvider.notifier).refresh();
-    await ref.read(hiddenPostsPaginationProvider.notifier).refresh();
+    try {
+      await notifier.refresh();
+      await hiddenPosts.refresh();
+    } catch (_) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Restored, but the list could not be refreshed.'),
+        ),
+      );
+    }
   }
 
   Future<void> _onDismissPressed(BuildContext context, WidgetRef ref) async {

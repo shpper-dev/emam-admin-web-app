@@ -27,8 +27,8 @@ String _parseBadResponse(DioException error) {
   if (data != null) {
     final firebaseError = data['error'];
     if (firebaseError is Map<String, dynamic>) {
-      final message = firebaseError['message'] as String?;
-      if (message != null) {
+      final message = firebaseError['message'];
+      if (message is String) {
         return _friendlyFirebaseMessage(message);
       }
     }
@@ -38,8 +38,8 @@ String _parseBadResponse(DioException error) {
       final first = detail.first;
       if (first is Map && first['msg'] is String) return first['msg'] as String;
     }
-    final message = data['message'] as String?;
-    if (message != null) return message;
+    final message = data['message'];
+    if (message is String && message.isNotEmpty) return message;
   }
 
   final statusCode = error.response?.statusCode;
@@ -53,7 +53,10 @@ String _parseBadResponse(DioException error) {
     403 => 'Access denied. Please contact support.',
     404 => 'Not found. It may have been removed.',
     429 => 'Too many attempts. Please try again later.',
-    _ => 'Something went wrong. Please try again.',
+    _ =>
+      statusCode == null
+          ? 'Something went wrong. Please try again.'
+          : 'Request failed ($statusCode). Please try again.',
   };
 }
 

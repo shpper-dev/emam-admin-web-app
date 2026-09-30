@@ -1,4 +1,5 @@
 import 'package:emam_admin_web_app/core/constants/app_constants.dart';
+import 'package:emam_admin_web_app/core/widgets/filter_pill.dart';
 import 'package:emam_admin_web_app/core/widgets/section_empty_message.dart';
 import 'package:emam_admin_web_app/features/content/views/widgets/content_section_card.dart';
 import 'package:emam_admin_web_app/features/moderation/models/hidden_post.dart';
@@ -32,6 +33,8 @@ class UsersManagementSection extends StatelessWidget {
     required this.onRestrictedRetry,
     required this.onRestrictedPageTap,
     required this.onReportedDuasRetry,
+    required this.onReportedDuasPageTap,
+    required this.onReportedDuasStatusChanged,
     required this.onHiddenPostsRetry,
     required this.onHiddenPostsPageTap,
   });
@@ -46,6 +49,8 @@ class UsersManagementSection extends StatelessWidget {
   final Future<void> Function() onRestrictedRetry;
   final void Function(int page) onRestrictedPageTap;
   final Future<void> Function() onReportedDuasRetry;
+  final void Function(int page) onReportedDuasPageTap;
+  final void Function(String status) onReportedDuasStatusChanged;
   final Future<void> Function() onHiddenPostsRetry;
   final void Function(int page) onHiddenPostsPageTap;
 
@@ -64,7 +69,7 @@ class UsersManagementSection extends StatelessWidget {
     final isLoading = isAll
         ? usersState.isLoading && usersResponse == null
         : isReportedDuas
-        ? reportedDuasState.isLoading && reportedDuasState.reports.isEmpty
+        ? reportedDuasState.isLoading && reportedDuasState.pages.isEmpty
         : isHiddenPosts
         ? hiddenPostsState.isLoading && hiddenPostsResponse == null
         : restrictedState.isLoading && restrictedResponse == null;
@@ -143,11 +148,15 @@ class UsersManagementSection extends StatelessWidget {
     required List<ModerationReport> reports,
   }) {
     if (isReportedDuas) {
-      if (reportedDuasState.isLoading && reports.isEmpty) {
+      if (reportedDuasState.isLoading && reportedDuasState.pages.isEmpty) {
         return 'Community reports on dua posts';
       }
-      final openCount = reports.where((report) => report.isOpen).length;
-      return '${reports.length} total · $openCount open';
+      final pageLabel = _pageLabel(
+        reportedDuasState.currentPage,
+        reportedDuasState.discoveredPages,
+        reportedDuasState.hasNextToken,
+      );
+      return '$pageLabel${reports.length} on this page';
     }
 
     if (isHiddenPosts) {
@@ -269,7 +278,16 @@ class UsersManagementSection extends StatelessWidget {
     }
 
     if (isReportedDuas) {
-      return _ReportedDuasBody(reports: reports);
+      return _ReportedDuasBody(
+        reports: reports,
+        status: reportedDuasState.status,
+        onStatusChanged: onReportedDuasStatusChanged,
+        currentPage: reportedDuasState.currentPage,
+        discoveredPages: reportedDuasState.discoveredPages,
+        hasNextToken: reportedDuasState.hasNextToken,
+        isLoading: reportedDuasState.isLoading,
+        onPageTap: onReportedDuasPageTap,
+      );
     }
 
     if (isHiddenPosts) {
@@ -344,19 +362,59 @@ class _AllUsersBody extends StatelessWidget {
 }
 
 class _ReportedDuasBody extends StatelessWidget {
-  const _ReportedDuasBody({required this.reports});
+  const _ReportedDuasBody({
+    required this.reports,
+    required this.status,
+    required this.onStatusChanged,
+    required this.currentPage,
+    required this.discoveredPages,
+    required this.hasNextToken,
+    required this.isLoading,
+    required this.onPageTap,
+  });
 
   final List<ModerationReport> reports;
+  final String status;
+  final void Function(String status) onStatusChanged;
+  final int currentPage;
+  final int discoveredPages;
+  final bool hasNextToken;
+  final bool isLoading;
+  final void Function(int page) onPageTap;
 
   @override
   Widget build(BuildContext context) {
-    if (reports.isEmpty) {
-      return const SectionEmptyMessage('No reported duas found.');
-    }
-
-    return _UserGrid(
-      itemCount: reports.length,
-      itemBuilder: (index) => ReportedDuaCard(report: reports[index]),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            for (final entry in kReportStatusFilters.entries)
+              FilterPill(
+                label: entry.value,
+                selected: status == entry.key,
+                onTap: () => onStatusChanged(entry.key),
+              ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        if (reports.isEmpty)
+          const SectionEmptyMessage('No reported duas found.')
+        else
+          _UserGrid(
+            itemCount: reports.length,
+            itemBuilder: (index) => ReportedDuaCard(report: reports[index]),
+          ),
+        UsersPaginationBar(
+          currentPage: currentPage,
+          discoveredPages: discoveredPages,
+          hasNextToken: hasNextToken,
+          isLoading: isLoading,
+          onPageTap: onPageTap,
+        ),
+      ],
     );
   }
 }

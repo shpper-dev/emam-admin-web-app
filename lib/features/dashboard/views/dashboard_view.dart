@@ -93,6 +93,8 @@ class DashboardView extends ConsumerWidget {
                   onRestrictedRetry: restrictedNotifier.refresh,
                   onRestrictedPageTap: restrictedNotifier.goToPage,
                   onReportedDuasRetry: reportedDuasNotifier.refresh,
+                  onReportedDuasPageTap: reportedDuasNotifier.goToPage,
+                  onReportedDuasStatusChanged: reportedDuasNotifier.setStatus,
                   onHiddenPostsRetry: hiddenPostsNotifier.refresh,
                   onHiddenPostsPageTap: hiddenPostsNotifier.goToPage,
                 ),
@@ -284,6 +286,8 @@ class _DashboardStatsRow extends StatelessWidget {
                 ),
                 caption: !hasReports
                     ? 'Loading…'
+                    : reportedDuasState.status != 'open'
+                    ? 'Showing ${kReportStatusFilters[reportedDuasState.status]?.toLowerCase() ?? reportedDuasState.status}'
                     : openReports > 0
                     ? '$openReports need review'
                     : 'All caught up',

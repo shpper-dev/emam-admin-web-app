@@ -10,11 +10,16 @@ class ModerationRepository {
 
   Future<ModerationReportsResponse> fetchReports({
     String status = 'open',
-    int limit = 100,
+    String? pageToken,
+    int limit = 50,
   }) async {
     final response = await _client.get<Map<String, dynamic>>(
       ApiConstants.moderationReports,
-      queryParameters: {'status': status, 'limit': limit},
+      queryParameters: {
+        'status': status,
+        'limit': limit,
+        if (pageToken != null && pageToken.isNotEmpty) 'page_token': pageToken,
+      },
     );
     return ModerationReportsResponse.fromJson(response.data ?? const {});
   }
@@ -42,19 +47,26 @@ class ModerationRepository {
   }
 
   /// Loads every hidden post id (paginates until no next token).
-  Future<Set<String>> fetchAllHiddenPostIds({int limit = 50}) async {
+  Future<Set<String>> fetchAllHiddenPostIds({
+    int limit = 50,
+    int maxPages = 200,
+  }) async {
     final ids = <String>{};
+    final seenTokens = <String>{};
     String? pageToken;
 
-    do {
+    // Stops on a repeated token or the page cap so a misbehaving backend
+    // cursor can never loop forever (and keep the screen loading).
+    for (var i = 0; i < maxPages; i++) {
       final page = await fetchHiddenPosts(pageToken: pageToken, limit: limit);
       for (final post in page.posts) {
         final id = post.id.trim();
         if (id.isNotEmpty) ids.add(id);
       }
       pageToken = page.nextPageToken?.trim();
-      if (pageToken != null && pageToken.isEmpty) pageToken = null;
-    } while (pageToken != null);
+      if (pageToken == null || pageToken.isEmpty) break;
+      if (!seenTokens.add(pageToken)) break;
+    }
 
     return ids;
   }

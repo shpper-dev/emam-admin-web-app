@@ -240,9 +240,10 @@ class ModerationReport {
 }
 
 class ModerationReportsResponse {
-  const ModerationReportsResponse({required this.reports});
+  const ModerationReportsResponse({required this.reports, this.nextPageToken});
 
   final List<ModerationReport> reports;
+  final String? nextPageToken;
 
   factory ModerationReportsResponse.fromJson(Map<String, dynamic> json) {
     final rawReports = json['reports'] as List<dynamic>? ?? const [];
@@ -251,6 +252,7 @@ class ModerationReportsResponse {
           .whereType<Map<String, dynamic>>()
           .map(ModerationReport.fromJson)
           .toList(),
+      nextPageToken: json['next_page_token'] as String?,
     );
   }
 }
