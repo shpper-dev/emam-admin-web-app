@@ -5,7 +5,7 @@ on:
   push:
     branches:
       - main
-      - master
+      - dev
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -32,3 +32,41 @@ jobs:
 
       - name: Test
         run: flutter test
+
+  health-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Create .env for CI
+        run: cp .env.example .env
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Install flutter_health_check
+        run: dart pub global activate flutter_health_check
+
+      # Raise to --fail-on high once the high findings are fixed.
+      - name: Health check
+        run: dart pub global run flutter_health_check:fhc --format md,json --fail-on critical
+
+      - name: Add the report to the run summary
+        if: always()
+        run: cat health-report.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload the report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: health-report
+          path: |
+            health-report.md
+            health-report.json

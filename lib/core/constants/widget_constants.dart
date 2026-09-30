@@ -165,6 +165,12 @@ class AppDrawer extends ConsumerWidget {
             selected: currentPath == RoutePaths.devices,
             onTap: () => _navigate(context, RoutePaths.devices),
           ),
+          _DrawerTile(
+            icon: Icons.history_rounded,
+            label: 'Audit Log',
+            selected: currentPath == RoutePaths.audit,
+            onTap: () => _navigate(context, RoutePaths.audit),
+          ),
           const SizedBox(height: AppConstants.space16),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),

@@ -1,13 +1,13 @@
 import 'package:emam_admin_web_app/core/constants/app_constants.dart';
 import 'package:flutter/material.dart';
 
-/// Compact numbered pager rendered under the users grid.
+/// Modern pill-style pager shared by the users grid and the audit log.
 ///
-/// - Shows `1 .. discoveredPages` as tappable numbers.
-/// - Shows a trailing `…` button when the server reports another page
-///   (`hasNextToken == true`); tapping it fetches page `discoveredPages + 1`.
-/// - Prev/Next arrows do the same thing at the ends.
-/// - The active page is highlighted; disabled buttons don't respond to taps.
+/// A single rounded track holds `Previous`, a windowed run of page numbers
+/// (first, last and the neighbours of the current page, with `…` gaps) and
+/// `Next`. `Next` fetches the next undiscovered page when the server reports
+/// another `next_page_token` (`hasNextToken`). Labels collapse to icons on
+/// narrow widths.
 class UsersPaginationBar extends StatelessWidget {
   const UsersPaginationBar({
     super.key,
@@ -24,6 +24,25 @@ class UsersPaginationBar extends StatelessWidget {
   final bool isLoading;
   final void Function(int page) onPageTap;
 
+  /// Page numbers to render; `null` marks a `…` gap.
+  List<int?> _window() {
+    if (discoveredPages <= 7) {
+      return [for (var p = 1; p <= discoveredPages; p++) p];
+    }
+    final pages = <int>{
+      1,
+      discoveredPages,
+      for (var p = currentPage - 1; p <= currentPage + 1; p++)
+        if (p >= 1 && p <= discoveredPages) p,
+    }.toList()..sort();
+    final out = <int?>[];
+    for (var i = 0; i < pages.length; i++) {
+      if (i > 0 && pages[i] - pages[i - 1] > 1) out.add(null);
+      out.add(pages[i]);
+    }
+    return out;
+  }
+
   @override
   Widget build(BuildContext context) {
     if (discoveredPages <= 1 && !hasNextToken) {
@@ -35,138 +54,198 @@ class UsersPaginationBar extends StatelessWidget {
         !isLoading && (currentPage < discoveredPages || hasNextToken);
 
     return Padding(
-      padding: const EdgeInsets.only(top: 20),
-      child: Wrap(
-        alignment: WrapAlignment.center,
-        crossAxisAlignment: WrapCrossAlignment.center,
-        spacing: 8,
-        runSpacing: 8,
-        children: [
-          _PagerButton.icon(
-            icon: Icons.chevron_left_rounded,
-            enabled: canGoPrev,
-            onTap: () => onPageTap(currentPage - 1),
-          ),
-          for (int page = 1; page <= discoveredPages; page++)
-            _PagerButton.number(
-              label: '$page',
-              selected: page == currentPage,
-              enabled: !isLoading,
-              onTap: () => onPageTap(page),
-            ),
-          if (hasNextToken)
-            _PagerButton.number(
-              label: '…',
-              selected: false,
-              enabled: !isLoading,
-              onTap: () => onPageTap(discoveredPages + 1),
-            ),
-          _PagerButton.icon(
-            icon: Icons.chevron_right_rounded,
-            enabled: canGoNext,
-            onTap: () => onPageTap(currentPage + 1),
-          ),
-          if (isLoading)
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8),
-              child: SizedBox(
-                height: 16,
-                width: 16,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: AppConstants.primary,
-                ),
+      padding: const EdgeInsets.only(top: 24),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final compact = constraints.maxWidth < 520;
+          return Center(
+            child: Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: AppConstants.surfaceColor,
+                borderRadius: BorderRadius.circular(AppConstants.radiusPill),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.22),
+                    blurRadius: 16,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _NavButton(
+                    icon: Icons.arrow_back_rounded,
+                    label: compact ? null : 'Previous',
+                    iconFirst: true,
+                    enabled: canGoPrev,
+                    onTap: () => onPageTap(currentPage - 1),
+                  ),
+                  const SizedBox(width: 4),
+                  Flexible(
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          for (final p in _window())
+                            p == null
+                                ? const _Gap()
+                                : _PageButton(
+                                    page: p,
+                                    selected: p == currentPage,
+                                    enabled: !isLoading,
+                                    onTap: () => onPageTap(p),
+                                  ),
+                          if (isLoading)
+                            const Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 10),
+                              child: SizedBox(
+                                width: 14,
+                                height: 14,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: AppConstants.primary,
+                                ),
+                              ),
+                            )
+                          else if (hasNextToken)
+                            const _Gap(),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  _NavButton(
+                    icon: Icons.arrow_forward_rounded,
+                    label: compact ? null : 'Next',
+                    iconFirst: false,
+                    enabled: canGoNext,
+                    onTap: () => onPageTap(currentPage + 1),
+                  ),
+                ],
               ),
             ),
-        ],
+          );
+        },
       ),
     );
   }
 }
 
-class _PagerButton extends StatelessWidget {
-  const _PagerButton._({
-    required this.enabled,
-    required this.onTap,
-    required this.selected,
-    this.label,
-    this.icon,
-  });
-
-  factory _PagerButton.number({
-    required String label,
-    required bool selected,
-    required bool enabled,
-    required VoidCallback onTap,
-  }) => _PagerButton._(
-    enabled: enabled,
-    onTap: onTap,
-    selected: selected,
-    label: label,
-  );
-
-  factory _PagerButton.icon({
-    required IconData icon,
-    required bool enabled,
-    required VoidCallback onTap,
-  }) => _PagerButton._(
-    enabled: enabled,
-    onTap: onTap,
-    selected: false,
-    icon: icon,
-  );
-
-  final bool enabled;
-  final bool selected;
-  final VoidCallback onTap;
-  final String? label;
-  final IconData? icon;
+class _Gap extends StatelessWidget {
+  const _Gap();
 
   @override
   Widget build(BuildContext context) {
-    final Color background;
-    final Color foreground;
-    final Color borderColor;
+    return SizedBox(
+      width: 28,
+      child: Text(
+        '···',
+        textAlign: TextAlign.center,
+        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+          color: AppConstants.textSecondary,
+          letterSpacing: 1,
+        ),
+      ),
+    );
+  }
+}
 
-    if (selected) {
-      background = AppConstants.primary.withValues(alpha: 0.18);
-      foreground = AppConstants.primary;
-      borderColor = AppConstants.primary.withValues(alpha: 0.55);
-    } else if (enabled) {
-      background = Colors.white.withValues(alpha: 0.04);
-      foreground = Colors.white.withValues(alpha: 0.85);
-      borderColor = Colors.white.withValues(alpha: 0.12);
-    } else {
-      background = Colors.white.withValues(alpha: 0.02);
-      foreground = Colors.white.withValues(alpha: 0.25);
-      borderColor = Colors.white.withValues(alpha: 0.06);
-    }
+class _PageButton extends StatelessWidget {
+  const _PageButton({
+    required this.page,
+    required this.selected,
+    required this.enabled,
+    required this.onTap,
+  });
 
-    final content = icon != null
-        ? Icon(icon, size: 18, color: foreground)
-        : Text(
-            label!,
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-              color: foreground,
-              fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
+  final int page;
+  final bool selected;
+  final bool enabled;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 2),
+      child: Material(
+        color: selected ? AppConstants.primary : Colors.transparent,
+        shape: const CircleBorder(),
+        child: InkWell(
+          customBorder: const CircleBorder(),
+          hoverColor: Colors.white.withValues(alpha: 0.06),
+          onTap: enabled && !selected ? onTap : null,
+          child: Container(
+            width: 36,
+            height: 36,
+            alignment: Alignment.center,
+            child: Text(
+              '$page',
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                color: selected
+                    ? AppConstants.bgColor
+                    : Colors.white.withValues(alpha: enabled ? 0.85 : 0.35),
+                fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+              ),
             ),
-          );
+          ),
+        ),
+      ),
+    );
+  }
+}
 
+class _NavButton extends StatelessWidget {
+  const _NavButton({
+    required this.icon,
+    required this.label,
+    required this.iconFirst,
+    required this.enabled,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String? label;
+  final bool iconFirst;
+  final bool enabled;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = enabled
+        ? AppConstants.primary
+        : Colors.white.withValues(alpha: 0.25);
+    final children = <Widget>[
+      Icon(icon, size: 18, color: color),
+      if (label != null) ...[
+        const SizedBox(width: 6),
+        Text(
+          label!,
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+            color: color,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ],
+    ];
     return Material(
       color: Colors.transparent,
+      borderRadius: BorderRadius.circular(AppConstants.radiusPill),
       child: InkWell(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(AppConstants.radiusPill),
+        hoverColor: AppConstants.primary.withValues(alpha: 0.1),
         onTap: enabled ? onTap : null,
         child: Container(
-          constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: background,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: borderColor, width: selected ? 1.4 : 1),
+          height: 36,
+          constraints: const BoxConstraints(minWidth: 36),
+          padding: EdgeInsets.symmetric(horizontal: label == null ? 9 : 14),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: iconFirst ? children : children.reversed.toList(),
           ),
-          child: content,
         ),
       ),
     );

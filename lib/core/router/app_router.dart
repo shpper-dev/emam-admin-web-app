@@ -1,5 +1,6 @@
 import 'package:emam_admin_web_app/core/responsive/admin_shell.dart';
 import 'package:emam_admin_web_app/core/router/route_paths.dart';
+import 'package:emam_admin_web_app/features/audit/views/audit_view.dart';
 import 'package:emam_admin_web_app/features/auth/provider/auth_provider.dart';
 import 'package:emam_admin_web_app/features/auth/views/sign_in_view.dart';
 import 'package:emam_admin_web_app/features/content/views/content_view.dart';
@@ -50,6 +51,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             RoutePaths.content => 'Contents',
             RoutePaths.voiceDemo => 'Voice Demo',
             RoutePaths.devices => 'Signed-in Devices',
+            RoutePaths.audit => 'Audit Log',
             _ => 'Dashboard',
           };
           return AdminShell(title: title, body: child);
@@ -74,6 +76,11 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             path: RoutePaths.devices,
             pageBuilder: (context, state) =>
                 const NoTransitionPage(child: DevicesView()),
+          ),
+          GoRoute(
+            path: RoutePaths.audit,
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: AuditView()),
           ),
         ],
       ),
