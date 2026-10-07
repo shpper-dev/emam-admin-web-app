@@ -40,6 +40,9 @@ class ApiConstants {
   static const String voiceDemoUrl =
       '$apiBaseUrl/arabic-accent-mirror-gpt-live-rvc';
 
+  static const String cacheInvalidate = '/admin/system/cache/invalidate';
+  static const String ragReload = '/admin/system/rag/reload';
+
   static const String firebaseWebApiKey =
       'AIzaSyDSxatz31b4auOeKlHD9svES3zxsVqOHAU';
 

@@ -154,12 +154,6 @@ class AppDrawer extends ConsumerWidget {
             onTap: () => _navigate(context, RoutePaths.voiceDemo),
           ),
           _DrawerTile(
-            icon: Icons.insights_rounded,
-            label: 'Analytics',
-            selected: false,
-            onTap: () => _openFirebaseAnalytics(context),
-          ),
-          _DrawerTile(
             icon: Icons.devices_rounded,
             label: 'Devices',
             selected: currentPath == RoutePaths.devices,
@@ -170,6 +164,12 @@ class AppDrawer extends ConsumerWidget {
             label: 'Audit Log',
             selected: currentPath == RoutePaths.audit,
             onTap: () => _navigate(context, RoutePaths.audit),
+          ),
+          _DrawerTile(
+            icon: Icons.build_circle_outlined,
+            label: 'System Tools',
+            selected: currentPath == RoutePaths.systemTools,
+            onTap: () => _navigate(context, RoutePaths.systemTools),
           ),
           const SizedBox(height: AppConstants.space16),
           Padding(
@@ -182,6 +182,12 @@ class AppDrawer extends ConsumerWidget {
             label: 'Feedback',
             selected: false,
             onTap: () => _openFeedback(context),
+          ),
+          _DrawerTile(
+            icon: Icons.insights_rounded,
+            label: 'Analytics',
+            selected: false,
+            onTap: () => _openFirebaseAnalytics(context),
           ),
           _DrawerTile(
             icon: CupertinoIcons.arrow_left_square_fill,
