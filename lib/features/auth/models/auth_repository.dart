@@ -12,16 +12,19 @@ class NotAdminException implements Exception {
 }
 
 class AuthRepository implements TokenRefresher {
-  AuthRepository({required this._tokenStorage});
+  AuthRepository({required this._tokenStorage, Dio? dio})
+    : _authDio =
+          dio ??
+          Dio(
+            BaseOptions(
+              connectTimeout: const Duration(seconds: 30),
+              receiveTimeout: const Duration(seconds: 30),
+              headers: {'Content-Type': 'application/json'},
+            ),
+          );
 
   final TokenStorage _tokenStorage;
-  final Dio _authDio = Dio(
-    BaseOptions(
-      connectTimeout: const Duration(seconds: 30),
-      receiveTimeout: const Duration(seconds: 30),
-      headers: {'Content-Type': 'application/json'},
-    ),
-  );
+  final Dio _authDio;
 
   Future<AuthSession> signIn({
     required String email,
@@ -51,8 +54,11 @@ class AuthRepository implements TokenRefresher {
 
   /// Calls `/admin/auth/me`. Returns the admin's email (empty if the body has
   /// none), or null when the backend says the user is not an admin (`admin` is not
-  /// true, or 401/403).
-  Future<String?> _fetchAdminEmail(String accessToken) async {
+  /// true, or 403; also 401 unless [throwOnUnauthorized] is set).
+  Future<String?> _fetchAdminEmail(
+    String accessToken, {
+    bool throwOnUnauthorized = false,
+  }) async {
     try {
       final response = await _authDio.get<Map<String, dynamic>>(
         '${ApiConstants.apiBaseUrl}${ApiConstants.authMe}',
@@ -63,7 +69,8 @@ class AuthRepository implements TokenRefresher {
       return (data?['email'] as String?) ?? '';
     } on DioException catch (e) {
       final status = e.response?.statusCode;
-      if (status == 401 || status == 403) return null;
+      if (status == 403) return null;
+      if (status == 401 && !throwOnUnauthorized) return null;
       rethrow;
     }
   }
@@ -110,12 +117,25 @@ class AuthRepository implements TokenRefresher {
       }
     }
 
-    final String? adminEmail;
+    String? adminEmail;
     try {
-      adminEmail = await _fetchAdminEmail(_tokenStorage.accessToken!);
-    } on DioException {
-      // Backend unreachable: fall back to the login screen, keep tokens.
-      return null;
+      adminEmail = await _fetchAdminEmail(
+        _tokenStorage.accessToken!,
+        throwOnUnauthorized: true,
+      );
+    } on DioException catch (e) {
+      if (e.response?.statusCode != 401) {
+        // Backend unreachable: fall back to the login screen, keep tokens.
+        return null;
+      }
+      // Token rejected: refresh once and retry before giving up.
+      try {
+        await refreshAccessToken();
+        adminEmail = await _fetchAdminEmail(_tokenStorage.accessToken!);
+      } catch (_) {
+        await _tokenStorage.clear();
+        return null;
+      }
     }
     if (adminEmail == null) {
       await _tokenStorage.clear();
