@@ -5,6 +5,8 @@ import 'package:emam_admin_web_app/features/content/views/widgets/content_sectio
 import 'package:emam_admin_web_app/features/users/models/app_user.dart';
 import 'package:emam_admin_web_app/features/users/models/user_detail.dart';
 import 'package:emam_admin_web_app/features/users/provider/user_detail_cache_provider.dart';
+import 'package:emam_admin_web_app/features/users/provider/user_moderation_providers.dart';
+import 'package:emam_admin_web_app/features/users/views/widgets/user_moderation_panels.dart';
 import 'package:emam_admin_web_app/features/users/views/widgets/user_profile_avatar.dart';
 import 'package:emam_admin_web_app/features/users/views/widgets/users_pagination_bar.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +18,100 @@ String _formatDetailDate(DateTime? date) =>
 String _titleCaseLabel(String value) {
   if (value.isEmpty) return '—';
   return value[0].toUpperCase() + value.substring(1).toLowerCase();
+}
+
+String _countLabel(AsyncValue<List<Object?>> value) => value.when(
+  data: (items) => '${items.length}',
+  loading: () => '…',
+  error: (_, _) => '—',
+);
+
+bool _hasItems(AsyncValue<List<Object?>> value) =>
+    value.maybeWhen(data: (items) => items.isNotEmpty, orElse: () => false);
+
+class _StatItem {
+  const _StatItem({
+    required this.icon,
+    required this.label,
+    required this.value,
+    this.color,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+  final Color? color;
+}
+
+class _StatStrip extends StatelessWidget {
+  const _StatStrip({required this.items});
+
+  final List<_StatItem> items;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        const spacing = 12.0;
+        final columns = constraints.maxWidth >= 560 ? items.length : 2;
+        final width =
+            (constraints.maxWidth - spacing * (columns - 1)) / columns;
+        return Wrap(
+          spacing: spacing,
+          runSpacing: spacing,
+          children: [
+            for (final item in items)
+              SizedBox(
+                width: width,
+                child: Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: AppConstants.bgColor,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.06),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        item.icon,
+                        size: 20,
+                        color: item.color ?? AppConstants.primary,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              item.value,
+                              style: theme.textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.w700,
+                                color: item.color,
+                              ),
+                            ),
+                            Text(
+                              item.label,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: AppConstants.textMuted,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
 }
 
 double _dialogMaxWidth(BuildContext context) {
@@ -54,6 +150,7 @@ class UserDetailDialog extends ConsumerStatefulWidget {
 
 class _UserDetailDialogState extends ConsumerState<UserDetailDialog> {
   int _postCurrentPage = 1;
+  int _tab = 0;
 
   @override
   void initState() {
@@ -241,109 +338,191 @@ class _UserDetailDialogState extends ConsumerState<UserDetailDialog> {
                 displayName: displayName,
                 isWide: isWide,
               ),
-              const SizedBox(height: 24),
-              if (isWide)
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: _DetailSectionCard(
-                        icon: Icons.shield_outlined,
-                        title: 'Moderation',
-                        child: _InfoGrid(
-                          maxWidth: (constraints.maxWidth - 32) / 3,
-                          items: _moderationItems(detail),
+              const SizedBox(height: 16),
+              UserRestrictionPanel(
+                userId: widget.userId,
+                displayName: displayName,
+              ),
+              const SizedBox(height: 16),
+              _StatStrip(
+                items: [
+                  _StatItem(
+                    icon: Icons.forum_outlined,
+                    label: 'Active posts',
+                    value: '${detail.postCount}',
+                  ),
+                  _StatItem(
+                    icon: Icons.visibility_off_outlined,
+                    label: 'Hidden posts',
+                    value: '${detail.hiddenPostCount}',
+                    color: detail.hiddenPostCount > 0
+                        ? AppConstants.warning
+                        : null,
+                  ),
+                  _StatItem(
+                    icon: Icons.flag_outlined,
+                    label: 'Reports received',
+                    value: _countLabel(
+                      ref.watch(userReportsReceivedProvider(widget.userId)),
+                    ),
+                    color:
+                        _hasItems(
+                          ref.watch(userReportsReceivedProvider(widget.userId)),
+                        )
+                        ? AppConstants.danger
+                        : null,
+                  ),
+                  _StatItem(
+                    icon: Icons.outlined_flag_rounded,
+                    label: 'Reports filed',
+                    value: _countLabel(
+                      ref.watch(userReportsFiledProvider(widget.userId)),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              SegmentedButton<int>(
+                showSelectedIcon: false,
+                segments: const [
+                  ButtonSegment(value: 0, label: Text('Overview')),
+                  ButtonSegment(value: 1, label: Text('Reports')),
+                  ButtonSegment(value: 2, label: Text('Posts')),
+                ],
+                selected: {_tab},
+                onSelectionChanged: (v) => setState(() => _tab = v.first),
+              ),
+              const SizedBox(height: 16),
+              if (_tab == 0) ...[
+                if (isWide)
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: _DetailSectionCard(
+                          icon: Icons.shield_outlined,
+                          title: 'Moderation',
+                          child: _InfoGrid(
+                            maxWidth: (constraints.maxWidth - 32) / 3,
+                            items: _moderationItems(detail),
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: _DetailSectionCard(
-                        icon: Icons.insights_outlined,
-                        title: 'Activity stats',
-                        child: _InfoGrid(
-                          maxWidth: (constraints.maxWidth - 32) / 3,
-                          items: _activityItems(detail),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: _DetailSectionCard(
+                          icon: Icons.insights_outlined,
+                          title: 'Activity stats',
+                          child: _InfoGrid(
+                            maxWidth: (constraints.maxWidth - 32) / 3,
+                            items: _activityItems(detail),
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: _DetailSectionCard(
-                        icon: Icons.menu_book_outlined,
-                        title: 'Recitation',
-                        child: _InfoGrid(
-                          maxWidth: (constraints.maxWidth - 32) / 3,
-                          items: _recitationItems(detail),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: _DetailSectionCard(
+                          icon: Icons.menu_book_outlined,
+                          title: 'Recitation',
+                          child: _InfoGrid(
+                            maxWidth: (constraints.maxWidth - 32) / 3,
+                            items: _recitationItems(detail),
+                          ),
                         ),
                       ),
+                    ],
+                  )
+                else ...[
+                  _DetailSectionCard(
+                    icon: Icons.shield_outlined,
+                    title: 'Moderation',
+                    child: _InfoGrid(
+                      maxWidth: constraints.maxWidth,
+                      items: _moderationItems(detail),
                     ),
-                  ],
-                )
-              else ...[
+                  ),
+                  const SizedBox(height: 16),
+                  _DetailSectionCard(
+                    icon: Icons.insights_outlined,
+                    title: 'Activity stats',
+                    child: _InfoGrid(
+                      maxWidth: constraints.maxWidth,
+                      items: _activityItems(detail),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _DetailSectionCard(
+                    icon: Icons.menu_book_outlined,
+                    title: 'Recitation',
+                    child: _InfoGrid(
+                      maxWidth: constraints.maxWidth,
+                      items: _recitationItems(detail),
+                    ),
+                  ),
+                ],
+              ] else if (_tab == 1) ...[
                 _DetailSectionCard(
-                  icon: Icons.shield_outlined,
-                  title: 'Moderation',
-                  child: _InfoGrid(
-                    maxWidth: constraints.maxWidth,
-                    items: _moderationItems(detail),
+                  icon: Icons.flag_outlined,
+                  title: 'Reports received',
+                  child: UserReportsList(
+                    reports: ref.watch(
+                      userReportsReceivedProvider(widget.userId),
+                    ),
+                    received: true,
+                    onRetry: () => ref.invalidate(
+                      userReportsReceivedProvider(widget.userId),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 16),
                 _DetailSectionCard(
-                  icon: Icons.insights_outlined,
-                  title: 'Activity stats',
-                  child: _InfoGrid(
-                    maxWidth: constraints.maxWidth,
-                    items: _activityItems(detail),
+                  icon: Icons.outlined_flag_rounded,
+                  title: 'Reports filed',
+                  child: UserReportsList(
+                    reports: ref.watch(userReportsFiledProvider(widget.userId)),
+                    received: false,
+                    onRetry: () =>
+                        ref.invalidate(userReportsFiledProvider(widget.userId)),
                   ),
                 ),
-                const SizedBox(height: 16),
+              ] else ...[
                 _DetailSectionCard(
-                  icon: Icons.menu_book_outlined,
-                  title: 'Recitation',
-                  child: _InfoGrid(
-                    maxWidth: constraints.maxWidth,
-                    items: _recitationItems(detail),
+                  icon: Icons.forum_outlined,
+                  title: 'Recent posts',
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (errorMessage != null) ...[
+                        Text(
+                          errorMessage,
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: AppConstants.danger),
+                        ),
+                        const SizedBox(height: 12),
+                      ],
+                      if (postsPage == null || postsPage.posts.isEmpty)
+                        Text(
+                          'No recent posts.',
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(color: AppConstants.textMuted),
+                        )
+                      else
+                        _RecentPostsList(
+                          posts: postsPage.posts,
+                          isWide: isWide,
+                        ),
+                      const SizedBox(height: 8),
+                      UsersPaginationBar(
+                        currentPage: _postCurrentPage,
+                        discoveredPages: _discoveredPostPages(entry),
+                        hasNextToken: entry.hasNextPostToken,
+                        isLoading: entry.isLoadingMorePosts,
+                        onPageTap: (page) => _goToPostPage(entry, page),
+                      ),
+                    ],
                   ),
                 ),
               ],
-              const SizedBox(height: 24),
-              _DetailSectionCard(
-                icon: Icons.forum_outlined,
-                title: 'Recent posts',
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (errorMessage != null) ...[
-                      Text(
-                        errorMessage,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppConstants.danger,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                    ],
-                    if (postsPage == null || postsPage.posts.isEmpty)
-                      Text(
-                        'No recent posts.',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppConstants.textMuted,
-                        ),
-                      )
-                    else
-                      _RecentPostsList(posts: postsPage.posts, isWide: isWide),
-                    const SizedBox(height: 8),
-                    UsersPaginationBar(
-                      currentPage: _postCurrentPage,
-                      discoveredPages: _discoveredPostPages(entry),
-                      hasNextToken: entry.hasNextPostToken,
-                      isLoading: entry.isLoadingMorePosts,
-                      onPageTap: (page) => _goToPostPage(entry, page),
-                    ),
-                  ],
-                ),
-              ),
             ],
           ),
         );
@@ -361,8 +540,6 @@ class _UserDetailDialogState extends ConsumerState<UserDetailDialog> {
       value: detail.moderation.canPost ? 'Yes' : 'No',
       highlight: detail.moderation.canPost,
     ),
-    _InfoItem(label: 'Active posts', value: '${detail.postCount}'),
-    _InfoItem(label: 'Hidden posts', value: '${detail.hiddenPostCount}'),
   ];
 
   List<_InfoItem> _activityItems(UserDetailResponse detail) => [

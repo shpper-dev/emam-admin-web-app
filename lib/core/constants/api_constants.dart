@@ -13,6 +13,11 @@ class ApiConstants {
   static String userPosts(String userId) => '$users/$userId/posts';
   static String userRestriction(String userId) => '$users/$userId/restriction';
   static String userUnblock(String userId) => '$users/$userId/unblock';
+  static String userReportsFiled(String userId) =>
+      '$users/$userId/reports-filed';
+  static String userReportsReceived(String userId) =>
+      '$users/$userId/reports-received';
+  static String userQuotaReset(String userId) => '$users/$userId/quota/reset';
   static const String moderationReports = '/admin/moderation/reports';
   static String resolveReport(String reportId) =>
       '$moderationReports/$reportId/resolve';

@@ -9,12 +9,16 @@ import 'package:emam_admin_web_app/features/users/provider/users_repository_prov
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-Future<bool?> showBlockUserDialog(
+const String kRestriction30Days = '30d';
+const String kRestrictionPermanent = 'permanent';
+
+/// Resolves to the applied duration (`30d` / `permanent`), or null if cancelled.
+Future<String?> showBlockUserDialog(
   BuildContext context, {
   required String userId,
   required String displayName,
 }) {
-  return showDialog<bool>(
+  return showDialog<String>(
     context: context,
     builder: (context) =>
         BlockUserDialog(userId: userId, displayName: displayName),
@@ -37,6 +41,7 @@ class BlockUserDialog extends ConsumerStatefulWidget {
 
 class _BlockUserDialogState extends ConsumerState<BlockUserDialog> {
   final _reasonController = TextEditingController();
+  String _duration = kRestriction30Days;
   bool _isSubmitting = false;
   String? _errorMessage;
 
@@ -63,9 +68,10 @@ class _BlockUserDialogState extends ConsumerState<BlockUserDialog> {
           .applyUserRestriction(
             widget.userId,
             reason: _reasonController.text.trim(),
+            duration: _duration,
           );
       if (!mounted) return;
-      Navigator.of(context).pop(true);
+      Navigator.of(context).pop(_duration);
     } on DioException catch (e) {
       if (!mounted) return;
       setState(() {
@@ -98,10 +104,24 @@ class _BlockUserDialogState extends ConsumerState<BlockUserDialog> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Apply a 30-day posting restriction to $name.',
+            'Restrict $name from posting.',
             style: theme.textTheme.bodyMedium?.copyWith(
               color: AppConstants.textSecondary,
             ),
+          ),
+          const SizedBox(height: 12),
+          SegmentedButton<String>(
+            segments: const [
+              ButtonSegment(value: kRestriction30Days, label: Text('30 days')),
+              ButtonSegment(
+                value: kRestrictionPermanent,
+                label: Text('Permanent'),
+              ),
+            ],
+            selected: {_duration},
+            onSelectionChanged: _isSubmitting
+                ? null
+                : (value) => setState(() => _duration = value.first),
           ),
           const SizedBox(height: 16),
           ReasonTextField(

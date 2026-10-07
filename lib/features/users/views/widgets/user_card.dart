@@ -183,14 +183,19 @@ class UserCard extends ConsumerWidget {
     WidgetRef ref, {
     required String displayName,
   }) async {
-    final blocked = await showBlockUserDialog(
+    final duration = await showBlockUserDialog(
       context,
       userId: user.id,
       displayName: displayName,
     );
-    if (blocked != true || !context.mounted) return;
+    if (duration == null || !context.mounted) return;
 
-    showRestrictionSnackBar(context, displayName: displayName, blocked: true);
+    showRestrictionSnackBar(
+      context,
+      displayName: displayName,
+      blocked: true,
+      permanent: duration == kRestrictionPermanent,
+    );
     await refreshAfterUserRestrictionChange(ref, userId: user.id);
   }
 

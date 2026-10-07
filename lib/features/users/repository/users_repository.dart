@@ -1,5 +1,6 @@
 import 'package:emam_admin_web_app/core/constants/api_constants.dart';
 import 'package:emam_admin_web_app/core/network/dio_client.dart';
+import 'package:emam_admin_web_app/features/moderation/models/moderation_report.dart';
 import 'package:emam_admin_web_app/features/users/models/app_user.dart';
 import 'package:emam_admin_web_app/features/users/models/restricted_user.dart';
 import 'package:emam_admin_web_app/features/users/models/user_detail.dart';
@@ -96,5 +97,41 @@ class UsersRepository {
 
   Future<void> unblockUser(String userId) async {
     await _client.post<void>(ApiConstants.userUnblock(userId));
+  }
+
+  /// Current restriction; the endpoint answers `{ moderation: {...} }`.
+  Future<UserDetailModeration> fetchUserRestriction(String userId) async {
+    final response = await _client.get<Map<String, dynamic>>(
+      ApiConstants.userRestriction(userId),
+    );
+    final data = response.data ?? const {};
+    final moderation = data['moderation'];
+    return UserDetailModeration.fromJson(
+      moderation is Map<String, dynamic> ? moderation : data,
+    );
+  }
+
+  Future<void> clearUserRestriction(String userId) async {
+    await _client.delete<void>(ApiConstants.userRestriction(userId));
+  }
+
+  Future<void> resetUserQuota(String userId) async {
+    await _client.post<void>(ApiConstants.userQuotaReset(userId));
+  }
+
+  Future<List<ModerationReport>> fetchReportsFiled(String userId) =>
+      _fetchUserReports(ApiConstants.userReportsFiled(userId));
+
+  Future<List<ModerationReport>> fetchReportsReceived(String userId) =>
+      _fetchUserReports(ApiConstants.userReportsReceived(userId));
+
+  Future<List<ModerationReport>> _fetchUserReports(String path) async {
+    final response = await _client.get<Map<String, dynamic>>(
+      path,
+      queryParameters: {'limit': 50},
+    );
+    return ModerationReportsResponse.fromJson(
+      response.data ?? const {},
+    ).reports;
   }
 }

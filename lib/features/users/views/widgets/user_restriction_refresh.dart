@@ -19,9 +19,10 @@ void showRestrictionSnackBar(
   BuildContext context, {
   required String displayName,
   required bool blocked,
+  bool permanent = false,
 }) {
   final message = blocked
-      ? '$displayName has been blocked for 30 days.'
+      ? '$displayName has been blocked ${permanent ? 'permanently' : 'for 30 days'}.'
       : '$displayName has been unblocked.';
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
 }
