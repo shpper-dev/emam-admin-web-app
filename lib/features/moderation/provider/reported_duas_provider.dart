@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:emam_admin_web_app/core/network/api_error.dart';
 import 'package:emam_admin_web_app/features/moderation/models/moderation_report.dart';
+import 'package:emam_admin_web_app/features/moderation/provider/moderation_queue_provider.dart';
 import 'package:emam_admin_web_app/features/moderation/provider/moderation_repository_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -89,6 +90,8 @@ class ReportedDuasNotifier extends Notifier<ReportedDuasState> {
 
   /// Reloads from the first page, keeping the selected status filter.
   Future<void> refresh() async {
+    // Any change here (hide, restore, resolve) also changes the queue.
+    ref.invalidate(moderationQueueProvider);
     state = ReportedDuasState.initial.copyWith(
       status: state.status,
       hiddenPostIds: state.hiddenPostIds,
@@ -139,16 +142,24 @@ class ReportedDuasNotifier extends Notifier<ReportedDuasState> {
   }
 
   /// Resolves every loaded open report for [postId]. Returns false on failure.
+  ///
+  /// [alsoReportId] is resolved too even when it isn't in the loaded pages
+  /// (e.g. the card comes from the moderation queue).
   Future<bool> resolveOpenReportsForPost(
     String postId, {
     required String action,
+    String? alsoReportId,
   }) async {
     final repo = ref.read(moderationRepositoryProvider);
-    final reportIds = state.pages
-        .expand((page) => page.reports)
-        .where((r) => r.postId == postId && r.isOpen && r.id.isNotEmpty)
-        .map((r) => r.id)
-        .toList();
+    final reportIds =
+        state.pages
+            .expand((page) => page.reports)
+            .where((r) => r.postId == postId && r.isOpen && r.id.isNotEmpty)
+            .map((r) => r.id)
+            .toSet()
+          ..addAll([
+            if (alsoReportId != null && alsoReportId.isNotEmpty) alsoReportId,
+          ]);
     try {
       for (final id in reportIds) {
         await repo.resolveReport(id, action: action);

@@ -13,10 +13,8 @@ class SignInView extends ConsumerStatefulWidget {
 }
 
 class _SignInViewState extends ConsumerState<SignInView> {
-  static const _defaultEmail = 'safaandsafa4@gmail.com';
-
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController(text: _defaultEmail);
+  final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
   bool _rememberMe = true;

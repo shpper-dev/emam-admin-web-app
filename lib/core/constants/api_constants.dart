@@ -21,6 +21,9 @@ class ApiConstants {
   static const String moderationReports = '/admin/moderation/reports';
   static String resolveReport(String reportId) =>
       '$moderationReports/$reportId/resolve';
+  static const String moderationQueue = '/admin/moderation/queue';
+  static String moderationPost(String postId) =>
+      '/admin/moderation/posts/$postId';
   static const String hiddenPosts = '/admin/moderation/posts/hidden';
   static String hideDuaPost(String postId) =>
       '/admin/moderation/posts/$postId/hide';

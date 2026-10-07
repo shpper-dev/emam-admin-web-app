@@ -165,6 +165,10 @@ class UserDetailResponse {
   final UserDetailRecitation recitation;
   final UserRecentPostsPage recentPosts;
 
+  /// An empty response with `found: false`.
+  factory UserDetailResponse.notFound() =>
+      UserDetailResponse.fromJson(const {});
+
   factory UserDetailResponse.fromJson(Map<String, dynamic> json) {
     final userJson = json['user'];
     final moderationJson = json['moderation'];

@@ -1,12 +1,16 @@
 import 'package:emam_admin_web_app/core/constants/app_constants.dart';
 import 'package:emam_admin_web_app/core/widgets/filter_pill.dart';
+import 'package:emam_admin_web_app/core/widgets/segmented_control.dart';
 import 'package:emam_admin_web_app/core/widgets/section_empty_message.dart';
 import 'package:emam_admin_web_app/features/content/views/widgets/content_section_card.dart';
 import 'package:emam_admin_web_app/features/moderation/models/hidden_post.dart';
 import 'package:emam_admin_web_app/features/moderation/models/moderation_report.dart';
 import 'package:emam_admin_web_app/features/moderation/provider/hidden_posts_provider.dart';
+import 'package:emam_admin_web_app/features/moderation/provider/moderation_queue_provider.dart';
+import 'package:emam_admin_web_app/features/moderation/provider/moderation_view_provider.dart';
 import 'package:emam_admin_web_app/features/moderation/provider/reported_duas_provider.dart';
 import 'package:emam_admin_web_app/features/moderation/views/widgets/hidden_post_card.dart';
+import 'package:emam_admin_web_app/features/moderation/views/widgets/moderation_queue_section.dart';
 import 'package:emam_admin_web_app/features/moderation/views/widgets/reported_dua_card.dart';
 import 'package:emam_admin_web_app/features/users/models/app_user.dart';
 import 'package:emam_admin_web_app/features/users/models/restricted_user.dart';
@@ -17,10 +21,11 @@ import 'package:emam_admin_web_app/features/users/views/widgets/user_card.dart';
 import 'package:emam_admin_web_app/features/users/views/widgets/user_detail_dialog.dart';
 import 'package:emam_admin_web_app/features/users/views/widgets/users_pagination_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-enum UsersTab { all, blocked, reportedDuas, hiddenPosts }
+enum UsersTab { all, blocked, moderation }
 
-class UsersManagementSection extends StatelessWidget {
+class UsersManagementSection extends ConsumerWidget {
   const UsersManagementSection({
     super.key,
     required this.selectedTab,
@@ -54,15 +59,77 @@ class UsersManagementSection extends StatelessWidget {
   final Future<void> Function() onHiddenPostsRetry;
   final void Function(int page) onHiddenPostsPageTap;
 
-  bool get _showAll => selectedTab == UsersTab.all;
-  bool get _showReportedDuas => selectedTab == UsersTab.reportedDuas;
-  bool get _showHiddenPosts => selectedTab == UsersTab.hiddenPosts;
-
   @override
-  Widget build(BuildContext context) {
-    final isAll = _showAll;
-    final isReportedDuas = _showReportedDuas;
-    final isHiddenPosts = _showHiddenPosts;
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (selectedTab != UsersTab.moderation) return _buildCard(context, null);
+
+    final view = ref.watch(moderationViewProvider);
+    final queueCount = ref.watch(moderationQueueProvider).queue?.count;
+    final notifier = ref.read(moderationViewProvider.notifier);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SegmentedControl<ModerationView>(
+          selected: view,
+          onChanged: notifier.select,
+          options: [
+            SegmentOption(
+              value: ModerationView.needsReview,
+              label: 'Needs review',
+              icon: Icons.fact_check_rounded,
+              count: queueCount?.toString(),
+              countColor: AppConstants.warning,
+            ),
+            const SegmentOption(
+              value: ModerationView.reports,
+              label: 'All reports',
+              icon: Icons.flag_rounded,
+            ),
+            SegmentOption(
+              value: ModerationView.hidden,
+              label: 'Hidden posts',
+              icon: Icons.visibility_off_rounded,
+              count: hiddenPostsState.currentResponse == null
+                  ? null
+                  : '${hiddenPostsState.totalLoadedPosts}'
+                        '${hiddenPostsState.hasNextToken ? '+' : ''}',
+              countColor: AppConstants.danger,
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Padding(
+          padding: const EdgeInsets.only(left: 4),
+          child: Text(
+            switch (view) {
+              ModerationView.needsReview =>
+                'Open reports and hidden posts, most urgent first.',
+              ModerationView.reports =>
+                'Every report filed by users, including resolved ones.',
+              ModerationView.hidden =>
+                'Posts currently hidden from the public feed.',
+            },
+            style: const TextStyle(color: AppConstants.textMuted, fontSize: 13),
+          ),
+        ),
+        const SizedBox(height: 16),
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 200),
+          child: KeyedSubtree(
+            key: ValueKey(view),
+            child: view == ModerationView.needsReview
+                ? const ModerationQueueSection()
+                : _buildCard(context, view),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCard(BuildContext context, ModerationView? view) {
+    final isAll = selectedTab == UsersTab.all;
+    final isReportedDuas = view == ModerationView.reports;
+    final isHiddenPosts = view == ModerationView.hidden;
     final usersResponse = usersState.currentResponse;
     final restrictedResponse = restrictedState.currentResponse;
     final hiddenPostsResponse = hiddenPostsState.currentResponse;

@@ -259,6 +259,7 @@ class ReportedDuaCard extends ConsumerWidget {
     final resolved = await notifier.resolveOpenReportsForPost(
       report.postId,
       action: 'action_taken',
+      alsoReportId: report.isOpen ? report.id : null,
     );
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -325,6 +326,7 @@ class ReportedDuaCard extends ConsumerWidget {
     final resolved = await notifier.resolveOpenReportsForPost(
       report.postId,
       action: 'dismiss',
+      alsoReportId: report.isOpen ? report.id : null,
     );
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(

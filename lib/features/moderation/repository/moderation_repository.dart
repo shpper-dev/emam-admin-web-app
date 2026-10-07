@@ -1,6 +1,7 @@
 import 'package:emam_admin_web_app/core/constants/api_constants.dart';
 import 'package:emam_admin_web_app/core/network/dio_client.dart';
 import 'package:emam_admin_web_app/features/moderation/models/hidden_post.dart';
+import 'package:emam_admin_web_app/features/moderation/models/moderation_queue.dart';
 import 'package:emam_admin_web_app/features/moderation/models/moderation_report.dart';
 
 class ModerationRepository {
@@ -22,6 +23,22 @@ class ModerationRepository {
       },
     );
     return ModerationReportsResponse.fromJson(response.data ?? const {});
+  }
+
+  /// Open reports and hidden posts merged by urgency (`limit` 1-100).
+  Future<ModerationQueue> fetchQueue({int limit = 30}) async {
+    final response = await _client.get<Map<String, dynamic>>(
+      ApiConstants.moderationQueue,
+      queryParameters: {'limit': limit},
+    );
+    return ModerationQueue.fromJson(response.data ?? const {});
+  }
+
+  Future<PostDetail> fetchPostDetail(String postId) async {
+    final response = await _client.get<Map<String, dynamic>>(
+      ApiConstants.moderationPost(postId),
+    );
+    return PostDetail.fromJson(response.data ?? const {});
   }
 
   /// [action] is `dismiss` or `action_taken`.

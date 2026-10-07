@@ -7,12 +7,15 @@ import 'package:emam_admin_web_app/features/users/models/user_detail.dart';
 import 'package:emam_admin_web_app/features/users/utils/admin_panel_user.dart';
 
 class UsersRepository {
-  UsersRepository(this._client, {this.adminEmail});
+  UsersRepository(this._client, {this.adminEmail, this.adminUserId});
 
   final DioClient _client;
 
   /// Signed-in admin's email (from `/admin/auth/me`), hidden from user lists.
   final String? adminEmail;
+
+  /// Signed-in admin's uid (from `/admin/auth/me`); more reliable than email.
+  final String? adminUserId;
 
   Future<UsersResponse> fetchUsers({String? pageToken, int limit = 50}) async {
     final response = await _client.get<Map<String, dynamic>>(
@@ -25,6 +28,7 @@ class UsersRepository {
     return withoutAdminPanelUsers(
       UsersResponse.fromJson(response.data ?? const {}),
       adminEmail,
+      adminUserId: adminUserId,
     );
   }
 
@@ -39,6 +43,7 @@ class UsersRepository {
     return withoutAdminPanelUsers(
       UsersResponse.fromJson(response.data ?? const {}),
       adminEmail,
+      adminUserId: adminUserId,
     );
   }
 
@@ -56,16 +61,22 @@ class UsersRepository {
     return withoutAdminPanelRestrictedUsers(
       RestrictedUsersResponse.fromJson(response.data ?? const {}),
       adminEmail,
+      adminUserId: adminUserId,
     );
   }
 
   Future<UserDetailResponse> fetchUserDetail(String userId) async {
+    final adminId = adminUserId ?? '';
+    if (adminId.isNotEmpty && userId == adminId) {
+      return UserDetailResponse.notFound();
+    }
     final response = await _client.get<Map<String, dynamic>>(
       ApiConstants.userDetail(userId),
     );
     return hideAdminPanelUserDetail(
       UserDetailResponse.fromJson(response.data ?? const {}),
       adminEmail,
+      adminUserId: adminUserId,
     );
   }
 

@@ -38,9 +38,12 @@ class AuthRepository implements TokenRefresher {
     final data = response.data!;
     var session = AuthSession.fromSignInResponse(email: email, json: data);
 
-    final adminEmail = await _fetchAdminEmail(session.accessToken);
-    if (adminEmail == null) throw const NotAdminException();
-    session = session.copyWith(email: adminEmail.isEmpty ? email : adminEmail);
+    final admin = await _fetchAdmin(session.accessToken);
+    if (admin == null) throw const NotAdminException();
+    session = session.copyWith(
+      email: admin.email.isEmpty ? email : admin.email,
+      localId: admin.id.isEmpty ? null : admin.id,
+    );
 
     await _tokenStorage.saveTokens(
       accessToken: session.accessToken,
@@ -52,10 +55,10 @@ class AuthRepository implements TokenRefresher {
     return session;
   }
 
-  /// Calls `/admin/auth/me`. Returns the admin's email (empty if the body has
-  /// none), or null when the backend says the user is not an admin (`admin` is not
+  /// Calls `/admin/auth/me`. Returns the admin's email and uid (empty if the
+  /// body has none), or null when the backend says the user is not an admin (`admin` is not
   /// true, or 403; also 401 unless [throwOnUnauthorized] is set).
-  Future<String?> _fetchAdminEmail(
+  Future<({String email, String id})?> _fetchAdmin(
     String accessToken, {
     bool throwOnUnauthorized = false,
   }) async {
@@ -66,7 +69,10 @@ class AuthRepository implements TokenRefresher {
       );
       final data = response.data;
       if (data?['admin'] != true) return null;
-      return (data?['email'] as String?) ?? '';
+      return (
+        email: (data?['email'] as String?) ?? '',
+        id: (data?['id'] as String?) ?? '',
+      );
     } on DioException catch (e) {
       final status = e.response?.statusCode;
       if (status == 403) return null;
@@ -117,9 +123,9 @@ class AuthRepository implements TokenRefresher {
       }
     }
 
-    String? adminEmail;
+    ({String email, String id})? admin;
     try {
-      adminEmail = await _fetchAdminEmail(
+      admin = await _fetchAdmin(
         _tokenStorage.accessToken!,
         throwOnUnauthorized: true,
       );
@@ -131,20 +137,22 @@ class AuthRepository implements TokenRefresher {
       // Token rejected: refresh once and retry before giving up.
       try {
         await refreshAccessToken();
-        adminEmail = await _fetchAdminEmail(_tokenStorage.accessToken!);
+        admin = await _fetchAdmin(_tokenStorage.accessToken!);
       } catch (_) {
         await _tokenStorage.clear();
         return null;
       }
     }
-    if (adminEmail == null) {
+    if (admin == null) {
       await _tokenStorage.clear();
       return null;
     }
 
     return AuthSession(
-      email: adminEmail.isEmpty ? (_tokenStorage.savedEmail ?? '') : adminEmail,
-      localId: '',
+      email: admin.email.isEmpty
+          ? (_tokenStorage.savedEmail ?? '')
+          : admin.email,
+      localId: admin.id,
       accessToken: _tokenStorage.accessToken!,
       refreshToken: _tokenStorage.refreshToken!,
       expiresInSeconds: 0,

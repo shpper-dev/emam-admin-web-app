@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:emam_admin_web_app/core/network/api_error.dart';
 import 'package:emam_admin_web_app/features/moderation/models/hidden_post.dart';
+import 'package:emam_admin_web_app/features/moderation/provider/moderation_queue_provider.dart';
 import 'package:emam_admin_web_app/features/moderation/provider/moderation_repository_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -66,6 +67,7 @@ class HiddenPostsPaginationNotifier extends Notifier<HiddenPostsPageState> {
   }
 
   Future<void> refresh() async {
+    ref.invalidate(moderationQueueProvider);
     state = HiddenPostsPageState.initial;
     await _loadFirstPage();
   }

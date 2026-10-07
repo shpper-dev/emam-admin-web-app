@@ -9,12 +9,26 @@ bool isAdminPanelUserEmail(String email, String? adminEmail) {
   return email.trim().toLowerCase() == adminEmail.trim().toLowerCase();
 }
 
+/// Matches by uid first (always present, unlike a profile's email), then email.
+bool isAdminPanelUser(AppUser user, {String? adminEmail, String? adminUserId}) {
+  final id = adminUserId?.trim() ?? '';
+  if (id.isNotEmpty && user.id.trim() == id) return true;
+  return isAdminPanelUserEmail(user.email, adminEmail);
+}
+
 UsersResponse withoutAdminPanelUsers(
   UsersResponse response,
-  String? adminEmail,
-) {
+  String? adminEmail, {
+  String? adminUserId,
+}) {
   final users = response.users
-      .where((u) => !isAdminPanelUserEmail(u.email, adminEmail))
+      .where(
+        (u) => !isAdminPanelUser(
+          u,
+          adminEmail: adminEmail,
+          adminUserId: adminUserId,
+        ),
+      )
       .toList();
   if (users.length == response.users.length) return response;
   final removed = response.users.length - users.length;
@@ -27,10 +41,21 @@ UsersResponse withoutAdminPanelUsers(
 
 RestrictedUsersResponse withoutAdminPanelRestrictedUsers(
   RestrictedUsersResponse response,
-  String? adminEmail,
-) {
+  String? adminEmail, {
+  String? adminUserId,
+}) {
   final users = response.users
-      .where((u) => !isAdminPanelUserEmail(u.profile.email, adminEmail))
+      .where(
+        (u) =>
+            !isAdminPanelUser(
+              u.profile,
+              adminEmail: adminEmail,
+              adminUserId: adminUserId,
+            ) &&
+            (adminUserId == null ||
+                adminUserId.isEmpty ||
+                u.userId != adminUserId),
+      )
       .toList();
   if (users.length == response.users.length) return response;
   final removed = response.users.length - users.length;
@@ -47,9 +72,16 @@ RestrictedUsersResponse withoutAdminPanelRestrictedUsers(
 
 UserDetailResponse hideAdminPanelUserDetail(
   UserDetailResponse detail,
-  String? adminEmail,
-) {
-  if (!isAdminPanelUserEmail(detail.user.email, adminEmail)) return detail;
+  String? adminEmail, {
+  String? adminUserId,
+}) {
+  if (!isAdminPanelUser(
+    detail.user,
+    adminEmail: adminEmail,
+    adminUserId: adminUserId,
+  )) {
+    return detail;
+  }
   return UserDetailResponse(
     found: false,
     user: detail.user,

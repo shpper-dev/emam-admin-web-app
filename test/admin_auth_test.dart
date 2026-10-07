@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:emam_admin_web_app/core/storage/token_storage.dart';
 import 'package:emam_admin_web_app/features/auth/models/auth_repository.dart';
+import 'package:emam_admin_web_app/features/users/models/app_user.dart';
 import 'package:emam_admin_web_app/features/users/utils/admin_panel_user.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -26,13 +27,14 @@ class _FakeAdapter implements HttpClientAdapter {
   void close({bool force = false}) {}
 }
 
-ResponseBody _json(int status, Map<String, dynamic> body) => ResponseBody.fromString(
-  jsonEncode(body),
-  status,
-  headers: {
-    Headers.contentTypeHeader: [Headers.jsonContentType],
-  },
-);
+ResponseBody _json(int status, Map<String, dynamic> body) =>
+    ResponseBody.fromString(
+      jsonEncode(body),
+      status,
+      headers: {
+        Headers.contentTypeHeader: [Headers.jsonContentType],
+      },
+    );
 
 Future<(AuthRepository, TokenStorage, _FakeAdapter)> _setup(
   ResponseBody Function(RequestOptions) handler, {
@@ -110,6 +112,25 @@ void main() {
       throwsA(isA<NotAdminException>()),
     );
     expect(storage.hasTokens, isFalse);
+  });
+
+  test('restore: session carries the admin uid from /admin/auth/me', () async {
+    final (repo, _, _) = await _setup(
+      (o) => _json(200, {'admin': true, 'id': 'uid1', 'email': 'a@b.c'}),
+    );
+    expect((await repo.restoreSession())?.localId, 'uid1');
+  });
+
+  test('admin is filtered by uid even when the profile email differs', () {
+    final admin = AppUser.fromJson({'id': 'uid1', 'email': ''});
+    final other = AppUser.fromJson({'id': 'uid2', 'email': 'x@y.z'});
+    final res = withoutAdminPanelUsers(
+      UsersResponse(users: [admin, other], nextPageToken: null, count: 2),
+      'a@b.c',
+      adminUserId: 'uid1',
+    );
+    expect(res.users.map((u) => u.id), ['uid2']);
+    expect(res.count, 1);
   });
 
   test('admin email filtering is case-insensitive and null-safe', () {

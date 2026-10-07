@@ -19,9 +19,9 @@ class AuthSession {
   final String refreshToken;
   final int expiresInSeconds;
 
-  AuthSession copyWith({String? email}) => AuthSession(
+  AuthSession copyWith({String? email, String? localId}) => AuthSession(
     email: email ?? this.email,
-    localId: localId,
+    localId: localId ?? this.localId,
     accessToken: accessToken,
     refreshToken: refreshToken,
     expiresInSeconds: expiresInSeconds,

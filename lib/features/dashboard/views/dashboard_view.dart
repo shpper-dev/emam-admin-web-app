@@ -2,6 +2,7 @@ import 'package:emam_admin_web_app/core/constants/app_constants.dart';
 import 'package:emam_admin_web_app/features/content/views/widgets/content_section_card.dart';
 import 'package:emam_admin_web_app/features/dashboard/provider/selected_users_tab_provider.dart';
 import 'package:emam_admin_web_app/features/moderation/provider/hidden_posts_provider.dart';
+import 'package:emam_admin_web_app/features/moderation/provider/moderation_queue_provider.dart';
 import 'package:emam_admin_web_app/features/moderation/provider/reported_duas_provider.dart';
 import 'package:emam_admin_web_app/features/users/provider/restricted_users_provider.dart';
 import 'package:emam_admin_web_app/features/users/provider/users_provider.dart';
@@ -44,10 +45,11 @@ class DashboardView extends ConsumerWidget {
                 await usersNotifier.refresh();
               case UsersTab.blocked:
                 await restrictedNotifier.refresh();
-              case UsersTab.reportedDuas:
-                await reportedDuasNotifier.refresh();
-              case UsersTab.hiddenPosts:
-                await hiddenPostsNotifier.refresh();
+              case UsersTab.moderation:
+                await Future.wait([
+                  reportedDuasNotifier.refresh(),
+                  hiddenPostsNotifier.refresh(),
+                ]);
             }
           },
           child: SingleChildScrollView(
@@ -78,8 +80,6 @@ class DashboardView extends ConsumerWidget {
                       .select,
                   usersState: usersState,
                   restrictedState: restrictedState,
-                  reportedDuasState: reportedDuasState,
-                  hiddenPostsState: hiddenPostsState,
                 ),
                 const SizedBox(height: 24),
                 UsersManagementSection(
@@ -190,30 +190,25 @@ class _DashboardHeader extends StatelessWidget {
   }
 }
 
-class _DashboardStatsRow extends StatelessWidget {
+class _DashboardStatsRow extends ConsumerWidget {
   const _DashboardStatsRow({
     required this.selectedTab,
     required this.onTabSelected,
     required this.usersState,
     required this.restrictedState,
-    required this.reportedDuasState,
-    required this.hiddenPostsState,
   });
 
   final UsersTab selectedTab;
   final ValueChanged<UsersTab> onTabSelected;
   final UsersPageState usersState;
   final RestrictedUsersPageState restrictedState;
-  final ReportedDuasState reportedDuasState;
-  final HiddenPostsPageState hiddenPostsState;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final queueState = ref.watch(moderationQueueProvider);
+    final queueCount = queueState.queue?.count;
     final hasUsers = usersState.pages.isNotEmpty;
     final hasRestricted = restrictedState.currentResponse != null;
-    final hasReports =
-        !reportedDuasState.isLoading || reportedDuasState.reports.isNotEmpty;
-    final hasHiddenPosts = hiddenPostsState.currentResponse != null;
 
     // The users API is paginated with no total, so show what has been loaded
     // and a "+" while the server still has more pages, never a page size
@@ -223,18 +218,14 @@ class _DashboardStatsRow extends StatelessWidget {
       (sum, page) => sum + page.users.length,
     );
     final usersMore = usersState.hasNextToken;
-    final openReports = reportedDuasState.reports
-        .where((report) => report.isOpen)
-        .length;
-    final hiddenMore = hiddenPostsState.hasNextToken;
 
     String value(int count, {required bool ready, bool more = false}) =>
         ready ? '$count${more ? '+' : ''}' : '—';
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final columns = constraints.maxWidth >= 1000
-            ? 4
+        final columns = constraints.maxWidth >= 900
+            ? 3
             : constraints.maxWidth >= 600
             ? 2
             : 1;
@@ -279,42 +270,18 @@ class _DashboardStatsRow extends StatelessWidget {
             ),
             tile(
               _StatCard(
-                label: "Reported Dua's",
-                value: value(
-                  reportedDuasState.reports.length,
-                  ready: hasReports,
-                ),
-                caption: !hasReports
+                label: 'Moderation',
+                value: value(queueCount ?? 0, ready: queueCount != null),
+                caption: queueCount == null
                     ? 'Loading…'
-                    : reportedDuasState.status != 'open'
-                    ? 'Showing ${kReportStatusFilters[reportedDuasState.status]?.toLowerCase() ?? reportedDuasState.status}'
-                    : openReports > 0
-                    ? '$openReports need review'
+                    : queueCount > 0
+                    ? 'Reports and hidden posts to review'
                     : 'All caught up',
-                attention: hasReports && openReports > 0,
-                icon: Icons.flag_rounded,
+                attention: (queueCount ?? 0) > 0,
+                icon: Icons.fact_check_rounded,
                 baseColor: AppConstants.warning,
-                selected: selectedTab == UsersTab.reportedDuas,
-                onTap: () => onTabSelected(UsersTab.reportedDuas),
-              ),
-            ),
-            tile(
-              _StatCard(
-                label: 'Hidden posts',
-                value: value(
-                  hiddenPostsState.totalLoadedPosts,
-                  ready: hasHiddenPosts,
-                  more: hiddenMore,
-                ),
-                caption: !hasHiddenPosts
-                    ? 'Loading…'
-                    : hiddenMore
-                    ? 'Loaded so far · more available'
-                    : 'Removed by moderation',
-                icon: Icons.visibility_off_rounded,
-                baseColor: AppConstants.info,
-                selected: selectedTab == UsersTab.hiddenPosts,
-                onTap: () => onTabSelected(UsersTab.hiddenPosts),
+                selected: selectedTab == UsersTab.moderation,
+                onTap: () => onTabSelected(UsersTab.moderation),
               ),
             ),
           ],

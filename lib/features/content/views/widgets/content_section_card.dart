@@ -124,7 +124,9 @@ class ContentLinkButton extends StatelessWidget {
     }
 
     final uri = Uri.tryParse(normalized);
-    if (uri == null || uri.host.isEmpty) {
+    if (uri == null ||
+        uri.host.isEmpty ||
+        (uri.scheme != 'https' && uri.scheme != 'http')) {
       messenger?.showSnackBar(SnackBar(content: Text('Invalid link: $url')));
       return;
     }

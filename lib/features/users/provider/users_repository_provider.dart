@@ -7,5 +7,6 @@ final usersRepositoryProvider = Provider<UsersRepository>((ref) {
   return UsersRepository(
     ref.watch(dioClientProvider),
     adminEmail: ref.watch(authProvider).value?.email,
+    adminUserId: ref.watch(authProvider).value?.localId,
   );
 });
