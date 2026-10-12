@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:emam_admin_web_app/core/constants/app_constants.dart';
 import 'package:emam_admin_web_app/core/utils/image_proxy.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
 /// Circular profile image; shows [CachedNetworkImage] when [photoUrl] is set.
@@ -22,16 +21,6 @@ class UserProfileAvatar extends StatefulWidget {
 }
 
 class _UserProfileAvatarState extends State<UserProfileAvatar> {
-  bool _loadDirectUrl = false;
-
-  @override
-  void didUpdateWidget(UserProfileAvatar oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.photoUrl.trim() != widget.photoUrl.trim()) {
-      _loadDirectUrl = false;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final size = widget.size;
@@ -42,13 +31,13 @@ class _UserProfileAvatarState extends State<UserProfileAvatar> {
       return _framed(size, fallback);
     }
 
-    final imageUrl = _loadDirectUrl || !kIsWeb
-        ? url
-        : proxiedImageUrl(
-            url,
-            width: (size * 2).toInt(),
-            height: (size * 2).toInt(),
-          );
+    // The photo URL is end-user supplied: only ever load it through the proxy
+    // (or a trusted Google host), never fall back to fetching it directly.
+    final imageUrl = proxiedImageUrl(
+      url,
+      width: (size * 2).toInt(),
+      height: (size * 2).toInt(),
+    );
 
     return _framed(
       size,
@@ -68,15 +57,7 @@ class _UserProfileAvatarState extends State<UserProfileAvatar> {
             ),
           ),
         ),
-        errorWidget: (_, _, _) {
-          if (kIsWeb && !_loadDirectUrl) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (mounted) setState(() => _loadDirectUrl = true);
-            });
-            return Container(color: AppConstants.inputFillColor);
-          }
-          return fallback;
-        },
+        errorWidget: (_, _, _) => fallback,
       ),
     );
   }

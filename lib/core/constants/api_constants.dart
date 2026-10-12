@@ -3,32 +3,38 @@ class ApiConstants {
 
   static const String apiBaseUrl = 'https://pathway.emam.ai';
 
+  /// IDs come from backend responses; encode them so a malformed value can't
+  /// add path segments or a query string to an `/admin/*` request.
+  static String _seg(String value) => Uri.encodeComponent(value);
+
   static const String authMe = '/admin/auth/me';
 
   static const String users = '/admin/users';
   static const String usersSearch = '/admin/users/search';
   static const String restrictedUsers = '/admin/users/restricted';
 
-  static String userDetail(String userId) => '$users/$userId/detail';
-  static String userPosts(String userId) => '$users/$userId/posts';
-  static String userRestriction(String userId) => '$users/$userId/restriction';
-  static String userUnblock(String userId) => '$users/$userId/unblock';
+  static String userDetail(String userId) => '$users/${_seg(userId)}/detail';
+  static String userPosts(String userId) => '$users/${_seg(userId)}/posts';
+  static String userRestriction(String userId) =>
+      '$users/${_seg(userId)}/restriction';
+  static String userUnblock(String userId) => '$users/${_seg(userId)}/unblock';
   static String userReportsFiled(String userId) =>
-      '$users/$userId/reports-filed';
+      '$users/${_seg(userId)}/reports-filed';
   static String userReportsReceived(String userId) =>
-      '$users/$userId/reports-received';
-  static String userQuotaReset(String userId) => '$users/$userId/quota/reset';
+      '$users/${_seg(userId)}/reports-received';
+  static String userQuotaReset(String userId) =>
+      '$users/${_seg(userId)}/quota/reset';
   static const String moderationReports = '/admin/moderation/reports';
   static String resolveReport(String reportId) =>
-      '$moderationReports/$reportId/resolve';
+      '$moderationReports/${_seg(reportId)}/resolve';
   static const String moderationQueue = '/admin/moderation/queue';
   static String moderationPost(String postId) =>
-      '/admin/moderation/posts/$postId';
+      '/admin/moderation/posts/${_seg(postId)}';
   static const String hiddenPosts = '/admin/moderation/posts/hidden';
   static String hideDuaPost(String postId) =>
-      '/admin/moderation/posts/$postId/hide';
+      '/admin/moderation/posts/${_seg(postId)}/hide';
   static String restoreDuaPost(String postId) =>
-      '/admin/moderation/posts/$postId/restore';
+      '/admin/moderation/posts/${_seg(postId)}/restore';
 
   static const String islamicNews = '/admin/content/islamic-news';
   static const String islamicEvents = '/admin/content/islamic-events';

@@ -11,11 +11,23 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 /// - Passes through the URL if it already points at the proxy (idempotent).
 String proxiedImageUrl(String url, {int? width, int? height}) {
   if (!kIsWeb) return url;
+  return weservProxiedUrl(url, width: width, height: height);
+}
+
+/// Platform-independent core of [proxiedImageUrl] (split out so it is testable
+/// off-web).
+///
+/// Already-proxied detection compares the parsed host, never a string prefix:
+/// `https://images.weserv.nl.attacker.example/x` and
+/// `https://images.weserv.nl@attacker.example/x` must still be treated as
+/// untrusted hosts and routed through the proxy.
+String weservProxiedUrl(String url, {int? width, int? height}) {
   final trimmed = url.trim();
   if (trimmed.isEmpty) return trimmed;
-  if (trimmed.startsWith('https://images.weserv.nl')) return trimmed;
+  final uri = Uri.tryParse(trimmed);
+  final host = uri?.host ?? '';
+  if (uri?.scheme == 'https' && host == 'images.weserv.nl') return trimmed;
   // Firebase Storage URLs carry access tokens; never send them to a third party.
-  final host = Uri.tryParse(trimmed)?.host ?? '';
   if (host == 'firebasestorage.googleapis.com' ||
       host.endsWith('.googleusercontent.com')) {
     return trimmed;

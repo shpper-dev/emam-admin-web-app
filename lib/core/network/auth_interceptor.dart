@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
+import 'package:emam_admin_web_app/core/constants/api_constants.dart';
 import 'package:emam_admin_web_app/core/network/dio_client.dart';
 import 'package:emam_admin_web_app/core/storage/token_storage.dart';
 
@@ -19,11 +20,16 @@ class AuthInterceptor extends Interceptor {
   Completer<bool>? _refreshCompleter;
 
   static const _retriedKey = 'authRetried';
+  static final _apiHost = Uri.parse(ApiConstants.apiBaseUrl).host;
+
+  /// The bearer token must only ever travel to the admin API host.
+  static bool _isApiHost(RequestOptions options) =>
+      options.uri.host == _apiHost;
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     final skipAuth = options.extra['skipAuth'] == true;
-    if (!skipAuth) {
+    if (!skipAuth && _isApiHost(options)) {
       final token = _tokenStorage.accessToken;
       if (token != null) {
         options.headers['Authorization'] = 'Bearer $token';
@@ -40,6 +46,7 @@ class AuthInterceptor extends Interceptor {
     final options = err.requestOptions;
     final skipAuth = options.extra['skipAuth'] == true;
     if (skipAuth ||
+        !_isApiHost(options) ||
         options.extra[_retriedKey] == true ||
         err.response?.statusCode != 401) {
       handler.next(err);
