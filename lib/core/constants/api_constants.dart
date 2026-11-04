@@ -42,6 +42,12 @@ class ApiConstants {
   static const String scholarlyInsights = '/admin/content/scholarly-insights';
   static const String dailyInspiration = '/admin/content/daily-inspiration';
 
+  static const String authSessions = '/api/auth/sessions';
+  static const String authSessionsRevokeOthers =
+      '/api/auth/sessions/revoke-others';
+  static String authSession(String sessionId) =>
+      '$authSessions/${_seg(sessionId)}';
+
   static const String auditLog = '/admin/audit';
 
   static const String voiceServer = '/admin/system/voice-server';
