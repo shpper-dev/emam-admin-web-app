@@ -1,7 +1,9 @@
-/// One server-side refresh-token session from `GET /api/auth/sessions`.
+/// One admin device row from `GET /admin/auth/sessions/all`.
 class SignedInSession {
   const SignedInSession({
     required this.id,
+    required this.adminUserId,
+    required this.adminEmail,
     required this.deviceName,
     required this.ipAddress,
     required this.startedAt,
@@ -11,6 +13,8 @@ class SignedInSession {
   });
 
   final String id;
+  final String? adminUserId;
+  final String? adminEmail;
   final String deviceName;
   final String? ipAddress;
   final DateTime? startedAt;
@@ -21,7 +25,9 @@ class SignedInSession {
   factory SignedInSession.fromJson(Map<String, dynamic> json) {
     final device = json['device_name'];
     return SignedInSession(
-      id: json['id'] as String,
+      id: (json['id'] ?? json['session_id'] ?? '') as String,
+      adminUserId: json['admin_user_id'] as String?,
+      adminEmail: json['admin_email'] as String?,
       deviceName: device is String && device.isNotEmpty
           ? device
           : 'Unknown device',
@@ -38,9 +44,6 @@ class SignedInSessions {
   const SignedInSessions({required this.sessions});
 
   final List<SignedInSession> sessions;
-
-  List<SignedInSession> get others =>
-      sessions.where((s) => !s.isCurrent).toList();
 
   factory SignedInSessions.fromJson(Map<String, dynamic> json) {
     final data = json['data'];

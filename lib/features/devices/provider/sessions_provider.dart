@@ -27,18 +27,11 @@ class SessionsNotifier extends AsyncNotifier<SignedInSessions> {
   }
 
   /// Throws on failure so the caller can show the error.
-  Future<void> revoke(String sessionId) async {
-    await _repo.revokeSession(sessionId);
+  Future<void> revoke(SignedInSession session) async {
+    await _repo.revokeSession(session.id, adminUserId: session.adminUserId);
     final current = state.value;
     if (ref.mounted && current != null) {
-      state = AsyncData(current.without(sessionId));
+      state = AsyncData(current.without(session.id));
     }
-  }
-
-  /// Throws on failure. Returns the number of sessions signed out.
-  Future<int> revokeOthers() async {
-    final count = await _repo.revokeOthers();
-    await refresh();
-    return count;
   }
 }

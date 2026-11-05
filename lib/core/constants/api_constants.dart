@@ -42,11 +42,10 @@ class ApiConstants {
   static const String scholarlyInsights = '/admin/content/scholarly-insights';
   static const String dailyInspiration = '/admin/content/daily-inspiration';
 
-  static const String authSessions = '/api/auth/sessions';
-  static const String authSessionsRevokeOthers =
-      '/api/auth/sessions/revoke-others';
+  static const String demoSession = '/api/auth/demo-session';
+  static const String authSessionsAll = '/admin/auth/sessions/all';
   static String authSession(String sessionId) =>
-      '$authSessions/${_seg(sessionId)}';
+      '/admin/auth/sessions/${_seg(sessionId)}';
 
   static const String auditLog = '/admin/audit';
 

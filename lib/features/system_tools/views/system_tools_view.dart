@@ -187,11 +187,7 @@ class _ToolCardState extends State<_ToolCard> {
                   color: AppConstants.primary.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(AppConstants.radiusMd),
                 ),
-                child: Icon(
-                  widget.icon,
-                  color: AppConstants.primary,
-                  size: 22,
-                ),
+                child: Icon(widget.icon, color: AppConstants.primary, size: 22),
               ),
               const SizedBox(width: 14),
               Expanded(

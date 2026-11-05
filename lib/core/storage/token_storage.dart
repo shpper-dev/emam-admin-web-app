@@ -9,6 +9,7 @@ class TokenStorage {
   static const _refreshTokenKey = 'refresh_token';
   static const _expiresAtKey = 'expires_at';
   static const _signedInAtKey = 'signed_in_at';
+  static const _portalSessionIdKey = 'portal_session_id';
   static const _emailKey = 'saved_email';
   static const _rememberMeKey = 'remember_me';
 
@@ -27,6 +28,13 @@ class TokenStorage {
     final millis = _prefs.getInt(_signedInAtKey);
     return millis == null ? null : DateTime.fromMillisecondsSinceEpoch(millis);
   }
+
+  /// Device-row id returned by `POST /api/auth/demo-session`; sent as
+  /// `X-Emam-Auth-Session` so the backend can flag the current device.
+  String? get portalSessionId => _prefs.getString(_portalSessionIdKey);
+
+  Future<void> savePortalSessionId(String id) =>
+      _prefs.setString(_portalSessionIdKey, id);
 
   String? get savedEmail => _prefs.getString(_emailKey);
   bool get rememberMe => _prefs.getBool(_rememberMeKey) ?? false;
@@ -75,5 +83,6 @@ class TokenStorage {
     await _prefs.remove(_refreshTokenKey);
     await _prefs.remove(_expiresAtKey);
     await _prefs.remove(_signedInAtKey);
+    await _prefs.remove(_portalSessionIdKey);
   }
 }

@@ -88,7 +88,7 @@ class _DevicesViewState extends ConsumerState<DevicesView> {
     if (!ok) return;
     var revoked = false;
     await _run(() async {
-      await ref.read(sessionsProvider.notifier).revoke(session.id);
+      await ref.read(sessionsProvider.notifier).revoke(session);
       revoked = true;
     });
     if (!revoked || !mounted) return;
@@ -99,28 +99,12 @@ class _DevicesViewState extends ConsumerState<DevicesView> {
     }
   }
 
-  Future<void> _signOutOthers() async {
-    final ok = await _confirm(
-      title: 'Sign out other devices?',
-      body: 'Every session except this browser will be signed out.',
-      action: 'Sign out others',
-    );
-    if (!ok) return;
-    await _run(() async {
-      final count = await ref.read(sessionsProvider.notifier).revokeOthers();
-      if (mounted) _toast('Signed out $count other device(s).');
-    });
-  }
-
   Future<void> _refresh() => _run(ref.read(sessionsProvider.notifier).refresh);
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final sessionsAsync = ref.watch(sessionsProvider);
-    final sessions = sessionsAsync.value;
-    final hasCurrent = sessions?.sessions.any((s) => s.isCurrent) ?? false;
-    final hasOthers = sessions != null && sessions.others.isNotEmpty;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -147,7 +131,7 @@ class _DevicesViewState extends ConsumerState<DevicesView> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Browsers and devices currently signed in to your account. '
+                'Browsers and devices where admins are signed in. '
                 'Sign out any you do not recognise.',
                 style: theme.textTheme.bodyLarge?.copyWith(
                   color: AppConstants.textSecondary,
@@ -165,13 +149,6 @@ class _DevicesViewState extends ConsumerState<DevicesView> {
                     color: AppConstants.primary,
                     onPressed: _busy ? null : _refresh,
                   ),
-                  if (hasCurrent && hasOthers)
-                    PillActionButton(
-                      icon: Icons.logout_rounded,
-                      label: 'Sign out other devices',
-                      color: AppConstants.danger,
-                      onPressed: _busy ? null : _signOutOthers,
-                    ),
                   if (_busy)
                     const SizedBox(
                       width: 16,
@@ -259,7 +236,9 @@ class _DeviceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return ContentSectionCard(
       title: session.deviceName,
-      subtitle: session.isCurrent ? 'This browser' : 'Other device',
+      subtitle: session.isCurrent
+          ? 'This browser'
+          : (session.adminEmail ?? 'Other device'),
       icon: _icon(session.deviceName),
       trailing: Wrap(
         spacing: 8,
@@ -282,7 +261,7 @@ class _DeviceCard extends StatelessWidget {
       child: LayoutBuilder(
         builder: (context, constraints) {
           final columns = constraints.maxWidth >= 640
-              ? 4
+              ? 5
               : constraints.maxWidth >= 420
               ? 2
               : 1;
@@ -291,6 +270,8 @@ class _DeviceCard extends StatelessWidget {
               (constraints.maxWidth - spacing * (columns - 1)) / columns;
 
           final fields = [
+            if (session.adminEmail != null)
+              DetailBlock(label: 'Admin', value: session.adminEmail!),
             DetailBlock(
               label: 'IP address',
               value: session.ipAddress ?? 'Unavailable',

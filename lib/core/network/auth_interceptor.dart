@@ -19,6 +19,7 @@ class AuthInterceptor extends Interceptor {
   final void Function()? _onSessionExpired;
   Completer<bool>? _refreshCompleter;
 
+  static const _portalSessionHeader = 'X-Emam-Auth-Session';
   static const _retriedKey = 'authRetried';
   static final _apiHost = Uri.parse(ApiConstants.apiBaseUrl).host;
 
@@ -33,6 +34,10 @@ class AuthInterceptor extends Interceptor {
       final token = _tokenStorage.accessToken;
       if (token != null) {
         options.headers['Authorization'] = 'Bearer $token';
+      }
+      final portalSessionId = _tokenStorage.portalSessionId;
+      if (portalSessionId != null) {
+        options.headers[_portalSessionHeader] = portalSessionId;
       }
     }
     handler.next(options);

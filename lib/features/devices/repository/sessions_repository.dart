@@ -9,22 +9,16 @@ class SessionsRepository {
 
   Future<SignedInSessions> fetchSessions() async {
     final response = await _client.get<Map<String, dynamic>>(
-      ApiConstants.authSessions,
+      ApiConstants.authSessionsAll,
     );
     return SignedInSessions.fromJson(response.data ?? const {});
   }
 
-  Future<void> revokeSession(String sessionId) async {
-    await _client.delete<Object>(ApiConstants.authSession(sessionId));
-  }
-
-  /// Returns how many other sessions were signed out.
-  Future<int> revokeOthers() async {
-    final response = await _client.post<Map<String, dynamic>>(
-      ApiConstants.authSessionsRevokeOthers,
+  /// [adminUserId] targets another admin's row (from the `/all` listing).
+  Future<void> revokeSession(String sessionId, {String? adminUserId}) async {
+    await _client.delete<Object>(
+      ApiConstants.authSession(sessionId),
+      queryParameters: {'admin_user_id': ?adminUserId},
     );
-    final data = response.data?['data'];
-    final count = data is Map ? data['revoked_count'] : null;
-    return count is int ? count : 0;
   }
 }

@@ -51,8 +51,31 @@ class AuthRepository implements TokenRefresher {
       expiresInSeconds: session.expiresInSeconds,
     );
     await _tokenStorage.markSignedInNow();
+    await _registerDevice(session.accessToken);
 
     return session;
+  }
+
+  /// Registers/refreshes this browser's row in the signed-in devices list
+  /// (`POST /api/auth/demo-session`). Best effort: a failure must not block
+  /// sign-in.
+  Future<void> _registerDevice(String accessToken) async {
+    try {
+      final existing = _tokenStorage.portalSessionId;
+      final response = await _authDio.post<Map<String, dynamic>>(
+        '${ApiConstants.apiBaseUrl}${ApiConstants.demoSession}',
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $accessToken',
+            'X-Emam-Auth-Session': ?existing,
+          },
+        ),
+      );
+      final id = response.data?['portal_session_id'];
+      if (id is String && id.isNotEmpty) {
+        await _tokenStorage.savePortalSessionId(id);
+      }
+    } catch (_) {}
   }
 
   /// Calls `/admin/auth/me`. Returns the admin's email and uid (empty if the
@@ -147,6 +170,8 @@ class AuthRepository implements TokenRefresher {
       await _tokenStorage.clear();
       return null;
     }
+
+    await _registerDevice(_tokenStorage.accessToken!);
 
     return AuthSession(
       email: admin.email.isEmpty
