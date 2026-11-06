@@ -121,6 +121,28 @@ void main() {
     expect((await repo.restoreSession())?.localId, 'uid1');
   });
 
+  test('demo session stores portal_session_id and sends it back', () async {
+    final calls = <RequestOptions>[];
+    final (repo, storage, _) = await _setup((o) {
+      calls.add(o);
+      if (o.uri.path.endsWith('/api/auth/demo-session')) {
+        return _json(200, {
+          'data': {'portal_session_id': 'portal-1'},
+        });
+      }
+      return _json(200, {'admin': true, 'id': 'uid1', 'email': 'a@b.c'});
+    });
+
+    await repo.restoreSession();
+    expect(storage.portalSessionId, 'portal-1');
+
+    await repo.ensurePortalSession();
+    final demo = calls.where(
+      (o) => o.uri.path.endsWith('/api/auth/demo-session'),
+    );
+    expect(demo.last.headers['X-Emam-Auth-Session'], 'portal-1');
+  });
+
   test('admin is filtered by uid even when the profile email differs', () {
     final admin = AppUser.fromJson({'id': 'uid1', 'email': ''});
     final other = AppUser.fromJson({'id': 'uid2', 'email': 'x@y.z'});

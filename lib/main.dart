@@ -24,5 +24,3 @@ Future<void> main() async {
     ),
   );
 }
-
-// Deploy setting check for the app (TEST)

@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class _Adapter implements HttpClientAdapter {
   final headers = <String, Object?>{};
+  final sessionHeaders = <String, Object?>{};
 
   @override
   Future<ResponseBody> fetch(
@@ -18,6 +19,8 @@ class _Adapter implements HttpClientAdapter {
     Future<void>? cancelFuture,
   ) async {
     headers[options.uri.toString()] = options.headers['Authorization'];
+    sessionHeaders[options.uri.toString()] =
+        options.headers['X-Emam-Auth-Session'];
     return ResponseBody.fromString(
       jsonEncode({}),
       200,
@@ -59,6 +62,34 @@ void main() {
       'Bearer secret',
     );
     expect(adapter.headers['https://other.example/collect'], isNull);
+  });
+
+  test('portal session id is sent only to the admin API host', () async {
+    SharedPreferences.setMockInitialValues({});
+    final storage = TokenStorage(await SharedPreferences.getInstance());
+    await storage.saveTokens(
+      accessToken: 'secret',
+      refreshToken: 'r',
+      expiresInSeconds: 3600,
+    );
+    await storage.savePortalSessionId('portal-9');
+    final adapter = _Adapter();
+    final dio = Dio()..httpClientAdapter = adapter;
+    dio.interceptors.add(
+      AuthInterceptor(tokenStorage: storage, refresher: _NoRefresh(), dio: dio),
+    );
+
+    await dio.get<dynamic>(
+      '${ApiConstants.apiBaseUrl}/admin/auth/sessions/all',
+    );
+    await dio.get<dynamic>('https://other.example/collect');
+
+    expect(
+      adapter
+          .sessionHeaders['${ApiConstants.apiBaseUrl}/admin/auth/sessions/all'],
+      'portal-9',
+    );
+    expect(adapter.sessionHeaders['https://other.example/collect'], isNull);
   });
 
   test('IDs are percent-encoded into admin request paths', () {

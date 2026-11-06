@@ -56,13 +56,21 @@ class AuthRepository implements TokenRefresher {
     return session;
   }
 
-  /// Registers/refreshes this browser's row in the signed-in devices list
-  /// (`POST /api/auth/demo-session`). Best effort: a failure must not block
-  /// sign-in.
+  /// Registers/refreshes this browser's row (`POST /api/auth/demo-session`)
+  /// and returns the saved `portal_session_id`. Best effort: a failure must
+  /// not block sign-in. Later admin calls send that id as
+  /// `X-Emam-Auth-Session` so the devices list can set `is_current`.
+  Future<String?> ensurePortalSession() async {
+    final token = _tokenStorage.accessToken;
+    if (token == null || token.isEmpty) return _tokenStorage.portalSessionId;
+    await _registerDevice(token);
+    return _tokenStorage.portalSessionId;
+  }
+
   Future<void> _registerDevice(String accessToken) async {
     try {
       final existing = _tokenStorage.portalSessionId;
-      final response = await _authDio.post<Map<String, dynamic>>(
+      final response = await _authDio.post<Object>(
         '${ApiConstants.apiBaseUrl}${ApiConstants.demoSession}',
         options: Options(
           headers: {
@@ -71,11 +79,23 @@ class AuthRepository implements TokenRefresher {
           },
         ),
       );
-      final id = response.data?['portal_session_id'];
-      if (id is String && id.isNotEmpty) {
-        await _tokenStorage.savePortalSessionId(id);
-      }
+      final id = _portalSessionIdFrom(response.data);
+      if (id != null) await _tokenStorage.savePortalSessionId(id);
     } catch (_) {}
+  }
+
+  /// Hub returns `portal_session_id` at the top level. Some auth responses
+  /// wrap it as `{ data: { portal_session_id } }`.
+  String? _portalSessionIdFrom(Object? body) {
+    if (body is! Map) return null;
+    final top = body['portal_session_id'];
+    if (top is String && top.isNotEmpty) return top;
+    final data = body['data'];
+    if (data is Map) {
+      final nested = data['portal_session_id'] ?? data['session_id'];
+      if (nested is String && nested.isNotEmpty) return nested;
+    }
+    return null;
   }
 
   /// Calls `/admin/auth/me`. Returns the admin's email and uid (empty if the
@@ -184,5 +204,30 @@ class AuthRepository implements TokenRefresher {
     );
   }
 
-  Future<void> signOut() => _tokenStorage.clear();
+  Future<void> signOut() async {
+    final token = _tokenStorage.accessToken;
+    final sessionId = _tokenStorage.portalSessionId;
+    if (token != null && sessionId != null && sessionId.isNotEmpty) {
+      try {
+        await _authDio.delete<Object>(
+          '${ApiConstants.apiBaseUrl}${ApiConstants.authSession(sessionId)}',
+          options: Options(
+            headers: {
+              'Authorization': 'Bearer $token',
+              'X-Emam-Auth-Session': sessionId,
+            },
+          ),
+        );
+      } catch (_) {}
+    }
+    if (token != null) {
+      try {
+        await _authDio.delete<Object>(
+          '${ApiConstants.apiBaseUrl}${ApiConstants.demoSession}',
+          options: Options(headers: {'Authorization': 'Bearer $token'}),
+        );
+      } catch (_) {}
+    }
+    await _tokenStorage.clear();
+  }
 }
