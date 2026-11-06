@@ -1,4 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cached_network_image_platform_interface/cached_network_image_platform_interface.dart'
+    show ImageRenderMethodForWeb;
 import 'package:emam_admin_web_app/core/constants/app_constants.dart';
 import 'package:emam_admin_web_app/core/utils/image_proxy.dart';
 import 'package:flutter/material.dart';
@@ -44,6 +46,10 @@ class _UserProfileAvatarState extends State<UserProfileAvatar> {
       CachedNetworkImage(
         key: ValueKey(imageUrl),
         imageUrl: imageUrl,
+        // Default HtmlImage mode renders via an <img> element that can come back
+        // blank (black) after the widget is disposed/rebuilt on tab switches.
+        // HttpGet decodes the bytes into a normal Flutter image instead.
+        imageRenderMethodForWeb: ImageRenderMethodForWeb.HttpGet,
         fit: BoxFit.cover,
         placeholder: (_, _) => Container(
           color: AppConstants.inputFillColor,
