@@ -177,6 +177,7 @@ class _AddWifiDialogState extends State<_AddWifiDialog> {
           ),
           const SizedBox(height: AppConstants.space16),
           SegmentedButton<String>(
+            showSelectedIcon: false,
             segments: const [
               ButtonSegment(value: 'wpa2', label: Text('WPA2')),
               ButtonSegment(value: 'wpa3', label: Text('WPA3')),
@@ -324,6 +325,7 @@ class _RecordKhutbahDialogState extends State<_RecordKhutbahDialog> {
           ),
           const SizedBox(height: AppConstants.space8),
           SegmentedButton<int>(
+            showSelectedIcon: false,
             segments: [
               for (var i = 1; i <= 5; i++)
                 ButtonSegment(value: i, label: Text('$i')),
