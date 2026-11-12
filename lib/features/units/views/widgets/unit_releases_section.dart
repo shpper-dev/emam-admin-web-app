@@ -376,6 +376,7 @@ class _ReleaseTileState extends ConsumerState<_ReleaseTile> {
     final canPublish = release.filePresent && !_busy;
 
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: AppConstants.space16),
       decoration: const BoxDecoration(
         border: Border(bottom: BorderSide(color: AppConstants.dividerColor)),
@@ -434,10 +435,14 @@ class _ReleaseTileState extends ConsumerState<_ReleaseTile> {
           ],
           if (!release.filePresent) ...[
             const SizedBox(height: 8),
-            const UnitNotice(
-              text:
-                  'The APK file is missing on the server, so this version '
-                  'can\'t be published. Delete it and upload the file again.',
+            UnitNotice(
+              text: release.published
+                  ? 'The APK file is missing on the server, so units can\'t '
+                        'download this version. Unpublish and delete it, then '
+                        'upload the file again.'
+                  : 'The APK file is missing on the server, so this version '
+                        'can\'t be published. Delete it and upload the file '
+                        'again.',
               icon: Icons.error_outline_rounded,
               color: AppConstants.danger,
             ),
