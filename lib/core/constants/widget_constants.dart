@@ -166,6 +166,12 @@ class AppDrawer extends ConsumerWidget {
             onTap: () => _navigate(context, RoutePaths.audit),
           ),
           _DrawerTile(
+            icon: Icons.notifications_active_rounded,
+            label: 'Notifications',
+            selected: currentPath == RoutePaths.notifications,
+            onTap: () => _navigate(context, RoutePaths.notifications),
+          ),
+          _DrawerTile(
             icon: Icons.build_circle_outlined,
             label: 'System Tools',
             selected: currentPath == RoutePaths.systemTools,

@@ -6,6 +6,7 @@ import 'package:emam_admin_web_app/features/auth/views/sign_in_view.dart';
 import 'package:emam_admin_web_app/features/content/views/content_view.dart';
 import 'package:emam_admin_web_app/features/dashboard/views/dashboard_view.dart';
 import 'package:emam_admin_web_app/features/devices/views/devices_view.dart';
+import 'package:emam_admin_web_app/features/notifications/views/notifications_view.dart';
 import 'package:emam_admin_web_app/features/system_tools/views/system_tools_view.dart';
 import 'package:emam_admin_web_app/features/voice_server/views/voice_server_view.dart';
 import 'package:flutter/material.dart';
@@ -53,6 +54,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             RoutePaths.voiceDemo => 'Voice Demo',
             RoutePaths.devices => 'Signed-in Devices',
             RoutePaths.audit => 'Audit Log',
+            RoutePaths.notifications => 'Push Notifications',
             RoutePaths.systemTools => 'System Tools',
             _ => 'Dashboard',
           };
@@ -83,6 +85,11 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             path: RoutePaths.audit,
             pageBuilder: (context, state) =>
                 const NoTransitionPage(child: AuditView()),
+          ),
+          GoRoute(
+            path: RoutePaths.notifications,
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: NotificationsView()),
           ),
           GoRoute(
             path: RoutePaths.systemTools,

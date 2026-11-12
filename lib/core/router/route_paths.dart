@@ -7,5 +7,6 @@ class RoutePaths {
   static const String voiceDemo = '/voice-demo';
   static const String devices = '/devices';
   static const String audit = '/audit';
+  static const String notifications = '/notifications';
   static const String systemTools = '/system-tools';
 }

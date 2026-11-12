@@ -49,6 +49,10 @@ class ApiConstants {
 
   static const String auditLog = '/admin/audit';
 
+  static const String notificationOptions = '/admin/notifications/options';
+  static const String notificationTranslate = '/admin/notifications/translate';
+  static const String notificationSend = '/admin/notifications/send';
+
   static const String voiceServer = '/admin/system/voice-server';
   static String voiceServerSwitch(String action) => '$voiceServer/$action';
   static const String voiceDemoUrl =
