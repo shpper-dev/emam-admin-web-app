@@ -8,6 +8,8 @@ import 'package:emam_admin_web_app/features/dashboard/views/dashboard_view.dart'
 import 'package:emam_admin_web_app/features/devices/views/devices_view.dart';
 import 'package:emam_admin_web_app/features/notifications/views/notifications_view.dart';
 import 'package:emam_admin_web_app/features/system_tools/views/system_tools_view.dart';
+import 'package:emam_admin_web_app/features/units/views/unit_detail_view.dart';
+import 'package:emam_admin_web_app/features/units/views/units_view.dart';
 import 'package:emam_admin_web_app/features/voice_server/views/voice_server_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -52,6 +54,8 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           final title = switch (state.matchedLocation) {
             RoutePaths.content => 'Contents',
             RoutePaths.voiceDemo => 'Voice Demo',
+            RoutePaths.units => 'Units',
+            final path when path.startsWith('${RoutePaths.units}/') => 'Units',
             RoutePaths.devices => 'Signed-in Devices',
             RoutePaths.audit => 'Audit Log',
             RoutePaths.notifications => 'Push Notifications',
@@ -75,6 +79,21 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             path: RoutePaths.voiceDemo,
             pageBuilder: (context, state) =>
                 const NoTransitionPage(child: VoiceServerView()),
+          ),
+          GoRoute(
+            path: RoutePaths.units,
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: UnitsView()),
+            routes: [
+              GoRoute(
+                path: ':installId',
+                pageBuilder: (context, state) => NoTransitionPage(
+                  child: UnitDetailView(
+                    installId: state.pathParameters['installId']!,
+                  ),
+                ),
+              ),
+            ],
           ),
           GoRoute(
             path: RoutePaths.devices,

@@ -5,6 +5,9 @@ class RoutePaths {
   static const String dashboard = '/dashboard';
   static const String content = '/content';
   static const String voiceDemo = '/voice-demo';
+  static const String units = '/units';
+  static String unit(String installId) =>
+      '$units/${Uri.encodeComponent(installId)}';
   static const String devices = '/devices';
   static const String audit = '/audit';
   static const String notifications = '/notifications';
