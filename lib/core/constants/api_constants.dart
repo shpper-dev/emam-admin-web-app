@@ -57,6 +57,27 @@ class ApiConstants {
   static const String cacheInvalidate = '/admin/system/cache/invalidate';
   static const String ragReload = '/admin/system/rag/reload';
 
+  // E-mam handheld units; the backend calls them devices.
+  static const String units = '/api/admin/devices';
+  static String unit(String installId) => '$units/${_seg(installId)}';
+  static String unitRevoke(String installId) => '${unit(installId)}/revoke';
+  static String unitRestore(String installId) => '${unit(installId)}/restore';
+  static String unitCommands(String installId) => '${unit(installId)}/commands';
+  static String unitCommand(String installId, String commandId) =>
+      '${unitCommands(installId)}/${_seg(commandId)}';
+  static String unitCrashes(String installId) => '${unit(installId)}/crashes';
+  static const String unitSettings = '/api/admin/device-settings';
+  static const String unitReleases = '/api/admin/device-releases';
+  static String unitRelease(int versionCode) => '$unitReleases/$versionCode';
+  static String unitReleasePublish(int versionCode) =>
+      '${unitRelease(versionCode)}/publish';
+  static String unitReleaseUnpublish(int versionCode) =>
+      '${unitRelease(versionCode)}/unpublish';
+  static const String unitRecordings = '/api/admin/device-recordings';
+  static String unitRecording(String installId, String name) =>
+      '$unitRecordings/${_seg(installId)}/${_seg(name)}';
+  static const String unitActivationCodes = '/api/admin/device-codes';
+
   static const String firebaseWebApiKey =
       'AIzaSyDSxatz31b4auOeKlHD9svES3zxsVqOHAU';
 
