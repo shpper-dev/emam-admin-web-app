@@ -92,9 +92,10 @@ class _UnitsHeader extends ConsumerWidget {
     ref.read(unitsProvider.notifier).refresh();
     switch (ref.read(unitsTabProvider)) {
       case UnitsTab.units:
+        // Invalidating does nothing when the unit's panel isn't open.
         final selected = ref.read(selectedUnitIdProvider);
         if (selected != null) {
-          ref.read(unitCommandsProvider(selected).notifier).refresh();
+          ref.invalidate(unitCommandsProvider(selected));
           ref.invalidate(unitCrashReportsProvider(selected));
         }
       case UnitsTab.fleetSettings:
