@@ -154,6 +154,14 @@ class AppDrawer extends ConsumerWidget {
             onTap: () => _navigate(context, RoutePaths.voiceDemo),
           ),
           _DrawerTile(
+            icon: Icons.phone_android_rounded,
+            label: 'Units',
+            selected:
+                currentPath == RoutePaths.units ||
+                currentPath.startsWith('${RoutePaths.units}/'),
+            onTap: () => _navigate(context, RoutePaths.units),
+          ),
+          _DrawerTile(
             icon: Icons.devices_rounded,
             label: 'Devices',
             selected: currentPath == RoutePaths.devices,
