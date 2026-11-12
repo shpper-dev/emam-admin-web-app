@@ -491,7 +491,7 @@ class _Message extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = failed ? AppConstants.danger : AppConstants.success;
+    final color = failed ? AppConstants.danger : AppConstants.primary;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
