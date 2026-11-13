@@ -1,3 +1,4 @@
+import 'package:emam_admin_web_app/core/widgets/app_snackbar.dart';
 import 'package:dio/dio.dart';
 import 'package:emam_admin_web_app/core/constants/app_constants.dart';
 import 'package:emam_admin_web_app/core/network/api_error.dart';
@@ -26,12 +27,7 @@ class _DevicesViewState extends ConsumerState<DevicesView> {
   bool _busy = false;
 
   void _toast(String message, {bool error = false}) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: error ? AppConstants.danger : null,
-      ),
-    );
+    showAppSnackBar(ScaffoldMessenger.of(context), message, error: error);
   }
 
   Future<bool> _confirm({
@@ -53,6 +49,7 @@ class _DevicesViewState extends ConsumerState<DevicesView> {
         ),
         actions: [
           TextButton(
+            autofocus: true,
             onPressed: () => Navigator.of(dialogContext).pop(false),
             child: const Text('Cancel'),
           ),

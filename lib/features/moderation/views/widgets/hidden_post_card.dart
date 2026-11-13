@@ -1,3 +1,4 @@
+import 'package:emam_admin_web_app/core/widgets/app_snackbar.dart';
 import 'package:emam_admin_web_app/core/constants/app_constants.dart';
 import 'package:emam_admin_web_app/core/utils/formatters.dart';
 import 'package:emam_admin_web_app/core/widgets/detail_block.dart';
@@ -126,8 +127,9 @@ class HiddenPostCard extends ConsumerWidget {
     final restored = await showRestoreDuaDialog(context, postId: post.id);
     if (restored != true || !context.mounted) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Post ${shortId(post.id)} has been restored.')),
+    showAppSnackBar(
+      ScaffoldMessenger.of(context),
+      'Post ${shortId(post.id)} has been restored.',
     );
     await ref.read(hiddenPostsPaginationProvider.notifier).refresh();
     await ref.read(reportedDuasProvider.notifier).refresh();

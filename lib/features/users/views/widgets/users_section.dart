@@ -1,4 +1,4 @@
-import 'package:emam_admin_web_app/core/constants/app_constants.dart';
+import 'package:emam_admin_web_app/core/widgets/section_empty_message.dart';
 import 'package:emam_admin_web_app/features/content/views/widgets/content_section_card.dart';
 import 'package:emam_admin_web_app/features/users/models/app_user.dart';
 import 'package:emam_admin_web_app/features/users/views/widgets/user_card.dart';
@@ -39,7 +39,10 @@ class UsersSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (users.isEmpty)
-            const _EmptyUsers()
+            const SectionEmptyMessage(
+              'No users found.',
+              hint: 'Try refreshing, or search by name or email.',
+            )
           else
             LayoutBuilder(
               builder: (context, constraints) {
@@ -73,23 +76,6 @@ class UsersSection extends StatelessWidget {
             onPageTap: onPageTap,
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _EmptyUsers extends StatelessWidget {
-  const _EmptyUsers();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 24),
-        child: Text(
-          'No users found.',
-          style: TextStyle(color: AppConstants.textMuted),
-        ),
       ),
     );
   }

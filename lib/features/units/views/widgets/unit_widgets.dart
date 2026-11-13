@@ -1,3 +1,4 @@
+import 'package:emam_admin_web_app/core/widgets/app_snackbar.dart';
 import 'dart:math' as math;
 
 import 'package:dio/dio.dart';
@@ -19,15 +20,12 @@ void showUnitToast(
   bool error = false,
   Duration duration = const Duration(seconds: 4),
 }) {
-  ScaffoldMessenger.of(context)
-    ..hideCurrentSnackBar()
-    ..showSnackBar(
-      SnackBar(
-        content: Text(message),
-        duration: duration,
-        backgroundColor: error ? AppConstants.danger : null,
-      ),
-    );
+  showAppSnackBar(
+    ScaffoldMessenger.of(context),
+    message,
+    error: error,
+    duration: duration,
+  );
 }
 
 Future<bool> confirmUnitAction(
@@ -53,6 +51,7 @@ Future<bool> confirmUnitAction(
       ),
       actions: [
         TextButton(
+          autofocus: true,
           onPressed: () => Navigator.of(dialogContext).pop(false),
           child: const Text('Cancel'),
         ),

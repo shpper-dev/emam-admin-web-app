@@ -1,4 +1,4 @@
-import 'package:emam_admin_web_app/core/constants/app_constants.dart';
+import 'package:emam_admin_web_app/core/widgets/section_empty_message.dart';
 import 'package:emam_admin_web_app/features/content/views/widgets/content_section_card.dart';
 import 'package:emam_admin_web_app/features/users/models/restricted_user.dart';
 import 'package:emam_admin_web_app/features/users/views/widgets/restricted_user_card.dart';
@@ -44,7 +44,10 @@ class RestrictedUsersSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (users.isEmpty)
-            const _EmptyRestrictedUsers()
+            const SectionEmptyMessage(
+              'No blocked users found.',
+              hint: 'Users you block appear here.',
+            )
           else
             LayoutBuilder(
               builder: (context, constraints) {
@@ -78,23 +81,6 @@ class RestrictedUsersSection extends StatelessWidget {
             onPageTap: onPageTap,
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _EmptyRestrictedUsers extends StatelessWidget {
-  const _EmptyRestrictedUsers();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 24),
-        child: Text(
-          'No blocked users found.',
-          style: TextStyle(color: AppConstants.textMuted),
-        ),
       ),
     );
   }

@@ -60,7 +60,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             RoutePaths.audit => 'Audit Log',
             RoutePaths.notifications => 'Push Notifications',
             RoutePaths.systemTools => 'System Tools',
-            _ => 'Dashboard',
+            _ => 'Users & Moderation',
           };
           return AdminShell(title: title, body: child);
         },

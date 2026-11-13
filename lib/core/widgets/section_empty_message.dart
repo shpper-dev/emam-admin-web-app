@@ -11,11 +11,15 @@ class SectionEmptyMessage extends StatelessWidget {
     super.key,
     this.style,
     this.icon = Icons.inbox_rounded,
+    this.hint,
   });
 
   final String message;
   final TextStyle? style;
   final IconData icon;
+
+  /// Optional second line telling the admin what to do or what appears here.
+  final String? hint;
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +50,14 @@ class SectionEmptyMessage extends StatelessWidget {
               textAlign: TextAlign.center,
               style: style ?? const TextStyle(color: AppConstants.textMuted),
             ),
+            if (hint != null) ...[
+              const SizedBox(height: AppConstants.space8),
+              Text(
+                hint!,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ],
           ],
         ),
       ),

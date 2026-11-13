@@ -404,7 +404,10 @@ class _AllUsersBody extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (users.isEmpty)
-          const SectionEmptyMessage('No users found.')
+          const SectionEmptyMessage(
+            'No users found.',
+            hint: 'Try refreshing, or search by name or email.',
+          )
         else
           _UserGrid(
             itemCount: users.length,
@@ -468,7 +471,10 @@ class _ReportedDuasBody extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         if (reports.isEmpty)
-          const SectionEmptyMessage('No reported duas found.')
+          const SectionEmptyMessage(
+            'No reported duas found.',
+            hint: 'Try another status filter.',
+          )
         else
           _UserGrid(
             itemCount: reports.length,
@@ -511,7 +517,10 @@ class _HiddenPostsBody extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (posts.isEmpty)
-          const SectionEmptyMessage('No hidden posts found.')
+          const SectionEmptyMessage(
+            'No hidden posts found.',
+            hint: 'Posts you hide from users appear here.',
+          )
         else
           _UserGrid(
             itemCount: posts.length,
@@ -554,7 +563,10 @@ class _BlockedUsersBody extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (users.isEmpty)
-          const SectionEmptyMessage('No blocked users found.')
+          const SectionEmptyMessage(
+            'No blocked users found.',
+            hint: 'Users you block appear here.',
+          )
         else
           _UserGrid(
             itemCount: users.length,

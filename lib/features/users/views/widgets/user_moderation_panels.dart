@@ -1,3 +1,4 @@
+import 'package:emam_admin_web_app/core/widgets/app_snackbar.dart';
 import 'package:dio/dio.dart';
 import 'package:emam_admin_web_app/core/constants/app_constants.dart';
 import 'package:emam_admin_web_app/core/network/api_error.dart';
@@ -93,13 +94,15 @@ class _UserRestrictionPanelState extends ConsumerState<UserRestrictionPanel> {
     final messenger = ScaffoldMessenger.of(context);
     try {
       await action();
-      messenger.showSnackBar(SnackBar(content: Text(successMessage)));
+      showAppSnackBar(messenger, successMessage);
       if (restrictionChanged) await _refreshAll();
     } on DioException catch (e) {
-      messenger.showSnackBar(SnackBar(content: Text(parseApiError(e))));
+      showAppSnackBar(messenger, parseApiError(e), error: true);
     } catch (_) {
-      messenger.showSnackBar(
-        const SnackBar(content: Text('Something went wrong. Try again.')),
+      showAppSnackBar(
+        messenger,
+        'Something went wrong. Try again.',
+        error: true,
       );
     } finally {
       if (mounted) setState(() => _isBusy = false);

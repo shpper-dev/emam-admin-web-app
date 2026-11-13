@@ -107,29 +107,48 @@ class DashboardView extends ConsumerWidget {
   }
 }
 
-class _DashboardHeader extends StatelessWidget {
+class _DashboardHeader extends StatefulWidget {
   const _DashboardHeader({required this.onSearch, required this.onRefresh});
 
   final VoidCallback onSearch;
   final Future<void> Function() onRefresh;
 
   @override
+  State<_DashboardHeader> createState() => _DashboardHeaderState();
+}
+
+class _DashboardHeaderState extends State<_DashboardHeader> {
+  DateTime _updatedAt = DateTime.now();
+
+  String get _updatedLabel {
+    final t = TimeOfDay.fromDateTime(_updatedAt);
+    final h = t.hour.toString().padLeft(2, '0');
+    final m = t.minute.toString().padLeft(2, '0');
+    return 'Updated $h:$m';
+  }
+
+  Future<void> _refresh() async {
+    await widget.onRefresh();
+    if (mounted) setState(() => _updatedAt = DateTime.now());
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final onSearch = widget.onSearch;
     final textTheme = Theme.of(context).textTheme;
 
     final title = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Dashboard',
+          'Users & Moderation',
           style: textTheme.headlineMedium?.copyWith(
             color: AppConstants.textPrimary,
           ),
         ),
         const SizedBox(height: 4),
         Text(
-          'Pick a card to manage users, reports and posts. '
-          'Pull down or tap refresh to update.',
+          'Pick a card to manage users, reports and posts.',
           style: textTheme.bodyMedium?.copyWith(
             color: AppConstants.textSecondary,
           ),
@@ -140,9 +159,14 @@ class _DashboardHeader extends StatelessWidget {
     final actions = Row(
       mainAxisSize: MainAxisSize.min,
       children: [
+        Text(
+          _updatedLabel,
+          style: textTheme.bodySmall?.copyWith(color: AppConstants.textMuted),
+        ),
+        const SizedBox(width: AppConstants.space8),
         IconButton(
           tooltip: 'Refresh all',
-          onPressed: onRefresh,
+          onPressed: _refresh,
           icon: const Icon(Icons.refresh_rounded),
           style: IconButton.styleFrom(
             side: BorderSide(color: AppConstants.borderColor),
@@ -153,16 +177,19 @@ class _DashboardHeader extends StatelessWidget {
           ),
         ),
         const SizedBox(width: AppConstants.space8),
-        FilledButton.icon(
-          onPressed: onSearch,
-          icon: const Icon(Icons.search_rounded, size: 20),
-          label: const Text('Find a user'),
-          style: FilledButton.styleFrom(
-            backgroundColor: AppConstants.primary,
-            foregroundColor: AppConstants.black,
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppConstants.radiusSm),
+        Tooltip(
+          message: 'Search users (Ctrl/Cmd+K)',
+          child: FilledButton.icon(
+            onPressed: onSearch,
+            icon: const Icon(Icons.search_rounded, size: 20),
+            label: const Text('Find a user'),
+            style: FilledButton.styleFrom(
+              backgroundColor: AppConstants.primary,
+              foregroundColor: AppConstants.black,
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppConstants.radiusSm),
+              ),
             ),
           ),
         ),

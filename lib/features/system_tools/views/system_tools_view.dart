@@ -132,6 +132,7 @@ class _ToolCardState extends State<_ToolCard> {
         ),
         actions: [
           TextButton(
+            autofocus: true,
             onPressed: () => Navigator.of(dialogContext).pop(false),
             child: const Text('Cancel'),
           ),

@@ -80,6 +80,7 @@ class AppTheme {
     splashColor: AppConstants.primary.withValues(alpha: 0.10),
     highlightColor: AppConstants.primary.withValues(alpha: 0.05),
     hoverColor: AppConstants.primary.withValues(alpha: 0.06),
+    focusColor: AppConstants.primary.withValues(alpha: 0.18),
     colorScheme: ColorScheme.dark(
       primary: AppConstants.primary,
       onPrimary: AppConstants.black,

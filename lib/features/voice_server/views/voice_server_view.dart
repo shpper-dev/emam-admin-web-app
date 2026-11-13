@@ -1,3 +1,4 @@
+import 'package:emam_admin_web_app/core/widgets/skeleton.dart';
 import 'package:dio/dio.dart';
 import 'package:emam_admin_web_app/core/constants/api_constants.dart';
 import 'package:emam_admin_web_app/core/constants/app_constants.dart';
@@ -53,10 +54,7 @@ class VoiceServerView extends ConsumerWidget {
               const SizedBox(height: 24),
               status.when(
                 data: (value) => _VoiceServerCard(status: value),
-                loading: () => const Padding(
-                  padding: EdgeInsets.all(AppConstants.space40),
-                  child: Center(child: CircularProgressIndicator()),
-                ),
+                loading: () => const SkeletonList(rows: 2, rowHeight: 72),
                 error: (error, _) => InlineRetryError(
                   message: error is DioException
                       ? parseApiError(error)
@@ -111,6 +109,7 @@ class _VoiceServerCardState extends ConsumerState<_VoiceServerCard> {
         ),
         actions: [
           TextButton(
+            autofocus: true,
             onPressed: () => Navigator.of(dialogContext).pop(false),
             child: const Text('Cancel'),
           ),

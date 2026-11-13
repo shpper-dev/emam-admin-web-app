@@ -1,3 +1,4 @@
+import 'package:emam_admin_web_app/core/widgets/skeleton.dart';
 import 'package:emam_admin_web_app/core/constants/app_constants.dart';
 import 'package:emam_admin_web_app/core/utils/formatters.dart';
 import 'package:emam_admin_web_app/core/widgets/inline_retry_error.dart';
@@ -1018,19 +1019,5 @@ class _DialogLoading extends StatelessWidget {
   const _DialogLoading();
 
   @override
-  Widget build(BuildContext context) {
-    return const SizedBox(
-      height: 200,
-      child: Center(
-        child: SizedBox(
-          height: 28,
-          width: 28,
-          child: CircularProgressIndicator(
-            strokeWidth: 2.4,
-            color: AppConstants.primary,
-          ),
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => const SkeletonList(rows: 4);
 }

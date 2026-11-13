@@ -201,6 +201,9 @@ class SignInCard extends StatelessWidget {
                         labelText: 'Password',
                         prefixIcon: const Icon(Icons.lock_outline_rounded),
                         suffixIcon: IconButton(
+                          tooltip: obscurePassword
+                              ? 'Show password'
+                              : 'Hide password',
                           icon: Icon(
                             obscurePassword
                                 ? Icons.visibility_off_outlined

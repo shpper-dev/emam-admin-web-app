@@ -1,3 +1,4 @@
+import 'package:emam_admin_web_app/core/widgets/skeleton.dart';
 import 'package:emam_admin_web_app/core/constants/app_constants.dart';
 import 'package:emam_admin_web_app/core/network/api_error.dart';
 import 'package:emam_admin_web_app/core/widgets/admin_alert_dialog.dart';
@@ -72,6 +73,7 @@ class _NotificationsViewState extends ConsumerState<NotificationsView> {
         ),
         actions: [
           TextButton(
+            autofocus: true,
             onPressed: () => Navigator.of(dialogContext).pop(false),
             child: const Text('Cancel'),
           ),
@@ -141,12 +143,7 @@ class _NotificationsViewState extends ConsumerState<NotificationsView> {
   ) {
     return _Card(
       child: options.when(
-        loading: () => const Center(
-          child: Padding(
-            padding: EdgeInsets.all(24),
-            child: CircularProgressIndicator(),
-          ),
-        ),
+        loading: () => const SkeletonList(rows: 2),
         error: (error, _) => InlineRetryError(
           message: error is DioException
               ? parseApiError(error)

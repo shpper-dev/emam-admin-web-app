@@ -1,3 +1,4 @@
+import 'package:emam_admin_web_app/core/widgets/skeleton.dart';
 import 'dart:async';
 
 import 'package:dio/dio.dart';
@@ -303,12 +304,7 @@ class _UserSearchDialogState extends ConsumerState<UserSearchDialog> {
 
   Widget _buildResults(ThemeData theme) {
     if (_isSearching) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(32),
-          child: CircularProgressIndicator(),
-        ),
-      );
+      return const SkeletonList(rows: 3);
     }
 
     if (!_hasSearched) {

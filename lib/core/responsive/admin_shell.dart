@@ -2,7 +2,9 @@ import 'package:emam_admin_web_app/core/responsive/desktop_scaffold.dart';
 import 'package:emam_admin_web_app/core/responsive/mobile_scaffold.dart';
 import 'package:emam_admin_web_app/core/responsive/responsive_layout.dart';
 import 'package:emam_admin_web_app/core/responsive/tablet_scaffold.dart';
+import 'package:emam_admin_web_app/features/users/views/widgets/user_search_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class AdminShell extends StatelessWidget {
   const AdminShell({super.key, required this.body, this.title = 'Admin Panel'});
@@ -12,10 +14,22 @@ class AdminShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ResponsiveLayout(
-      mobile: (_) => MobileScaffold(title: title, body: body),
-      tablet: (_) => TabletScaffold(title: title, body: body),
-      desktop: (_) => DesktopScaffold(body: body),
+    // Cmd/Ctrl+K opens user search from any page.
+    return CallbackShortcuts(
+      bindings: {
+        const SingleActivator(LogicalKeyboardKey.keyK, meta: true): () =>
+            showUserSearchDialog(context),
+        const SingleActivator(LogicalKeyboardKey.keyK, control: true): () =>
+            showUserSearchDialog(context),
+      },
+      child: Focus(
+        autofocus: true,
+        child: ResponsiveLayout(
+          mobile: (_) => MobileScaffold(title: title, body: body),
+          tablet: (_) => TabletScaffold(title: title, body: body),
+          desktop: (_) => DesktopScaffold(body: body),
+        ),
+      ),
     );
   }
 }

@@ -1,3 +1,4 @@
+import 'package:emam_admin_web_app/core/widgets/app_snackbar.dart';
 import 'package:emam_admin_web_app/features/users/provider/restricted_users_provider.dart';
 import 'package:emam_admin_web_app/features/users/provider/user_detail_cache_provider.dart';
 import 'package:emam_admin_web_app/features/users/provider/users_provider.dart';
@@ -24,5 +25,5 @@ void showRestrictionSnackBar(
   final message = blocked
       ? '$displayName has been blocked ${permanent ? 'permanently' : 'for 30 days'}.'
       : '$displayName has been unblocked.';
-  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  showAppSnackBar(ScaffoldMessenger.of(context), message);
 }

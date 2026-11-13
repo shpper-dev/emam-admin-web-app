@@ -25,6 +25,7 @@ Future<void> _confirmAndSignOut(BuildContext context, WidgetRef ref) async {
         ),
         actions: [
           TextButton(
+            autofocus: true,
             onPressed: () => Navigator.of(dialogContext).pop(false),
             child: const Text('Cancel'),
           ),
@@ -45,180 +46,206 @@ Future<void> _confirmAndSignOut(BuildContext context, WidgetRef ref) async {
 class AppDrawer extends ConsumerWidget {
   const AppDrawer({super.key});
 
-  void _navigate(BuildContext context, String path) {
+  void _closeDrawer(BuildContext context) {
     if (Scaffold.maybeOf(context)?.isDrawerOpen ?? false) {
       Navigator.of(context).pop();
     }
+  }
+
+  void _navigate(BuildContext context, String path) {
+    _closeDrawer(context);
     context.go(path);
   }
 
-  Future<void> _openFeedback(BuildContext context) async {
-    if (Scaffold.maybeOf(context)?.isDrawerOpen ?? false) {
-      Navigator.of(context).pop();
-    }
-    final uri = Uri.parse(AppConstants.feedbackUrl);
+  Future<void> _openExternal(
+    BuildContext context,
+    String url,
+    String label,
+  ) async {
+    _closeDrawer(context);
+    final messenger = ScaffoldMessenger.of(context);
+    var launched = false;
     try {
-      final launched = await launchUrl(uri, webOnlyWindowName: '_blank');
-      if (!launched && context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not open feedback link')),
-        );
-      }
-    } catch (_) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not open feedback link')),
-        );
-      }
-    }
-  }
-
-  Future<void> _openFirebaseAnalytics(BuildContext context) async {
-    if (Scaffold.maybeOf(context)?.isDrawerOpen ?? false) {
-      Navigator.of(context).pop();
-    }
-    final uri = Uri.parse(AppConstants.firebaseAnalyticsUrl);
-    try {
-      final launched = await launchUrl(uri, webOnlyWindowName: '_blank');
-      if (!launched && context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not open Firebase Analytics')),
-        );
-      }
-    } catch (_) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not open Firebase Analytics')),
-        );
-      }
+      launched = await launchUrl(Uri.parse(url), webOnlyWindowName: '_blank');
+    } catch (_) {}
+    if (!launched) {
+      messenger.showSnackBar(SnackBar(content: Text('Could not open $label')));
     }
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentPath = GoRouterState.of(context).matchedLocation;
+    final email = ref.watch(authProvider).value?.email;
+
+    bool on(String path) =>
+        currentPath == path || currentPath.startsWith('$path/');
+
+    Widget tile(IconData icon, String label, String path) => _DrawerTile(
+      icon: icon,
+      label: label,
+      selected: on(path),
+      onTap: () => _navigate(context, path),
+    );
 
     return Drawer(
       backgroundColor: AppConstants.bgColor,
       elevation: 0,
       shape: const RoundedRectangleBorder(),
-      child: ListView(
-        padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Column(
         children: [
-          GestureDetector(
-            onTap: () => _navigate(context, RoutePaths.dashboard),
-            child: MouseRegion(
-              cursor: SystemMouseCursors.click,
-              child: Container(
-                height: 164,
-                alignment: Alignment.center,
-                padding: const EdgeInsets.only(top: 20),
-                child: Image.asset(AppConstants.emamLogo),
-              ),
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              children: [
+                GestureDetector(
+                  onTap: () => _navigate(context, RoutePaths.dashboard),
+                  child: MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: Container(
+                      height: 164,
+                      alignment: Alignment.center,
+                      padding: const EdgeInsets.only(top: 20),
+                      child: Image.asset(AppConstants.emamLogo),
+                    ),
+                  ),
+                ),
+                const _DrawerDivider(),
+                const _DrawerSectionLabel('Overview'),
+                tile(
+                  Icons.dashboard_rounded,
+                  'Users & Moderation',
+                  RoutePaths.dashboard,
+                ),
+                const _DrawerSectionLabel('Content'),
+                tile(CupertinoIcons.globe, 'Contents', RoutePaths.content),
+                tile(
+                  Icons.notifications_active_rounded,
+                  'Notifications',
+                  RoutePaths.notifications,
+                ),
+                const _DrawerSectionLabel('Operations'),
+                tile(Icons.phone_android_rounded, 'Units', RoutePaths.units),
+                tile(Icons.devices_rounded, 'Devices', RoutePaths.devices),
+                tile(
+                  Icons.record_voice_over_rounded,
+                  'Voice Demo',
+                  RoutePaths.voiceDemo,
+                ),
+                const _DrawerSectionLabel('Monitoring'),
+                tile(Icons.history_rounded, 'Audit Log', RoutePaths.audit),
+                tile(
+                  Icons.build_circle_outlined,
+                  'System Tools',
+                  RoutePaths.systemTools,
+                ),
+              ],
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Divider(height: 1, color: AppConstants.dividerColor),
-          ),
-          const SizedBox(height: AppConstants.space16),
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppConstants.space24,
-            ),
-            child: Text(
-              'MENU',
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: AppConstants.textFaint,
-                letterSpacing: 1.2,
-              ),
-            ),
-          ),
-          const SizedBox(height: AppConstants.space8),
-          _DrawerTile(
-            icon: Icons.dashboard_rounded,
-            label: 'Dashboard',
-            selected: currentPath == RoutePaths.dashboard,
-            onTap: () => _navigate(context, RoutePaths.dashboard),
-          ),
-          _DrawerTile(
-            icon: CupertinoIcons.globe,
-            label: 'Contents',
-            selected: currentPath == RoutePaths.content,
-            onTap: () => _navigate(context, RoutePaths.content),
-          ),
-          _DrawerTile(
-            icon: Icons.record_voice_over_rounded,
-            label: 'Voice Demo',
-            selected: currentPath == RoutePaths.voiceDemo,
-            onTap: () => _navigate(context, RoutePaths.voiceDemo),
-          ),
-          _DrawerTile(
-            icon: Icons.phone_android_rounded,
-            label: 'Units',
-            selected:
-                currentPath == RoutePaths.units ||
-                currentPath.startsWith('${RoutePaths.units}/'),
-            onTap: () => _navigate(context, RoutePaths.units),
-          ),
-          _DrawerTile(
-            icon: Icons.devices_rounded,
-            label: 'Devices',
-            selected: currentPath == RoutePaths.devices,
-            onTap: () => _navigate(context, RoutePaths.devices),
-          ),
-          _DrawerTile(
-            icon: Icons.history_rounded,
-            label: 'Audit Log',
-            selected: currentPath == RoutePaths.audit,
-            onTap: () => _navigate(context, RoutePaths.audit),
-          ),
-          _DrawerTile(
-            icon: Icons.notifications_active_rounded,
-            label: 'Notifications',
-            selected: currentPath == RoutePaths.notifications,
-            onTap: () => _navigate(context, RoutePaths.notifications),
-          ),
-          _DrawerTile(
-            icon: Icons.build_circle_outlined,
-            label: 'System Tools',
-            selected: currentPath == RoutePaths.systemTools,
-            onTap: () => _navigate(context, RoutePaths.systemTools),
-          ),
-          const SizedBox(height: AppConstants.space16),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Divider(height: 1, color: AppConstants.dividerColor),
-          ),
+          const _DrawerDivider(),
           const SizedBox(height: AppConstants.space8),
           _DrawerTile(
             icon: Icons.feedback_rounded,
             label: 'Feedback',
             selected: false,
-            onTap: () => _openFeedback(context),
+            external: true,
+            onTap: () => _openExternal(
+              context,
+              AppConstants.feedbackUrl,
+              'feedback link',
+            ),
           ),
           _DrawerTile(
             icon: Icons.insights_rounded,
             label: 'Analytics',
             selected: false,
-            onTap: () => _openFirebaseAnalytics(context),
+            external: true,
+            onTap: () => _openExternal(
+              context,
+              AppConstants.firebaseAnalyticsUrl,
+              'Firebase Analytics',
+            ),
           ),
           _DrawerTile(
             icon: CupertinoIcons.arrow_left_square_fill,
-            label: 'Logout',
+            label: 'Log out',
             selected: false,
             danger: true,
             onTap: () async {
-              if (Scaffold.maybeOf(context)?.isDrawerOpen ?? false) {
-                Navigator.of(context).pop();
-              }
+              _closeDrawer(context);
               await _confirmAndSignOut(context, ref);
             },
           ),
+          if (email != null)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppConstants.space24,
+                4,
+                AppConstants.space24,
+                AppConstants.space16,
+              ),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.account_circle_outlined,
+                    size: 16,
+                    color: AppConstants.textMuted,
+                  ),
+                  const SizedBox(width: AppConstants.space8),
+                  Expanded(
+                    child: Tooltip(
+                      message: email,
+                      child: Text(
+                        email,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: AppConstants.textMuted,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          else
+            const SizedBox(height: AppConstants.space16),
         ],
       ),
     );
   }
+}
+
+class _DrawerDivider extends StatelessWidget {
+  const _DrawerDivider();
+
+  @override
+  Widget build(BuildContext context) => const Padding(
+    padding: EdgeInsets.symmetric(horizontal: 20),
+    child: Divider(height: 1, color: AppConstants.dividerColor),
+  );
+}
+
+class _DrawerSectionLabel extends StatelessWidget {
+  const _DrawerSectionLabel(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.fromLTRB(
+      AppConstants.space24,
+      AppConstants.space16,
+      AppConstants.space24,
+      AppConstants.space8,
+    ),
+    child: Text(
+      text.toUpperCase(),
+      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+        color: AppConstants.textFaint,
+        letterSpacing: 1.2,
+      ),
+    ),
+  );
 }
 
 class _DrawerTile extends StatelessWidget {
@@ -228,8 +255,10 @@ class _DrawerTile extends StatelessWidget {
     required this.selected,
     required this.onTap,
     this.danger = false,
+    this.external = false,
   });
 
+  final bool external;
   final IconData icon;
   final String label;
   final bool selected;
@@ -284,6 +313,14 @@ class _DrawerTile extends StatelessWidget {
                     fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
                   ),
                 ),
+                if (external) ...[
+                  const Spacer(),
+                  const Icon(
+                    Icons.open_in_new_rounded,
+                    size: 14,
+                    color: AppConstants.textFaint,
+                  ),
+                ],
               ],
             ),
           ),

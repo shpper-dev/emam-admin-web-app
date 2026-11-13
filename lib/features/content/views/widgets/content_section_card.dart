@@ -1,3 +1,4 @@
+import 'package:emam_admin_web_app/core/widgets/skeleton.dart';
 import 'package:dio/dio.dart';
 import 'package:emam_admin_web_app/core/constants/app_constants.dart';
 import 'package:emam_admin_web_app/core/network/api_error.dart';
@@ -270,26 +271,12 @@ class ContentSectionAsync<T> extends StatelessWidget {
   }
 }
 
-/// Small centered spinner shown while a section's content is loading.
+/// Skeleton rows shown while a section's content is loading.
 class SectionLoadingIndicator extends StatelessWidget {
   const SectionLoadingIndicator({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return const SizedBox(
-      height: 120,
-      child: Center(
-        child: SizedBox(
-          height: 28,
-          width: 28,
-          child: CircularProgressIndicator(
-            strokeWidth: 2.4,
-            color: AppConstants.primary,
-          ),
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => const SkeletonList();
 }
 
 /// Error row with a retry button, shown in place of a section's content
