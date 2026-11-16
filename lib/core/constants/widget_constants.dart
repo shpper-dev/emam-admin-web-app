@@ -2,7 +2,6 @@ import 'package:emam_admin_web_app/core/constants/app_constants.dart';
 import 'package:emam_admin_web_app/core/router/route_paths.dart';
 import 'package:emam_admin_web_app/core/widgets/admin_alert_dialog.dart';
 import 'package:emam_admin_web_app/features/auth/provider/auth_provider.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -120,7 +119,7 @@ class AppDrawer extends ConsumerWidget {
                   RoutePaths.dashboard,
                 ),
                 const _DrawerSectionLabel('Content'),
-                tile(CupertinoIcons.globe, 'Contents', RoutePaths.content),
+                tile(Icons.public_rounded, 'Contents', RoutePaths.content),
                 if (hasCms)
                   tile(
                     Icons.edit_note_rounded,
@@ -175,7 +174,7 @@ class AppDrawer extends ConsumerWidget {
             ),
           ),
           _DrawerTile(
-            icon: CupertinoIcons.arrow_left_square_fill,
+            icon: Icons.logout_rounded,
             label: 'Log out',
             selected: false,
             danger: true,

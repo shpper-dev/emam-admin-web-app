@@ -4,7 +4,6 @@ import 'package:emam_admin_web_app/features/content/models/islamic_news_item.dar
 import 'package:emam_admin_web_app/features/content/models/practice_card.dart';
 import 'package:emam_admin_web_app/features/content/models/scholarly_insight.dart';
 import 'package:emam_admin_web_app/features/content/provider/content_repository_provider.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -13,7 +12,7 @@ enum ContentSection {
   practiceCard('Practice Card', Icons.menu_book_rounded),
   islamicEvents('Islamic Events', Icons.event_rounded),
   islamicNews('Islamic News', Icons.newspaper_rounded),
-  scholarlyInsights('Scholarly Insights', CupertinoIcons.book_fill);
+  scholarlyInsights('Scholarly Insights', Icons.menu_book_rounded);
 
   const ContentSection(this.label, this.icon);
 

@@ -21,7 +21,7 @@ class CmsRepository {
   Future<List<CmsEntry>> listDaily(CmsModule module) async {
     final r = await _client.get<Map<String, dynamic>>(
       ApiConstants.cmsDaily(module.slug),
-      queryParameters: {'limit': 100},
+      queryParameters: {'limit': 50},
     );
     return _items(r.data).map(CmsEntry.fromJson).toList();
   }
@@ -63,7 +63,7 @@ class CmsRepository {
   Future<List<CmsArticle>> listArticles() async {
     final r = await _client.get<Map<String, dynamic>>(
       ApiConstants.cmsArticles,
-      queryParameters: {'limit': 100},
+      queryParameters: {'limit': 50},
     );
     return _items(r.data).map(CmsArticle.fromJson).toList();
   }
