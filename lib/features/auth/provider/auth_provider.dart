@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:emam_admin_web_app/core/network/api_error.dart';
 import 'package:emam_admin_web_app/core/providers/core_providers.dart';
 import 'package:emam_admin_web_app/features/audit/provider/audit_provider.dart';
+import 'package:emam_admin_web_app/features/cms/provider/cms_provider.dart';
 import 'package:emam_admin_web_app/features/content/provider/content_provider.dart';
 import 'package:emam_admin_web_app/features/moderation/provider/hidden_posts_provider.dart';
 import 'package:emam_admin_web_app/features/moderation/provider/moderation_queue_provider.dart';
@@ -79,6 +80,10 @@ class AuthNotifier extends AsyncNotifier<AuthSession?> {
   void _resetSessionData() {
     ref
       ..invalidate(auditProvider)
+      ..invalidate(dailyEntriesProvider)
+      ..invalidate(articlesProvider)
+      ..invalidate(ramadanSettingsProvider)
+      ..invalidate(staffListProvider)
       ..invalidate(dailyInspirationProvider)
       ..invalidate(practiceCardProvider)
       ..invalidate(islamicEventsProvider)

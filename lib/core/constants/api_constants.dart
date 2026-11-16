@@ -8,6 +8,17 @@ class ApiConstants {
   static String _seg(String value) => Uri.encodeComponent(value);
 
   static const String authMe = '/admin/auth/me';
+  static const String staffMe = '/admin/me';
+  static const String staff = '/admin/staff';
+  static String staffRoles(String uid) => '$staff/${_seg(uid)}/roles';
+
+  static const String cmsModules = '/admin/cms/modules';
+  static String cmsDaily(String module) => '/admin/cms/daily/${_seg(module)}';
+  static String cmsDailyEntry(String module, String id) =>
+      '${cmsDaily(module)}/${_seg(id)}';
+  static const String cmsArticles = '/admin/cms/articles';
+  static String cmsArticle(String id) => '$cmsArticles/${_seg(id)}';
+  static const String ramadanSettings = '/admin/settings/ramadan';
 
   static const String users = '/admin/users';
   static const String usersSearch = '/admin/users/search';

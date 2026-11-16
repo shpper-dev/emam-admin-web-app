@@ -3,6 +3,7 @@ import 'package:emam_admin_web_app/core/router/route_paths.dart';
 import 'package:emam_admin_web_app/features/audit/views/audit_view.dart';
 import 'package:emam_admin_web_app/features/auth/provider/auth_provider.dart';
 import 'package:emam_admin_web_app/features/auth/views/sign_in_view.dart';
+import 'package:emam_admin_web_app/features/cms/views/cms_view.dart';
 import 'package:emam_admin_web_app/features/content/views/content_view.dart';
 import 'package:emam_admin_web_app/features/dashboard/views/dashboard_view.dart';
 import 'package:emam_admin_web_app/features/devices/views/devices_view.dart';
@@ -42,6 +43,11 @@ final goRouterProvider = Provider<GoRouter>((ref) {
 
       if (!isAuthenticated && !isSignIn) return RoutePaths.signIn;
       if (isAuthenticated && isSignIn) return RoutePaths.dashboard;
+      // UI gate only; the backend enforces staff roles on every request.
+      if (location == RoutePaths.cms &&
+          !(authState.value?.staff?.hasCmsAccess ?? false)) {
+        return RoutePaths.dashboard;
+      }
       return null;
     },
     routes: [
@@ -53,6 +59,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state, child) {
           final title = switch (state.matchedLocation) {
             RoutePaths.content => 'Contents',
+            RoutePaths.cms => 'Content Manager',
             RoutePaths.voiceDemo => 'Voice Demo',
             RoutePaths.units => 'Units',
             final path when path.startsWith('${RoutePaths.units}/') => 'Units',
@@ -74,6 +81,11 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             path: RoutePaths.content,
             pageBuilder: (context, state) =>
                 const NoTransitionPage(child: ContentView()),
+          ),
+          GoRoute(
+            path: RoutePaths.cms,
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: CmsView()),
           ),
           GoRoute(
             path: RoutePaths.voiceDemo,

@@ -3,6 +3,7 @@ import 'package:emam_admin_web_app/core/constants/api_constants.dart';
 import 'package:emam_admin_web_app/core/network/dio_client.dart';
 import 'package:emam_admin_web_app/core/storage/token_storage.dart';
 import 'package:emam_admin_web_app/features/auth/models/auth_session.dart';
+import 'package:emam_admin_web_app/features/cms/models/staff_session.dart';
 
 /// Thrown when the signed-in Firebase user is not an admin.
 class NotAdminException implements Exception {
@@ -43,6 +44,7 @@ class AuthRepository implements TokenRefresher {
     session = session.copyWith(
       email: admin.email.isEmpty ? email : admin.email,
       localId: admin.id.isEmpty ? null : admin.id,
+      staff: await _fetchStaff(session.accessToken),
     );
 
     await _tokenStorage.saveTokens(
@@ -124,6 +126,22 @@ class AuthRepository implements TokenRefresher {
     }
   }
 
+  /// `GET /admin/me`: staff roles for hiding CMS UI the user can't use. Best
+  /// effort and fail-closed: any error means no roles. The backend enforces
+  /// roles on every CMS request regardless of what the UI shows.
+  Future<StaffSession?> _fetchStaff(String accessToken) async {
+    try {
+      final response = await _authDio.get<Map<String, dynamic>>(
+        '${ApiConstants.apiBaseUrl}${ApiConstants.staffMe}',
+        options: Options(headers: {'Authorization': 'Bearer $accessToken'}),
+      );
+      final data = response.data;
+      return data == null ? null : StaffSession.fromJson(data);
+    } catch (_) {
+      return null;
+    }
+  }
+
   @override
   Future<void> refreshAccessToken() async {
     final refreshToken = _tokenStorage.refreshToken;
@@ -201,6 +219,7 @@ class AuthRepository implements TokenRefresher {
       accessToken: _tokenStorage.accessToken!,
       refreshToken: _tokenStorage.refreshToken!,
       expiresInSeconds: 0,
+      staff: await _fetchStaff(_tokenStorage.accessToken!),
     );
   }
 

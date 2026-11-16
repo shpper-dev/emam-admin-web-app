@@ -76,7 +76,9 @@ class AppDrawer extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentPath = GoRouterState.of(context).matchedLocation;
-    final email = ref.watch(authProvider).value?.email;
+    final session = ref.watch(authProvider).value;
+    final email = session?.email;
+    final hasCms = session?.staff?.hasCmsAccess ?? false;
 
     bool on(String path) =>
         currentPath == path || currentPath.startsWith('$path/');
@@ -119,6 +121,12 @@ class AppDrawer extends ConsumerWidget {
                 ),
                 const _DrawerSectionLabel('Content'),
                 tile(CupertinoIcons.globe, 'Contents', RoutePaths.content),
+                if (hasCms)
+                  tile(
+                    Icons.edit_note_rounded,
+                    'Content Manager',
+                    RoutePaths.cms,
+                  ),
                 tile(
                   Icons.notifications_active_rounded,
                   'Notifications',

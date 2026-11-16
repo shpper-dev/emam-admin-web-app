@@ -1,3 +1,5 @@
+import 'package:emam_admin_web_app/features/cms/models/staff_session.dart';
+
 int _parseExpiresIn(Object? value) {
   if (value is int) return value;
   if (value is String) return int.parse(value);
@@ -11,6 +13,7 @@ class AuthSession {
     required this.accessToken,
     required this.refreshToken,
     required this.expiresInSeconds,
+    this.staff,
   });
 
   final String email;
@@ -19,13 +22,18 @@ class AuthSession {
   final String refreshToken;
   final int expiresInSeconds;
 
-  AuthSession copyWith({String? email, String? localId}) => AuthSession(
-    email: email ?? this.email,
-    localId: localId ?? this.localId,
-    accessToken: accessToken,
-    refreshToken: refreshToken,
-    expiresInSeconds: expiresInSeconds,
-  );
+  /// CMS staff roles from `GET /admin/me`; null if that call failed.
+  final StaffSession? staff;
+
+  AuthSession copyWith({String? email, String? localId, StaffSession? staff}) =>
+      AuthSession(
+        email: email ?? this.email,
+        localId: localId ?? this.localId,
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+        expiresInSeconds: expiresInSeconds,
+        staff: staff ?? this.staff,
+      );
 
   factory AuthSession.fromSignInResponse({
     required String email,

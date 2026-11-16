@@ -4,6 +4,7 @@ class RoutePaths {
   static const String signIn = '/sign-in';
   static const String dashboard = '/dashboard';
   static const String content = '/content';
+  static const String cms = '/cms';
   static const String voiceDemo = '/voice-demo';
   static const String units = '/units';
   static String unit(String installId) =>
