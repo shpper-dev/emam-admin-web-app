@@ -3,21 +3,18 @@ import 'package:emam_admin_web_app/core/constants/app_constants.dart';
 import 'package:emam_admin_web_app/core/network/api_error.dart';
 import 'package:emam_admin_web_app/core/utils/formatters.dart';
 import 'package:emam_admin_web_app/core/widgets/admin_alert_dialog.dart';
+import 'package:emam_admin_web_app/core/widgets/app_snackbar.dart';
 import 'package:emam_admin_web_app/core/widgets/detail_block.dart';
 import 'package:emam_admin_web_app/core/widgets/dialog_error_text.dart';
 import 'package:emam_admin_web_app/core/widgets/dialog_submit_button.dart';
+import 'package:emam_admin_web_app/core/widgets/filter_pill.dart';
 import 'package:emam_admin_web_app/features/content_reports/models/content_report.dart';
 import 'package:emam_admin_web_app/features/content_reports/provider/content_reports_provider.dart';
+import 'package:emam_admin_web_app/features/content_reports/views/report_display.dart';
+import 'package:emam_admin_web_app/core/widgets/status_badge.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-Color reportStatusColor(String status) => switch (status) {
-  'new' => AppConstants.warning,
-  'in_review' => AppConstants.primary,
-  'fixed' => AppConstants.success,
-  'rejected' => AppConstants.danger,
-  _ => AppConstants.textSecondary,
-};
 
 /// Resolves to true when the report was saved.
 Future<bool?> showReportDetailDialog(
@@ -126,7 +123,7 @@ class _ReportDetailDialogState extends ConsumerState<ReportDetailDialog> {
   Widget build(BuildContext context) {
     final r = widget.report;
     final theme = Theme.of(context);
-    final rtl = r.lang == 'ar' || r.lang == 'ur' || r.lang == 'fa';
+    final rtl = isRtlLang(r.lang);
     final meta = [
       '${reportTypeLabel(r.contentType)} · ${r.contentId}',
       if (r.editionId != null) 'Edition ${r.editionId}',
@@ -149,12 +146,23 @@ class _ReportDetailDialogState extends ConsumerState<ReportDetailDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              r.readableReference,
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: AppConstants.textPrimary,
-                fontWeight: FontWeight.w600,
-              ),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    r.readableReference,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      color: AppConstants.textPrimary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                StatusBadge(
+                  label: reportStatusLabel(r.status),
+                  color: reportStatusColor(r.status),
+                ),
+              ],
             ),
             const SizedBox(height: 4),
             Text(
@@ -172,6 +180,20 @@ class _ReportDetailDialogState extends ConsumerState<ReportDetailDialog> {
               ),
             ),
             const SizedBox(height: 16),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton.icon(
+                onPressed: () {
+                  Clipboard.setData(ClipboardData(text: r.contentId));
+                  showAppSnackBar(
+                    ScaffoldMessenger.of(context),
+                    'Content ID copied',
+                  );
+                },
+                icon: const Icon(Icons.copy_rounded, size: 16),
+                label: Text('Copy content ID · ${r.contentId}'),
+              ),
+            ),
             DetailBlock(
               label: 'TEXT AS SHOWN IN THE APP',
               value: r.originalText,
@@ -196,17 +218,27 @@ class _ReportDetailDialogState extends ConsumerState<ReportDetailDialog> {
               ),
             ],
             const SizedBox(height: 20),
-            DropdownButtonFormField<String>(
-              initialValue: _status,
-              decoration: _decoration('Status'),
-              dropdownColor: AppConstants.surfaceElevated,
-              items: [
-                for (final s in kReportStatuses)
-                  DropdownMenuItem(value: s, child: Text(reportStatusLabel(s))),
+            Text(
+              'STATUS',
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: AppConstants.textMuted,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final st in kReportStatuses)
+                  FilterPill(
+                    label: reportStatusLabel(st),
+                    selected: _status == st,
+                    onTap: () {
+                      if (!_saving) setState(() => _status = st);
+                    },
+                  ),
               ],
-              onChanged: _saving
-                  ? null
-                  : (v) => setState(() => _status = v ?? _status),
             ),
             if (_needsDup) ...[
               const SizedBox(height: 12),
