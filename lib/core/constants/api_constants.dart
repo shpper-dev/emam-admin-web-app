@@ -60,6 +60,9 @@ class ApiConstants {
 
   static const String auditLog = '/admin/audit';
 
+  static const String contentReports = '/admin/content-reports';
+  static String contentReport(String id) => '$contentReports/${_seg(id)}';
+
   static const String notificationOptions = '/admin/notifications/options';
   static const String notificationTranslate = '/admin/notifications/translate';
   static const String notificationSend = '/admin/notifications/send';

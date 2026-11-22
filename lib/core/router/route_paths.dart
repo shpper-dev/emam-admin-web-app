@@ -10,6 +10,7 @@ class RoutePaths {
   static String unit(String installId) =>
       '$units/${Uri.encodeComponent(installId)}';
   static const String devices = '/devices';
+  static const String contentReports = '/content-reports';
   static const String audit = '/audit';
   static const String notifications = '/notifications';
   static const String systemTools = '/system-tools';

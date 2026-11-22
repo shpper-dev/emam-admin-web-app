@@ -127,6 +127,11 @@ class AppDrawer extends ConsumerWidget {
                     RoutePaths.cms,
                   ),
                 tile(
+                  Icons.spellcheck_rounded,
+                  'Mistake Reports',
+                  RoutePaths.contentReports,
+                ),
+                tile(
                   Icons.notifications_active_rounded,
                   'Notifications',
                   RoutePaths.notifications,

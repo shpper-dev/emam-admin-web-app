@@ -5,6 +5,7 @@ import 'package:emam_admin_web_app/features/auth/provider/auth_provider.dart';
 import 'package:emam_admin_web_app/features/auth/views/sign_in_view.dart';
 import 'package:emam_admin_web_app/features/cms/views/cms_view.dart';
 import 'package:emam_admin_web_app/features/content/views/content_view.dart';
+import 'package:emam_admin_web_app/features/content_reports/views/content_reports_view.dart';
 import 'package:emam_admin_web_app/features/dashboard/views/dashboard_view.dart';
 import 'package:emam_admin_web_app/features/devices/views/devices_view.dart';
 import 'package:emam_admin_web_app/features/notifications/views/notifications_view.dart';
@@ -64,6 +65,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             RoutePaths.units => 'Units',
             final path when path.startsWith('${RoutePaths.units}/') => 'Units',
             RoutePaths.devices => 'Signed-in Devices',
+            RoutePaths.contentReports => 'Content Mistake Reports',
             RoutePaths.audit => 'Audit Log',
             RoutePaths.notifications => 'Push Notifications',
             RoutePaths.systemTools => 'System Tools',
@@ -111,6 +113,11 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             path: RoutePaths.devices,
             pageBuilder: (context, state) =>
                 const NoTransitionPage(child: DevicesView()),
+          ),
+          GoRoute(
+            path: RoutePaths.contentReports,
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: ContentReportsView()),
           ),
           GoRoute(
             path: RoutePaths.audit,
