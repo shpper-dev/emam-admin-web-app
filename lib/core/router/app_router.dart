@@ -7,6 +7,7 @@ import 'package:emam_admin_web_app/features/cms/views/cms_view.dart';
 import 'package:emam_admin_web_app/features/content/views/content_view.dart';
 import 'package:emam_admin_web_app/features/content_reports/views/content_reports_view.dart';
 import 'package:emam_admin_web_app/features/dashboard/views/dashboard_view.dart';
+import 'package:emam_admin_web_app/features/reciter_requests/views/reciter_requests_view.dart';
 import 'package:emam_admin_web_app/features/devices/views/devices_view.dart';
 import 'package:emam_admin_web_app/features/notifications/views/notifications_view.dart';
 import 'package:emam_admin_web_app/features/system_tools/views/system_tools_view.dart';
@@ -66,6 +67,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             final path when path.startsWith('${RoutePaths.units}/') => 'Units',
             RoutePaths.devices => 'Signed-in Devices',
             RoutePaths.contentReports => 'Content Mistake Reports',
+            RoutePaths.reciterRequests => 'Reciter Requests',
             RoutePaths.audit => 'Audit Log',
             RoutePaths.notifications => 'Push Notifications',
             RoutePaths.systemTools => 'System Tools',
@@ -118,6 +120,11 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             path: RoutePaths.contentReports,
             pageBuilder: (context, state) =>
                 const NoTransitionPage(child: ContentReportsView()),
+          ),
+          GoRoute(
+            path: RoutePaths.reciterRequests,
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: ReciterRequestsView()),
           ),
           GoRoute(
             path: RoutePaths.audit,

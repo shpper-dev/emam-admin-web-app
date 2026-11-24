@@ -132,6 +132,11 @@ class AppDrawer extends ConsumerWidget {
                   RoutePaths.contentReports,
                 ),
                 tile(
+                  Icons.mic_external_on_rounded,
+                  'Reciter Requests',
+                  RoutePaths.reciterRequests,
+                ),
+                tile(
                   Icons.notifications_active_rounded,
                   'Notifications',
                   RoutePaths.notifications,
